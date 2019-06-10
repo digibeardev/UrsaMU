@@ -1,0 +1,28 @@
+{
+  "name": "ursamu",
+  "version": "0.0.1",
+  "description": "A classic multiplayer game with a modern twist.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/digibeardev/ursamu.git"
+  },
+  "keywords": [
+    "MUSH",
+    "MUX",
+    "Telnet",
+    "WebSocket",
+    "Text-based",
+    "RPG",
+    "Multiplayer"
+  ],
+  "author": "The DigiBear Collective",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/digibeardev/ursamu/issues"
+  },
+  "homepage": "https://github.com/digibeardev/ursamu#readme"
+}
