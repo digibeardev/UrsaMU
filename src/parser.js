@@ -71,7 +71,8 @@ const evaluate = (expr, scope) => {
     }
 }
 
-
+// Here we're defining some of the base functions for the scripting
+// language.  Soon a lot of this will be moved to it's own location.
 specialForms.if = (args, scope) => {
     if (args.length !== 3) {
         throw new SyntaxError('If expects 3 arguments')
