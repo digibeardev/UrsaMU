@@ -1,5 +1,5 @@
 
-class functions {
+class mushCodeFuns {
 
     constructor() {
         this.functions = new Map()
@@ -13,6 +13,6 @@ class functions {
         this.functions.delete(name)
     }
 
-    
+        
 }
 

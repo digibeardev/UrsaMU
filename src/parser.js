@@ -93,5 +93,45 @@ specialForms.set = (args, scope) => {
     return value
 }
 
+specialForms.abs = (args, scope) => {
+    if (args.length > 1) {
+        throw new SyntaxError('abs expects 1 arguments')
+    }
 
-console.log(evaluate(parse('if(set(a,5),a,false)'), scope))
+    let value = Number.parseInt(evaluate(args[0], scope))
+    if (Number.isInteger(value)) {
+        return Math.abs(value).toString()
+    } else {
+        throw new SyntaxError('abs expects an interger')
+    }
+}
+
+specialForms.add = (args, scope) => {
+    if (args.length < 2) {
+        throw new SyntaxError('add expects at least 2 arguments')
+    }
+
+    let total = 0;
+    args.forEach( arg => {
+        let value = Number.parseInt(evaluate(arg, scope))
+        if (Number.isInteger(value)) {
+            total += value;
+        }
+    })
+
+    return total.toString()
+}
+
+specialForms.sub = (args, scope) => {
+    if (args.length !== 2) {
+        throw new SyntaxError('sub expects 2 arguments')
+    }
+
+    let num = Number.parseInt(evaluate(args[0], scope))
+    let num2 = Number.parseInt(evaluate(args[1], scope))
+
+    return (num - num2).toString()
+}
+
+
+console.log(evaluate(parse('sub(5,3)'), scope))
