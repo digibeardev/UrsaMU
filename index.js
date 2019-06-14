@@ -1,6 +1,4 @@
-const parser = require('./src/mushcode-parser')
+const UrsaMu = require('./src/ursamu')
+const app = new UrsaMu({plugins:'../plugins/mush-core/'})
 
-
-
-const scope = {}
-console.log(parser.run(`center(This is the fuckin' best!,78,=)`, scope))
+app.parser.exe('help', app.parser.scope)

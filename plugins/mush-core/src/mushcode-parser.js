@@ -7,7 +7,8 @@ class Parser {
     constructor() {
         this.funs = new Map()
         this.cmds = new Map()
-        require('./mushcode-functions')(this)
+        this.sub = new Map()
+        this.scope = {}
     }
 
     // Break an expresison down into it's individual types.  Right now
@@ -80,8 +81,40 @@ class Parser {
         }
     }
 
+    // Make input substitutions.
+    subs(string) {
+        this.sub.forEach((v,k) => {
+            string = string.replace(k,v)
+        })
+
+        return string
+    }
+
+    // For some text functions, we need to strip the substitution variables
+    // from the text before we take into account things like character width.
+    stripSubs(string) {
+        // Remove color codes
+        return string
+            .replace(/%[cCxX]./g, '')
+            .replace(/%./g,'')
+    }
+
+    stripAnsi(string) {
+        return require('strip-ansi')(string)
+    }
+
     run(string, scope) {
-        return this.evaluate(this.parse(string),scope)
+        return this.subs(this.evaluate(this.parse(string),scope))
+    }
+
+    // evaluate an input string for commands
+    exe(string, scope) {
+        for (let command of this.cmds.values()) {
+            const match = command.pattern.exec(string)
+            if(match) {
+                return command.run(match, scope)
+            }
+        }
     }
 }
 
