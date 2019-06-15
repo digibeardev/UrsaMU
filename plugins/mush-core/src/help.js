@@ -15,17 +15,26 @@ module.exports = class HelpSystem {
     init() {
         this.cmds.forEach( cmd => {
             if (!(cmd in this.entries.cmds)) {
-                this.entries.cmds.push({name: cmd.name})
+                this.entries.push({
+                    name: cmd.name,
+                    type:command
+                })
             }
         })
 
         this.funs.forEach( fun => {
-            if (!(fun in this.entries.funs)) {
-                this.entries.funs.push({name: fun})
+            if (!(fun in this.entries)) {
+                this.entries.funs.push({
+                    name: fun})
             }
         })
     }
 
+    getEntry(topic) {
+        _.find(this.entries, entry => {
+            
+        })
+    }
 
 
 
