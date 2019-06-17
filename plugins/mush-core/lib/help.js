@@ -1,53 +1,30 @@
 const fs = require("fs");
 const path = require("path");
 
-module.exports = class HelpSystem {
-  constructor(options = {}) {
-    const { app } = options;
-    this.cmds = app.parser.cmds || new Map();
-    this.funs = app.parser.funs || new Map();
-
-    this.init();
-  }
-
-  // Initiate the help system.  Check for new commands and
-  // and functions then add them to the list.
-  init() {
-    const today = new Date();
+class HelpSystem {
+  constructor() {
     this.entries = require("../data/helpfile.json");
-
-    Array.from(this.funs.keys()).forEach(key => {
-      // Make sure there isn't already an entry for the function in
-      // flat file.
-      if (!(key in this.entries)) {
-        this.entries[key] = {
-          type: "function",
-          created: today,
-          modified: today
-        };
-      }
-    });
-    Array.from(this.cmds.keys()).forEach(key => {
-      // Make sure there isn't already an entry for the function in
-      // flat file.
-      if (!(key in this.entries)) {
-        this.entries[key] = {
-          type: "command",
-          created: today,
-          modified: today
-        };
-      }
-    });
-    return this.entries;
   }
 
-  // Edit a job entry.
-  edit(options = {}) {
-    const { name, entry, usage } = options;
-    if (name in this.entries) {
-      this.entries[name].entry = entry;
-      this.entries[name].usage = usage ? usage : "";
-    }
+  add(options) {
+    const today = new Date();
+    const { name, type, category, entry } = options;
+
+    this.entries[name] = {
+      type,
+      category,
+      entry,
+      created: today,
+      modified: today
+    };
+  }
+
+  get(name) {
+    return this.entries[name];
+  }
+
+  remove(name) {
+    delete this.entries[name];
   }
 
   save() {
@@ -56,4 +33,6 @@ module.exports = class HelpSystem {
       JSON.stringify(this.entries, {}, 2)
     );
   }
-};
+}
+
+module.exports = new HelpSystem();

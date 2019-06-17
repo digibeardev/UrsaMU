@@ -1,4 +1,4 @@
 const UrsaMu = require("./src/ursamu");
 const app = new UrsaMu({ plugins: "../plugins/mush-core/" });
-
-// app.parser.exe("help", app.parser.scope);
+console.log(app.parser.help.get("ljust").entry.trim());
+app.parser.help.save();

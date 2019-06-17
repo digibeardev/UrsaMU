@@ -28,7 +28,7 @@ module.exports = class UrsaMu extends EventEmitter {
         require(plugins)(this);
       } catch (error) {
         console.error(`ERROR: Could not import plugin: ${plugins}`);
-        console.error(`ERROR: ${error.message}`);
+        console.error(`ERROR: ${error}`);
       }
 
       // Else it's not a format the plugin system can read.

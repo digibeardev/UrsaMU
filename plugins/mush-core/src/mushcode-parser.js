@@ -7,6 +7,7 @@ class Parser {
     this.cmds = new Map();
     this.sub = new Map();
     this.scope = {};
+    this.help = require("../lib/help");
   }
 
   // Break an expresison down into it's individual types.  Right now

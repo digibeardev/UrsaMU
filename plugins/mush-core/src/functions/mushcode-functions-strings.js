@@ -1,20 +1,22 @@
 const stripAnsi = require("strip-ansi");
+
 module.exports = parser => {
-  parser.help.edit({
+  parser.help.add({
     name: "if",
+    type: "function",
     category: "strings",
     entry: `
-  IF()
-  IFELSE()
-  
-    FUNCTION:     if(<expression>,<true string>[,<false string>])
+IF()
+IFELSE()
+
+  FUNCTION:     if(<expression>,<true string>[,<false string>])
               ifelse(<expression>,<true string>,<false string>)
-  
-    This function returns <true string> if BOOLEAN <expression> is TRUE,
-    <false string> otherwise. Much more efficient than an equivalent switch().
-    It can also return different messages based on whether <expression> is
-    nothing or contains text.  if() does the same thing, but the third,
-    <false string> argument is optional.
+
+  This function returns <true string> if BOOLEAN <expression> is TRUE,
+  <false string> otherwise. Much more efficient than an equivalent switch().
+  It can also return different messages based on whether <expression> is
+  nothing or contains text.  if() does the same thing, but the third,
+  <false string> argument is optional.
   `
   });
 
@@ -27,6 +29,25 @@ module.exports = parser => {
     } else {
       return args[2] ? parser.evaluate(args[2], scope) : "";
     }
+  });
+
+  parser.help.add({
+    name: "ifelse",
+    type: "function",
+    category: "strings",
+    entry: `
+IF()
+IFELSE()
+
+  FUNCTION:     if(<expression>,<true string>[,<false string>])
+              ifelse(<expression>,<true string>,<false string>)
+
+  This function returns <true string> if BOOLEAN <expression> is TRUE,
+  <false string> otherwise. Much more efficient than an equivalent switch().
+  It can also return different messages based on whether <expression> is
+  nothing or contains text.  if() does the same thing, but the third,
+  <false string> argument is optional.
+  `
   });
 
   // Ifelse statement logic.
@@ -76,6 +97,42 @@ module.exports = parser => {
     );
   };
 
+  parser.help.add({
+    name: "center",
+    type: "function",
+    category: "strings",
+    entry: `
+CENTER()
+
+  FUNCTION: center(<string>, <width>[, <fill>])
+
+  This function centers <string> within a <width>-sized field.
+
+  The background of this field is specified by a repeating pattern of <fill>
+  characters. The origin of this repeating pattern is at the first position
+  of the field. Another way of saying this is that the repeating pattern
+  starts in first position and repeats to the right. The last <fill> pattern
+  may be truncated.
+
+  By default, <fill> is a single, normal-colored space. The color of
+  <string> and <fill> is maintained.
+
+  If the visual width of <string> is longer than <width> characters, it is
+  truncated to fit.
+
+  Example:
+    > say center(a,5,-)
+    You say, "--a--"
+    > say center(*BAMF*,15)
+    You say, "    *BAMF*     "
+    > say center(%xh%xrR%xgG%xbB,31,%xy--%xm+)
+    --+--+--+--+--RGB+--+--+--+--+-
+
+  Related Topics: cpad(), ljust(), lpad(), rjust(), rpad().
+
+  `
+  });
+
   // Center text.
   parser.funs.set("center", (args, scope) => {
     if (args.length < 2) {
@@ -106,6 +163,44 @@ module.exports = parser => {
     }
   });
 
+  parser.help.add({
+    name: "ljust",
+    type: "function",
+    category: "strings",
+    entry: `
+LJUST()
+
+  FUNCTION: ljust(<string>, <width>[, <fill>])
+
+  This function left-justifies <string> within a <width>-sized field. That
+  is, it positions <string> visually in the left-most part of a
+  <width>-sized field.
+
+  The background of this field is specified by a repeating pattern of <fill>
+  characters. The origin of this repeating pattern is at the first position
+  of the field. Another way of saying this is that the repeating pattern
+  starts in first position and repeats to the right. The last <fill> pattern
+  may be truncated.
+
+  By default, <fill> is a single, normal-colored space. The color of
+  <string> and <fill> is maintained.
+
+  If the visual width of <string> is longer than <width> characters, it is
+  truncated to fit.
+
+  Examples:
+    > say -[ljust(foo,6)]-
+    You say, "-foo   -"
+    > say %r0[ljust(foo,6)]7%r01234567
+    You say, "
+    0foo   7
+    01234567"
+    > say =[ljust(bar,5,.)]=
+    You say, "=bar..="
+    > say ljust(%xh%xrR%xgG%xbB,31,%xy--%xm+)
+    RGB--+--+--+--+--+--+--+--+--+-`
+  });
+
   // left justification
   parser.funs.set("ljust", (args, scope) => {
     const message = parser.evaluate(args[0], scope);
@@ -127,6 +222,46 @@ module.exports = parser => {
     }
   });
 
+  parser.help.add({
+    name: "rjust",
+    type: "function",
+    category: "strings",
+    entry: `
+RJUST()
+
+FUNCTION: rjust(<string>, <width>[, <fill>])
+
+This function right-justifies <string> within a <width>-sized field. That
+is, it positions <string> visually in the right-most part of a
+<width>-sized field.
+
+The background of this field is specified by a repeating pattern of <fill>
+characters. The origin of this repeating pattern is at the first position
+of the field. Another way of saying this is that the repeating pattern
+starts in first position and repeats to the right. The last <fill> pattern
+may be truncated.
+
+By default, <fill> is a single, normal-colored space. The color of
+<string> and <fill> is maintained.
+
+If the visual width of <string> is longer than <width> characters, it is
+truncated to fit.
+
+Examples:
+  > say -[rjust(foo,6)]-
+  You say, "-   foo-"
+  > say %r0[rjust(foo,6)]7%r01234567
+  You say, "
+  0   foo7
+  01234567"
+  > say =[rjust(bar,5,.)]=
+  You say, "=..bar="
+  > say rjust(%xh%xrR%xgG%xbB,31,%xy--%xm+)
+  --+--+--+--+--+--+--+--+--+-RGB
+
+Related Topics: center(), cpad(), ljust(), lpad(), rpad().`
+  });
+
   // left justification
   parser.funs.set("rjust", (args, scope) => {
     const message = parser.evaluate(args[0], scope);
@@ -146,6 +281,25 @@ module.exports = parser => {
       const length = width - parser.stripAnsi(parser.subs(message)).length;
       return repeatString(filler, length) + message;
     }
+  });
+
+  parser.help.add({
+    name: "repeat",
+    type: "function",
+    category: "strings",
+    entry: `
+REPEAT()
+
+FUNCTION: repeat(<string>,<number>)
+
+This function simply repeats <string>, <number> times.  No spaces are
+inserted between each repetition.
+
+Example:
+  > say repeat(Test, 5)
+  You say, "TestTestTestTestTest"
+  
+`
   });
 
   // repeat()
