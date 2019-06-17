@@ -1,1 +1,59 @@
-{}
+{
+  "if": {
+    "type": "function",
+    "created": "2019-06-16T19:53:04.737Z",
+    "modified": "2019-06-16T19:53:04.737Z",
+    "entry": "This is a helpfile edit",
+    "usage": "if(condition,true,false)"
+  },
+  "ifelse": {
+    "type": "function",
+    "created": "2019-06-16T19:53:04.737Z",
+    "modified": "2019-06-16T19:53:04.737Z"
+  },
+  "center": {
+    "type": "function",
+    "created": "2019-06-16T19:53:04.737Z",
+    "modified": "2019-06-16T19:53:04.737Z"
+  },
+  "ljust": {
+    "type": "function",
+    "created": "2019-06-16T19:53:04.737Z",
+    "modified": "2019-06-16T19:53:04.737Z"
+  },
+  "rjust": {
+    "type": "function",
+    "created": "2019-06-16T19:53:04.737Z",
+    "modified": "2019-06-16T19:53:04.737Z"
+  },
+  "repeat": {
+    "type": "function",
+    "created": "2019-06-16T19:53:04.737Z",
+    "modified": "2019-06-16T19:53:04.737Z"
+  },
+  "add": {
+    "type": "function",
+    "created": "2019-06-16T19:53:04.737Z",
+    "modified": "2019-06-16T19:53:04.737Z"
+  },
+  "sub": {
+    "type": "function",
+    "created": "2019-06-16T19:53:04.737Z",
+    "modified": "2019-06-16T19:53:04.737Z"
+  },
+  "abs": {
+    "type": "function",
+    "created": "2019-06-16T19:53:04.737Z",
+    "modified": "2019-06-16T19:53:04.737Z"
+  },
+  "set": {
+    "type": "function",
+    "created": "2019-06-16T19:53:04.737Z",
+    "modified": "2019-06-16T19:53:04.737Z"
+  },
+  "help": {
+    "type": "command",
+    "created": "2019-06-16T19:53:04.737Z",
+    "modified": "2019-06-16T19:53:04.737Z"
+  }
+}

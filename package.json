@@ -26,8 +26,7 @@
   },
   "homepage": "https://github.com/digibeardev/ursamu#readme",
   "dependencies": {
-    "lodash": "^4.17.11",
-    "require-dir": "^1.2.0",
+    "clear-module": "^3.2.0",
     "strip-ansi": "^5.2.0"
   }
 }
