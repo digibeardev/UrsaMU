@@ -4,7 +4,8 @@
   "description": "A classic multiplayer game with a modern twist.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
@@ -27,8 +28,8 @@
   "homepage": "https://github.com/digibeardev/ursamu#readme",
   "dependencies": {
     "clear-module": "^3.2.0",
-    "nedb": "^1.8.0",
     "shortid": "^2.2.14",
-    "strip-ansi": "^5.2.0"
+    "strip-ansi": "^5.2.0",
+    "telnet-stream": "^1.0.4"
   }
 }

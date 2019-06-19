@@ -1,0 +1,18 @@
+[
+  [
+    "AXR9eGrcz",
+    {
+      "id": "AXR9eGrcz",
+      "name": "FooBaz",
+      "type": "thing",
+      "created": "2019-06-19T16:26:22.307Z",
+      "modified": "2019-06-19T16:34:30.288Z",
+      "_attributes": {},
+      "attributes": {
+        "foo": "Bar",
+        "baz": "bork"
+      },
+      "flags": []
+    }
+  ]
+]
