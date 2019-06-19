@@ -204,7 +204,7 @@ LJUST()
   // left justification
   parser.funs.set("ljust", (args, scope) => {
     const message = parser.evaluate(args[0], scope);
-    const filler = parser.evaluate(args[2], scope)
+    const filler = parser.evaluate(args[2] ? args[2] : [], scope)
       ? parser.evaluate(args[2], scope)
       : " ";
     const width = parseInt(parser.evaluate(args[1], scope));

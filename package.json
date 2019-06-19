@@ -27,6 +27,8 @@
   "homepage": "https://github.com/digibeardev/ursamu#readme",
   "dependencies": {
     "clear-module": "^3.2.0",
+    "nedb": "^1.8.0",
+    "shortid": "^2.2.14",
     "strip-ansi": "^5.2.0"
   }
 }

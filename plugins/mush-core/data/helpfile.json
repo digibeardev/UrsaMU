@@ -3,43 +3,43 @@
     "type": "function",
     "category": "strings",
     "entry": "\nIF()\nIFELSE()\n\n  FUNCTION:     if(<expression>,<true string>[,<false string>])\n              ifelse(<expression>,<true string>,<false string>)\n\n  This function returns <true string> if BOOLEAN <expression> is TRUE,\n  <false string> otherwise. Much more efficient than an equivalent switch().\n  It can also return different messages based on whether <expression> is\n  nothing or contains text.  if() does the same thing, but the third,\n  <false string> argument is optional.\n  ",
-    "created": "2019-06-17T09:46:22.130Z",
-    "modified": "2019-06-17T09:46:22.130Z"
+    "created": "2019-06-17T13:34:51.261Z",
+    "modified": "2019-06-17T13:34:51.261Z"
   },
   "ifelse": {
     "type": "function",
     "category": "strings",
     "entry": "\nIF()\nIFELSE()\n\n  FUNCTION:     if(<expression>,<true string>[,<false string>])\n              ifelse(<expression>,<true string>,<false string>)\n\n  This function returns <true string> if BOOLEAN <expression> is TRUE,\n  <false string> otherwise. Much more efficient than an equivalent switch().\n  It can also return different messages based on whether <expression> is\n  nothing or contains text.  if() does the same thing, but the third,\n  <false string> argument is optional.\n  ",
-    "created": "2019-06-17T09:46:22.130Z",
-    "modified": "2019-06-17T09:46:22.130Z"
+    "created": "2019-06-17T13:34:51.261Z",
+    "modified": "2019-06-17T13:34:51.261Z"
   },
   "center": {
     "type": "function",
     "category": "strings",
     "entry": "\nCENTER()\n\n  FUNCTION: center(<string>, <width>[, <fill>])\n\n  This function centers <string> within a <width>-sized field.\n\n  The background of this field is specified by a repeating pattern of <fill>\n  characters. The origin of this repeating pattern is at the first position\n  of the field. Another way of saying this is that the repeating pattern\n  starts in first position and repeats to the right. The last <fill> pattern\n  may be truncated.\n\n  By default, <fill> is a single, normal-colored space. The color of\n  <string> and <fill> is maintained.\n\n  If the visual width of <string> is longer than <width> characters, it is\n  truncated to fit.\n\n  Example:\n    > say center(a,5,-)\n    You say, \"--a--\"\n    > say center(*BAMF*,15)\n    You say, \"    *BAMF*     \"\n    > say center(%xh%xrR%xgG%xbB,31,%xy--%xm+)\n    --+--+--+--+--RGB+--+--+--+--+-\n\n  Related Topics: cpad(), ljust(), lpad(), rjust(), rpad().\n\n  ",
-    "created": "2019-06-17T09:46:22.130Z",
-    "modified": "2019-06-17T09:46:22.130Z"
+    "created": "2019-06-17T13:34:51.261Z",
+    "modified": "2019-06-17T13:34:51.261Z"
   },
   "ljust": {
     "type": "function",
     "category": "strings",
     "entry": "\nLJUST()\n\n  FUNCTION: ljust(<string>, <width>[, <fill>])\n\n  This function left-justifies <string> within a <width>-sized field. That\n  is, it positions <string> visually in the left-most part of a\n  <width>-sized field.\n\n  The background of this field is specified by a repeating pattern of <fill>\n  characters. The origin of this repeating pattern is at the first position\n  of the field. Another way of saying this is that the repeating pattern\n  starts in first position and repeats to the right. The last <fill> pattern\n  may be truncated.\n\n  By default, <fill> is a single, normal-colored space. The color of\n  <string> and <fill> is maintained.\n\n  If the visual width of <string> is longer than <width> characters, it is\n  truncated to fit.\n\n  Examples:\n    > say -[ljust(foo,6)]-\n    You say, \"-foo   -\"\n    > say %r0[ljust(foo,6)]7%r01234567\n    You say, \"\n    0foo   7\n    01234567\"\n    > say =[ljust(bar,5,.)]=\n    You say, \"=bar..=\"\n    > say ljust(%xh%xrR%xgG%xbB,31,%xy--%xm+)\n    RGB--+--+--+--+--+--+--+--+--+-",
-    "created": "2019-06-17T09:46:22.130Z",
-    "modified": "2019-06-17T09:46:22.130Z"
+    "created": "2019-06-17T13:34:51.261Z",
+    "modified": "2019-06-17T13:34:51.261Z"
   },
   "rjust": {
     "type": "function",
     "category": "strings",
     "entry": "\nRJUST()\n\nFUNCTION: rjust(<string>, <width>[, <fill>])\n\nThis function right-justifies <string> within a <width>-sized field. That\nis, it positions <string> visually in the right-most part of a\n<width>-sized field.\n\nThe background of this field is specified by a repeating pattern of <fill>\ncharacters. The origin of this repeating pattern is at the first position\nof the field. Another way of saying this is that the repeating pattern\nstarts in first position and repeats to the right. The last <fill> pattern\nmay be truncated.\n\nBy default, <fill> is a single, normal-colored space. The color of\n<string> and <fill> is maintained.\n\nIf the visual width of <string> is longer than <width> characters, it is\ntruncated to fit.\n\nExamples:\n  > say -[rjust(foo,6)]-\n  You say, \"-   foo-\"\n  > say %r0[rjust(foo,6)]7%r01234567\n  You say, \"\n  0   foo7\n  01234567\"\n  > say =[rjust(bar,5,.)]=\n  You say, \"=..bar=\"\n  > say rjust(%xh%xrR%xgG%xbB,31,%xy--%xm+)\n  --+--+--+--+--+--+--+--+--+-RGB\n\nRelated Topics: center(), cpad(), ljust(), lpad(), rpad().",
-    "created": "2019-06-17T09:46:22.130Z",
-    "modified": "2019-06-17T09:46:22.130Z"
+    "created": "2019-06-17T13:34:51.261Z",
+    "modified": "2019-06-17T13:34:51.261Z"
   },
   "repeat": {
     "type": "function",
     "category": "strings",
     "entry": "\nREPEAT()\n\nFUNCTION: repeat(<string>,<number>)\n\nThis function simply repeats <string>, <number> times.  No spaces are\ninserted between each repetition.\n\nExample:\n  > say repeat(Test, 5)\n  You say, \"TestTestTestTestTest\"\n  \n",
-    "created": "2019-06-17T09:46:22.130Z",
-    "modified": "2019-06-17T09:46:22.130Z"
+    "created": "2019-06-17T13:34:51.261Z",
+    "modified": "2019-06-17T13:34:51.261Z"
   },
   "add": {
     "type": "function",

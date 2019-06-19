@@ -1,6 +1,12 @@
 module.exports = app => {
-  app.parser = require("./src/mushcode-parser");
+  // Set the command parsing library
+  app.parser = require("./lib/mushcode-parser");
+  app.db = require("./lib/database");
+
+  // load in-game functions
   require("./src/functions/")(app.parser);
   require("./src/mushcode-subs")(app.parser);
-  require("./src/commands/mushcode-cmd-help")(app.parser);
+
+  // Load in-game commands
+  require("./src/commands/")(app.parser);
 };
