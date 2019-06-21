@@ -1,9 +1,12 @@
 const { EventEmitter } = require("events");
+const broadcast = require("./broadcast");
 
 module.exports = class UrsaMu extends EventEmitter {
   constructor(options = {}) {
     super(options);
     const { plugins } = options;
+    this.b = broadcast;
+
     // Check for plugins
     if (plugins) this.plugin(plugins);
   }
@@ -33,6 +36,14 @@ module.exports = class UrsaMu extends EventEmitter {
       // Else it's not a format the plugin system can read.
     } else {
       console.error(`ERROR: Unable to read plugin: ${plugins}.`);
+    }
+  }
+
+  // Link different types of servers to the system!
+  serve(middleware, options = {}) {
+    // The middleware is a function, run it.
+    if (typeof middleware === "function") {
+      return middleware(options);
     }
   }
 };

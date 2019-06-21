@@ -1,15 +1,17 @@
-// Using shortIDs in place of numbers.  I don't have to
-// keep reducing for unused dbnums,
 const shortid = require("shortid");
 const fs = require("fs");
 const { EventEmitter } = require("events");
 const { mapToJson, jsonToMap } = require("../../../src/utilities");
 
+/**
+ * New Database()
+ */
 class Database extends EventEmitter {
   constructor() {
     super();
 
-    // Either read from the json db, or create a new Map.
+    // Either read from the json db, or create a new Map for the
+    // in-memory database.
     this.db =
       fs.readFileSync(require("path").resolve(__dirname, "../data/mush.json"), {
         encoding: "utf-8"
@@ -21,7 +23,12 @@ class Database extends EventEmitter {
     }
   }
 
-  // pull a database record by ID
+  /**
+   * Retrieve a database object
+   * @param {string} id The ID of the object we want to pull
+   * from the database
+   * @return {DBO} The database object for the ID given.
+   */
   id(id) {
     return this.db.get(id);
   }
@@ -83,5 +90,18 @@ class Database extends EventEmitter {
     );
   }
 }
+
+/**
+ * Database Object
+ * @typedef {Object} DBO
+ * @property {string} ID - The ID string of the object
+ * @property {string} name - The name of the object
+ * @property {Date} created - The date the object was created
+ * @property {Date} modified - The date the object was last modified
+ * @property {Object} _attributes - Private attributes unseeable to
+ * most player types.
+ * @property {object} attributes - Where public in-game attributes are kept.
+ * @property {array} flags - The list of flags the object currently has set.
+ */
 
 module.exports = new Database();

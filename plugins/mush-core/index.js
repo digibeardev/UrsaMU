@@ -1,12 +1,13 @@
 module.exports = app => {
-  // Set the command parsing library
-  app.parser = require("./lib/mushcode-parser");
-  app.db = require("./lib/database");
+  // Modify the base server object with our MUSH
+  // specific arguments.
+  app.parser = require("./lib/mushcode-parser"); // Load the command parser
 
-  // load in-game functions
-  require("./src/functions/")(app.parser);
-  require("./src/mushcode-subs")(app.parser);
+  // Load Parser modules.
+  require("./lib/functions/")(app.parser); // Load parser functions.
+  require("./lib/mushcode-subs")(app.parser); // Load the substitution '%' module.
+  require("./lib/commands/")(app.parser); // In-game commands.
 
-  // Load in-game commands
-  require("./src/commands/")(app.parser);
+  app.db = require("./lib/database"); // Database code.
+  app.flags = require("./lib/flags"); // Load the flags system.
 };

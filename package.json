@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "nodemon index.js"
   },
   "repository": {
     "type": "git",
@@ -28,6 +28,8 @@
   "homepage": "https://github.com/digibeardev/ursamu#readme",
   "dependencies": {
     "clear-module": "^3.2.0",
+    "dotenv": "^8.0.0",
+    "node-fetch": "^2.6.0",
     "shortid": "^2.2.14",
     "strip-ansi": "^5.2.0",
     "telnet-stream": "^1.0.4"
