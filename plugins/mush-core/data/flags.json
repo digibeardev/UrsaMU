@@ -1,0 +1,23 @@
+[
+  [
+    "wizard",
+    {
+      "name": "wizard",
+      "restricted": "god"
+    }
+  ],
+  [
+    "staff",
+    {
+      "name": "staff",
+      "restricted": "wizard"
+    }
+  ],
+  [
+    "royalty",
+    {
+      "name": "royalty",
+      "restricted": "wizard"
+    }
+  ]
+]

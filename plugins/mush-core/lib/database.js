@@ -27,23 +27,57 @@ class Database extends EventEmitter {
    * Retrieve a database object
    * @param {string} id The ID of the object we want to pull
    * from the database
-   * @return {DBO} The database object for the ID given.
+   * @return {DBO} The database object {@link DBO} for the ID given.
    */
   id(id) {
     return this.db.get(id);
   }
 
-  // Pull a database record based off of the
-  // record name.
-  name(name) {
-    for (const [k, v] of this.db) {
-      if (name === v.name) {
-        return this.db.get(k);
-      }
+  /**
+   * Retrieve a database reference by name.  If given one name it
+   * returns a single object reference.  When given a string list of names,
+   * or would return a list, it returns an array of database objects.
+   * @param {string} name The name of the object(s) to pull from the database.
+   *
+   */
+  // Look up how to return multiple types in JSDoc notation.  Merg.
+  name(names) {
+    // An array to hold all of the dbobjects that pass the filtering tests.
+    let passed = [];
+    // Split the list of names out into an array and filter for
+    // names that actually coencide with a database reference.
+    names = names.split(" ").filter(name => {
+      // For each one of the entries, loop through the database
+      // and look for all of the references of 'name'.
+
+      // Cycle through the DB and search for references.
+      this.db.forEach(dbobj => {
+        if (dbobj.name.toLowerCase() === name.toLowerCase()) {
+          passed.push(dbobj);
+        }
+      });
+
+      // if there's more than one entry in passed, give the whole
+      // array.  Else just the first entry.
+      return passed.length > 1 ? passed : passed[0];
+    });
+    // If there's more than one dbobj in name, return an array,
+    // else just return the object.
+    if (names.length > 1) {
+      return passed;
+    } else {
+      return passed[0];
     }
   }
 
-  // Update the in-memory version of the database.
+  /**
+   * Add or update a database entry. To make changes to an entry
+   * You just have to save it with new or different values for the
+   * different fields.  It will only update the properties that
+   * have changed since last save.
+   * @param {DBO} record - The database record you want to update
+   * @return {DBO}
+   */
   update(record) {
     const today = new Date();
 
@@ -54,6 +88,7 @@ class Database extends EventEmitter {
       name,
       type = "thing",
       modified = today,
+      created = today,
       _attributes = {},
       attributes = {},
       flags = []
@@ -65,7 +100,7 @@ class Database extends EventEmitter {
         id,
         name,
         type,
-        created: today,
+        created,
         modified,
         _attributes,
         attributes,
@@ -82,7 +117,9 @@ class Database extends EventEmitter {
     return this.db.get(id);
   }
 
-  // Save the in-memory database to file.
+  /**
+   * Save the in-memory database to a JSON file.
+   */
   save() {
     fs.writeFileSync(
       require("path").resolve(__dirname, "../data/mush.json"),

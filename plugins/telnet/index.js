@@ -12,10 +12,12 @@ module.exports = app => {
     );
 
     tSocket.write(connect + "\r\n");
+    // Send an emit about the connection, so we can add the socket to
+    // our list of connections.
+    app.emit("connected", tSocket);
 
     tSocket.on("data", buffer => {
-      console.log(buffer.toString());
-      // app.parser.exe(buffer.toString());
+      app.parser.exe(buffer.toString());
     });
   });
 

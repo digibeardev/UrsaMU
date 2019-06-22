@@ -1,4 +1,4 @@
-const db = require("./database");
+const fs = require("fs");
 const { mapToJson, jsonToMap } = require("../../../src/utilities");
 
 /**
@@ -15,7 +15,7 @@ class Flags {
      * but if it comes up empty create a new Map object.
      */
     this.flags =
-      require("fs").readFileSync(
+      fs.readFileSync(
         require("path").resolve(__dirname, "../data/flags.json"),
         {
           encoding: "utf-8"
@@ -25,26 +25,53 @@ class Flags {
     // If the flag param is a string, then it should be in JSON
     // form, parse the json and convert it to a Map object.
     if (typeof this.flags === "string") {
-      console.log(this.flags.length);
       this.flags = jsonToMap(this.flags);
     }
   }
 
   /**
+   * Add a new flag to the sytem
+   * @param {string} name
+   * @param {FlagOptions} options Any additional options we want
+   * set with the flag.
+   */
+  add(name, options) {
+    // Filter through the list of flag options for the
+    // ones we're interested in.
+    const { restricted, combined, code } = options;
+
+    this.flags.set(name.toLowerCase(), {
+      name,
+      restricted,
+      combined,
+      code
+    });
+  }
+
+  /**
    * Get a flag object
-   * @param {string} flag Th flag you want to grab the
-   * information object from.
+   * @param {string} flag The function can take a single
+   * flag or a list of space seperated flags.
    * @return {Flag} Returns a flag object.
    */
-  get(flag) {
-    // Just making the flag name lowercase now, so I
-    // don't have to keep doing it. :P
-    flag = this.flag.toLowerCase();
-
-    if (this.flags.has(flag)) {
-      return this.flags.get(flag);
+  get(flags) {
+    const returnFlags = [];
+    // First we need to split the flag string into an array
+    flags.split(" ").filter(flag => {
+      // check to see if there's a NOT before the flag
+      if (flag[0] === "!") {
+        flag = flag.slice(1);
+      }
+      // If the flag exists add it to the list.
+      if (this.flags.has(flag)) {
+        returnFlags.push(this.flags.get(flag));
+      }
+    });
+    // Return the clean list of flags.
+    if (returnFlags.length > 1) {
+      return returnFlags;
     } else {
-      return null;
+      return returnFlags[0];
     }
   }
 
@@ -70,7 +97,7 @@ class Flags {
       }
     });
 
-    if (cleanFlags.length >= 0) {
+    if (cleanFlags.length > 0) {
       return true;
     } else {
       return false;
@@ -78,12 +105,66 @@ class Flags {
   }
 
   /**
+   * Clean the given list of flags so that only pre-existing flags remain.
+   * @param {string} flags The list of flags we want reduced down to only
+   * flags that are registered in the system.
+   */
+  clean(flags) {
+    // Split the string list into seperate tokens to be filtered.
+    let cleanFlags = flags.split(" ").filter(flag => {
+      let bang = "";
+      // chop the ! off of the flag if it exists.
+      if (flag[0] === "!") {
+        flag = flag.slice(1);
+        bang = "!";
+      }
+
+      if (this.flags.has(flag.toLowerCase())) {
+        return bang + flag;
+      }
+    });
+    return cleanFlags;
+  }
+
+  /**
+   * Save the flag database to file.
+   */
+  save() {
+    fs.writeFileSync(
+      require("path").resolve(__dirname, "../data/flags.json"),
+      mapToJson(this.flags)
+    );
+  }
+
+  /**
    * Set and remove flags from a database tracked object.
-   * @param {DBO} obj The database object we're setting the flags on
+   * @param  {DBO} obj The database object we're setting the flags on
    * @param {string} flags A space seperated string of flags.  To remove
    * a flag from an object, use the NOT (!) indicator in front of the flag.
    */
-  set(obj, flags) {}
+  set(obj, flags) {
+    // First make sure we're dealing with an object.
+    if (typeof obj === "object") {
+      // Break the string of flags into an array, then loop through each...
+      flags.split(" ").forEach(flag => {
+        // Check to see if we're adding or removing a flag
+        if (flag[0] === "!") {
+          flag = flag.slice(1);
+          // This basically means find where flag lives (indexOf) and remove it
+          // from the object.
+          const index = obj.flags.indexOf(flag);
+          if (index !== -1) {
+            obj.flags.splice(index, 1);
+          }
+        } else {
+          // Else just push the value. Make sure it's lowercase!
+          obj.flags.push(flag.toLowerCase());
+        }
+      });
+      // Return the modified object.
+      return obj;
+    }
+  }
 }
 
 // Make a singleton.  We don't need more than one instance
@@ -94,7 +175,7 @@ module.exports = new Flags();
 
 /**
  * The flag entry object type def.
- * @typedef {object} Flag
+ * @typedef {array} Flag
  * @property {string} name Flag name
  * @property {string} restricted The flags allowed to change
  * the status of this flag on other objects.
@@ -103,4 +184,17 @@ module.exports = new Flags();
  * @property {string} description A small blurb about what the flag is used
  * for.
  *
+ */
+
+/**
+ * Database Object
+ * @typedef {Object} DBO
+ * @property {string} ID - The ID string of the object
+ * @property {string} name - The name of the object
+ * @property {Date} created - The date the object was created
+ * @property {Date} modified - The date the object was last modified
+ * @property {Object} _attributes - Private attributes unseeable to
+ * most player types.
+ * @property {object} attributes - Where public in-game attributes are kept.
+ * @property {array} flags - The list of flags the object currently has set.
  */

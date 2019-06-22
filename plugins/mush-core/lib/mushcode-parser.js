@@ -1,3 +1,6 @@
+const b = require("../../../src/broadcast");
+const flags = require("./flags");
+
 // This parser is based off of an article I found on writing a
 // scripting language with JavaScript.
 // https://eloquentjavascript.net/12_language.html
@@ -104,11 +107,25 @@ class Parser {
   }
 
   // evaluate an input string for commands
-  exe(string, scope) {
+  exe(obj, string, scope) {
+    // Populate the object's flag data to see if they're even
+    // allowed to use the command in the first place!
+    const Objflags = new Set(obj.flags);
+
     for (let command of this.cmds.values()) {
       const match = command.pattern.exec(string);
-      if (match) {
-        return command.run(match, scope);
+      if (flags && flags.has(obj, command.restriction)) {
+        try {
+          return command.run(obj, match, scope);
+        } catch (error) {
+          b.send({
+            msg: `Huh? Type "help" for help.`
+          });
+        }
+      } else {
+        b.send({
+          msg: `Huh? Type "help" for help.`
+        });
       }
     }
   }

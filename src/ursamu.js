@@ -20,7 +20,7 @@ module.exports = class UrsaMu extends EventEmitter {
           require(plugin)(this);
         } catch (error) {
           console.error(`ERROR: Could not import plugin: ${plugin}`);
-          console.error(`ERROR: ${error}`);
+          console.error(`ERROR: ${error.stack}`);
         }
       });
 
