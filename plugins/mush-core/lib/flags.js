@@ -85,7 +85,7 @@ class Flags {
    * @return {boolean} A truthy or falsey response is given
    * depending on if the conditions are met or not.
    */
-  has(obj, flags) {
+  has(obj, flags = []) {
     const objFlags = new Set(obj.flags);
     const cleanFlags = flags.split(" ").filter(flag => {
       // this is a big conditional statment.  It checks to see

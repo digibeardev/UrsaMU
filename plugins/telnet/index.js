@@ -6,7 +6,7 @@ module.exports = app => {
   // Create a TCP server
   const server = net.createServer(socket => {
     const tSocket = new TelnetSocket(socket);
-
+    tSocket.type = "telnet";
     const connect = fs.readFileSync(
       require("path").resolve(__dirname, "../mush-core/data/text/connect.txt")
     );
@@ -17,7 +17,7 @@ module.exports = app => {
     app.emit("connected", tSocket);
 
     tSocket.on("data", buffer => {
-      app.parser.exe(buffer.toString());
+      app.parser.exe(tSocket, buffer.toString(), app.parser.scope);
     });
   });
 

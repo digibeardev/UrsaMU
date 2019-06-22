@@ -5,7 +5,7 @@ module.exports = class UrsaMu extends EventEmitter {
   constructor(options = {}) {
     super(options);
     const { plugins } = options;
-    this.b = broadcast;
+    this.broadcast = broadcast;
 
     // Check for plugins
     if (plugins) this.plugin(plugins);

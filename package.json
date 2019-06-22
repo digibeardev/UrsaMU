@@ -30,6 +30,7 @@
     "clear-module": "^3.2.0",
     "dotenv": "^8.0.0",
     "node-fetch": "^2.6.0",
+    "sha.js": "^2.4.11",
     "shortid": "^2.2.14",
     "strip-ansi": "^5.2.0",
     "telnet-stream": "^1.0.4"

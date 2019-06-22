@@ -19,5 +19,12 @@
       "name": "royalty",
       "restricted": "wizard"
     }
+  ],
+  [
+    "player",
+    {
+      "name": "player",
+      "restricted": "wizard"
+    }
   ]
 ]

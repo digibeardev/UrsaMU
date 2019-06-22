@@ -1,4 +1,4 @@
-const b = require("../../../src/broadcast");
+const broadcast = require("../../../src/broadcast");
 const flags = require("./flags");
 
 // This parser is based off of an article I found on writing a
@@ -11,6 +11,7 @@ class Parser {
     this.sub = new Map();
     this.scope = {};
     this.help = require("./help");
+    this.broadcast = broadcast;
   }
 
   // Break an expresison down into it's individual types.  Right now
@@ -107,23 +108,21 @@ class Parser {
   }
 
   // evaluate an input string for commands
-  exe(obj, string, scope) {
-    // Populate the object's flag data to see if they're even
-    // allowed to use the command in the first place!
-    const Objflags = new Set(obj.flags);
-
+  exe(socket, string, scope) {
     for (let command of this.cmds.values()) {
       const match = command.pattern.exec(string);
-      if (flags && flags.has(obj, command.restriction)) {
+      if (flags && socket.char && flags.has(socket.char, command.restriction)) {
         try {
-          return command.run(obj, match, scope);
+          return command.run(socket, match, scope, this);
         } catch (error) {
-          b.send({
+          this.broadcast.send({
             msg: `Huh? Type "help" for help.`
           });
         }
+      } else if (!command.restriction) {
+        return command.run(socket, match, scope);
       } else {
-        b.send({
+        this.broadcast.send({
           msg: `Huh? Type "help" for help.`
         });
       }
