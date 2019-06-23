@@ -57,14 +57,15 @@ class Flags {
   get(flags) {
     const returnFlags = [];
     // First we need to split the flag string into an array
+    const that = this;
     flags.split(" ").filter(flag => {
       // check to see if there's a NOT before the flag
       if (flag[0] === "!") {
         flag = flag.slice(1);
       }
       // If the flag exists add it to the list.
-      if (this.flags.has(flag)) {
-        returnFlags.push(this.flags.get(flag));
+      if (that.flags.has(flag)) {
+        returnFlags.push(that.flags.get(flag));
       }
     });
     // Return the clean list of flags.
@@ -85,14 +86,15 @@ class Flags {
    * @return {boolean} A truthy or falsey response is given
    * depending on if the conditions are met or not.
    */
-  has(obj, flags = []) {
+  has(obj = {}, flags = "") {
     const objFlags = new Set(obj.flags);
+    const that = this;
     const cleanFlags = flags.split(" ").filter(flag => {
       // this is a big conditional statment.  It checks to see
       // if the flag returns with information (the flag object)
       // And then checks to make sure that the object actually
       // has the flag set.
-      if (this.get(flag) && objFlags.has(flag)) {
+      if (that.get(flag) && objFlags.has(flag)) {
         return flag;
       }
     });

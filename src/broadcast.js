@@ -6,7 +6,7 @@ class Broadcast {
       if (socket.type === "telnet") {
         // If the socket type is telnet, it can only handle
         // the text portion of the request.
-        socket.write(msg.msg ? msg.msg + "\r\n" : msg + "\r\n");
+        socket.write(msg.msg ? msg.msg + "\n" : msg + "\n");
       } else if (socketype === "websocket") {
         // If msg contains the property message, it's probably a json
         // response.  Otherwise it's probably just text.
@@ -16,8 +16,16 @@ class Broadcast {
       }
     } else {
       // It's just a string, pass it along.
-      socket.write(options + "\r\n");
+      socket.write(options + "\n");
     }
+  }
+
+  error(socket, error) {
+    socket.write(
+      "Congrats! You found a bug! Well this is embarrasing.. " +
+        "If you could be so kind as to let someone on staff know that you ran into " +
+        `this error? That would be /amazing/!\n\nERROR: ${error.stack}\n`
+    );
   }
 }
 

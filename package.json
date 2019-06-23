@@ -3,6 +3,11 @@
   "version": "0.0.1",
   "description": "A classic multiplayer game with a modern twist.",
   "main": "index.js",
+  "nodemonConfig": {
+    "ignore": [
+      "plugins/**/*"
+    ]
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon index.js"

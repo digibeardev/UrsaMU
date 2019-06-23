@@ -1,5 +1,6 @@
 const broadcast = require("../../../src/broadcast");
 const flags = require("./flags");
+const database = require("./database");
 
 // This parser is based off of an article I found on writing a
 // scripting language with JavaScript.
@@ -12,6 +13,7 @@ class Parser {
     this.scope = {};
     this.help = require("./help");
     this.broadcast = broadcast;
+    this.db = database;
   }
 
   // Break an expresison down into it's individual types.  Right now
@@ -107,24 +109,35 @@ class Parser {
     return this.subs(this.evaluate(this.parse(string), scope));
   }
 
-  // evaluate an input string for commands
+  /**
+   * Evaluate an input stream from the user for commands.
+   * @param {Socket} socket The socket connection envoking the command
+   * @param {String} string The raw input text from the socket.
+   * @param {Object} scope  The variable scope for the command.
+   */
   exe(socket, string, scope) {
+    // Cycle through the commands on the command object looking for a
+    //  match in the users input string.
     for (let command of this.cmds.values()) {
-      const match = command.pattern.exec(string);
-      if (flags && socket.char && flags.has(socket.char, command.restriction)) {
+      const match = command.pattern.exec(string) || [];
+      match.lastIndex = 0;
+      // If there's a match and the enactor passes the flag restriction of
+      // the command or there's none set, try to run the command.
+      if (
+        (match.length > 0 &&
+          flags.has(this.db.id(socket.id) || {}, command.restriction)) ||
+        (match.length > 0 && !command.restricted)
+      ) {
+        // Try/Catch block just in case the command doesn't
+        // go through, there's an error, or if the command
+        // just straight doesn't exist.
         try {
           return command.run(socket, match, scope, this);
         } catch (error) {
-          this.broadcast.send({
-            msg: `Huh? Type "help" for help.`
-          });
+          return this.broadcast.error(socket, error);
         }
-      } else if (!command.restriction) {
-        return command.run(socket, match, scope);
       } else {
-        this.broadcast.send({
-          msg: `Huh? Type "help" for help.`
-        });
+        return this.broadcast.send(socket, 'Huh? Type "help" for help.');
       }
     }
   }

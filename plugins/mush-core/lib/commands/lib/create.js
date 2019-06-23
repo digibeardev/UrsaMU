@@ -13,7 +13,7 @@ module.exports = parser => {
     // Make sure the socket doesn't already have an ID (isn't already logged in)
     if (!socket.id) {
       // extract the values we want from the args param.
-      const [full, name, password] = match;
+      const [full, name = " ", password = " "] = match;
       // Make sure it's a unique name!  If the database returns
       // any names (Upper or lowercase!) then it should send the
       // failure message.
@@ -36,8 +36,9 @@ module.exports = parser => {
             "Meet people.  Have fun! If you need help, just ask somebody (type a double" +
             ' quote mark and then type your question, like this:\n\n"How do I keep' +
             " people from picking me up? The question will appear to others in the" +
-            ' same room as:\n\n <yourname> says "How do I keep people from picking me up?\n'
+            ' same room as:\n\n <yourname> says "How do I keep people from picking me up?'
         );
+        socket.id = parser.db.name(name);
         parser.db.save();
       } else {
         parser.broadcast.send(
@@ -53,7 +54,7 @@ module.exports = parser => {
   };
 
   parser.cmds.set("create", {
-    pattern: /^create\s+(.+)\s+(.+)/g,
+    pattern: /^create\s+(.+)\s+(.+)/gim,
     run: (socket, match, scope) => create(socket, match, scope)
   });
 };

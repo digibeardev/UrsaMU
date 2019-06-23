@@ -46,21 +46,27 @@ class Database extends EventEmitter {
     let passed = [];
     // Split the list of names out into an array and filter for
     // names that actually coencide with a database reference.
-    names = names.split(" ").filter(name => {
-      // For each one of the entries, loop through the database
-      // and look for all of the references of 'name'.
+    if (names) {
+      names = names.split(" ").filter(name => {
+        // For each one of the entries, loop through the database
+        // and look for all of the references of 'name'.
 
-      // Cycle through the DB and search for references.
-      this.db.forEach(dbobj => {
-        if (dbobj.name.toLowerCase() === name.toLowerCase()) {
-          passed.push(dbobj);
+        // Cycle through the DB and search for references.
+        for (const dbref of Array.from(this.db.keys())) {
+          const obj = this.db.get(dbref);
+          if (
+            typeof obj === "object" &&
+            obj.name.toLowerCase() !== obj.name.toLowerCase()
+          ) {
+            return passed.push(dbref);
+          }
         }
-      });
 
-      // if there's more than one entry in passed, give the whole
-      // array.  Else just the first entry.
-      return passed.length > 1 ? passed : passed[0];
-    });
+        // if there's more than one entry in passed, give the whole
+        // array.  Else just the first entry.
+        return passed.length > 1 ? passed : passed[0];
+      });
+    }
     // If there's more than one dbobj in name, return an array,
     // else just return the object.
     if (names.length > 1) {
