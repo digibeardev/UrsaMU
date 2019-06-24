@@ -1,8 +1,12 @@
-const net = require("net");
-const { TelnetSocket } = require("telnet-stream");
 const fs = require("fs");
+const net = require("net");
 
-module.exports = app => {
+// I chose this library, because it handles the technical part
+// of working with telnet protocol bytes.  Interesting stuff
+// but not something I want to re-invent the wheel on!
+const { TelnetSocket } = require("telnet-stream");
+
+module.exports = mush => {
   // Create a TCP server
   const server = net.createServer(socket => {
     const tSocket = new TelnetSocket(socket);
@@ -11,13 +15,13 @@ module.exports = app => {
       require("path").resolve(__dirname, "../mush-core/data/text/connect.txt")
     );
 
-    tSocket.write(connect + "\r\n");
+    tSocket.write(connect + "\n");
     // Send an emit about the connection, so we can add the socket to
     // our list of connections.
-    app.emit("connected", tSocket);
+    mush.emit("connected", tSocket);
 
     tSocket.on("data", buffer => {
-      app.parser.exe(tSocket, buffer.toString(), app.parser.scope);
+      mush.parser.exe(tSocket, buffer.toString(), mush.parser.scope);
     });
   });
 

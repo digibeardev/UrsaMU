@@ -10,4 +10,5 @@ module.exports = app => {
   app.parser.db = require("./lib/database"); // Database code.
   app.flags = require("./lib/flags"); // Load the flags system.
   app.types = new Set("player", "exit", "thing"); // Set the default types.
+  app.sockets = new Set(); // Somewhere to store socket information every connection.
 };

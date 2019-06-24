@@ -34,7 +34,7 @@ class Database extends EventEmitter {
   }
 
   /**
-   * Retrieve a database reference by name.  If given one name it
+   * Retrieve a database object by name.  If given one name it
    * returns a single object reference.  When given a string list of names,
    * or would return a list, it returns an array of database objects.
    * @param {string} name The name of the object(s) to pull from the database.
@@ -56,9 +56,9 @@ class Database extends EventEmitter {
           const obj = this.db.get(dbref);
           if (
             typeof obj === "object" &&
-            obj.name.toLowerCase() !== obj.name.toLowerCase()
+            name.toLowerCase() == obj.name.toLowerCase()
           ) {
-            return passed.push(dbref);
+            return passed.push(this.db.get(dbref));
           }
         }
 
@@ -97,7 +97,8 @@ class Database extends EventEmitter {
       created = today,
       _attributes = {},
       attributes = {},
-      flags = []
+      flags = [],
+      password
     } = record;
 
     // Check to see if an ID was provided with the update request.
@@ -110,6 +111,7 @@ class Database extends EventEmitter {
         modified,
         _attributes,
         attributes,
+        password,
         flags
       });
 

@@ -27,6 +27,10 @@ class Broadcast {
         `this error? That would be /amazing/!\n\nERROR: ${error.stack}\n`
     );
   }
+
+  huh(socket) {
+    socket.write('Huh? Type "help" for help.\n');
+  }
 }
 
 module.exports = new Broadcast();

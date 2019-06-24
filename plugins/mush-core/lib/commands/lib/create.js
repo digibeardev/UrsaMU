@@ -1,6 +1,8 @@
-shajs = require("sha.js");
+const shajs = require("sha.js");
+const fs = require("fs");
+const path = require("path");
 
-module.exports = parser => {
+module.exports = mush => {
   /**
    * Create a new player bit
    * @param {string[]} args THe array of matches from the regular
@@ -17,9 +19,9 @@ module.exports = parser => {
       // Make sure it's a unique name!  If the database returns
       // any names (Upper or lowercase!) then it should send the
       // failure message.
-      if (!parser.db.name(name) && !parser.db.name(name.toLowerCase())) {
+      if (!mush.db.name(name.toLowerCase())) {
         // Create the new entry into the database.
-        parser.db.update({
+        mush.db.update({
           name,
           // Gotta secure them passwords! In the future we might want
           // to use something stronger than SHA256.  Ultimately I'd like
@@ -30,18 +32,22 @@ module.exports = parser => {
             .digest("hex"),
           type: "player"
         });
-        parser.broadcast.send(
+        // The player was able to make it through the signup process!  Now let's
+        // give them a boxed new player welcome.
+        mush.broadcast.send(
           socket,
-          "Welcome to the world of UrsaMU. Explore places." +
-            "Meet people.  Have fun! If you need help, just ask somebody (type a double" +
-            ' quote mark and then type your question, like this:\n\n"How do I keep' +
-            " people from picking me up? The question will appear to others in the" +
-            ' same room as:\n\n <yourname> says "How do I keep people from picking me up?'
+          fs.readFile(
+            path.resolve(__dirname, "../../../data/text/newconnect.txt"),
+            (err, data) => {
+              if (err) throw err;
+              mush.broadcast.send(socket, data.toString());
+            }
+          )
         );
-        socket.id = parser.db.name(name);
-        parser.db.save();
+        socket.id = mush.db.name(name).id;
+        mush.db.save();
       } else {
-        parser.broadcast.send(
+        mush.broadcast.send(
           socket,
           "Either there is already a player" +
             " with that name, or that name is illegal."
@@ -49,12 +55,14 @@ module.exports = parser => {
       }
       // Socket already has an attached ID.
     } else {
-      parser.broadcast.send(socket, "Huh? Type (help) for help.");
+      mush.broadcast.send(socket, `Huh? Type "Help" for help.`);
     }
   };
 
-  parser.cmds.set("create", {
-    pattern: /^create\s+(.+)\s+(.+)/gim,
+  // This is where we actually wire the command with the mush
+  // system.
+  mush.cmds.set("create", {
+    pattern: /^create\s+(.+)\s+(.+)/i,
     run: (socket, match, scope) => create(socket, match, scope)
   });
 };
