@@ -45,6 +45,7 @@ module.exports = mush => {
           )
         );
         socket.id = mush.db.name(name).id;
+        mush.flags.set(socket.id, "connected");
         mush.db.save();
       } else {
         mush.broadcast.send(
