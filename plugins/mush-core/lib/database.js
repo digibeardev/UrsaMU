@@ -95,10 +95,14 @@ class Database extends EventEmitter {
       type = "thing",
       modified,
       created,
-      _attributes = {},
       attributes = {},
       flags = [],
-      password
+      contents = [],
+      location,
+      password,
+      description,
+      channels,
+      exits
     } = record;
 
     // Check to see if an ID was provided with the update request.
@@ -109,10 +113,14 @@ class Database extends EventEmitter {
         type,
         created: created ? created : today,
         modified: modified ? modified : today,
-        _attributes,
         attributes,
         password,
-        flags
+        flags,
+        contents,
+        location,
+        description,
+        channels,
+        exits
       });
 
       // if The ID exists, update the current entry.
@@ -143,10 +151,10 @@ class Database extends EventEmitter {
  * @property {string} name - The name of the object
  * @property {Date} created - The date the object was created
  * @property {Date} modified - The date the object was last modified
- * @property {Object} _attributes - Private attributes unseeable to
- * most player types.
  * @property {object} attributes - Where public in-game attributes are kept.
- * @property {array} flags - The list of flags the object currently has set.
+ * @property {string[]} flags - The list of flags the object currently has set.
+ * @property {string[]} contents - The IDs of objects held by thie one.
+ * @property {string} Location - The ID of the object's current location.
  */
 
 module.exports = new Database();

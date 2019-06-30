@@ -16,7 +16,6 @@ module.exports = mush => {
         const security = shajs("sha256")
           .update(password)
           .digest("hex");
-        console.log(DBRef);
         // Sweet Success!
         if (security === DBRef.password) {
           socket.id = DBRef.id;
@@ -35,8 +34,6 @@ module.exports = mush => {
           mush.db.save();
           // add the socket to the global list.
           mush.sockets.add(socket);
-          console.log(mush.db.name(name));
-
           // Fail attempt.
         } else {
           socket.end(
