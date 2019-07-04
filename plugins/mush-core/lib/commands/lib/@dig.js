@@ -32,68 +32,53 @@ module.exports = mush => {
   `
   });
 
-  mush.cmds.set("@dig", {
+  mush.parser.cmds.set("@dig", {
     // I haven't come up with a way to document functions and
     // commands yet - so these will likely change, but for now?
     // Hi!,
-    pattern: /^@dig\s+(.*)\s+?=\s+?(.*)/i,
+    pattern: /^@dig(\/teleport|\/tele|\/port)?\s+(.*)/i,
     run: (socket, match, scope) => {
-      // capture all of the pieces we're going to need in order to
-      // dig a 'room'.
-      const name = match[1];
-      // The exit names for the to and from exits to the room.
-      const [toExit, fromExit] = match[2].split(",");
-      // build the room, exits and link them together.
-      const curRoom = mush.db[socket.id].location;
-      const room = mush.db.update({ name, type: "room" });
-      if (room) {
-        mush.broadcast.send(socket, `%chDone.%cn Room %ch${room.name}%cn dug.`);
-      }
+      if (mush.flags.has(socket, "connected admin")) {
+        // capture all of the pieces we're going to need in order to
+        // dig a 'room'.
+        const teleport = match[1];
+        currRoom = mush.db.id(socket.id)
+          ? mush.db.name(mush.db.id(socket.id).location)
+          : "Unknown Room";
+        const [name, exits] = match[2].split("=");
+        const [toExit, fromExit] = exits.split(",");
 
-      // To exit
-      const toexit = mush.db.update({
-        name: toExit,
-        type: "exit",
-        location: room.id
-      });
-
-      if (toexit) {
+        // build the room, exits and link them together.
+        const { room, toexit, fromexit } = mush.grid.dig(
+          name,
+          toExit,
+          fromExit
+        );
         mush.broadcast.send(
           socket,
-          `%chDone.%cn Exit` +
-            `%ch${toexit.name.split(";")[0]}%cn opened to ${
-              curRoom.name.split(";")[0]
-            }.`
+          `%chDone%cn. Room %ch${room.name}%cn dug.%r` +
+            `%chDone.%cn Exit %ch${toexit.name.split(";")[0]}` +
+            `to %ch${room.name}%cn.`
         );
+        // If a return exit is specified
+        if (fromexit) {
+          mush.broadcast.send(
+            socket,
+            `%chDone.%cn Exit ${fromexit.name} opend to room ${currRoom}`
+          );
+        }
+
+        // Did they use the teleport flag?
+        if (teleport) {
+          const player = mush.db.id(socket.id);
+          player.location = room.id;
+        }
+
+        // Save the database.
+        mush.db.save();
+      } else {
+        mush.broadcast.huh(socket);
       }
-
-      mush.db.update({
-        id: curRoom.id,
-        // <3 Spread operators!
-        exits: [...toexit, ...mush.db.id(curRoom).exits]
-      });
-
-      // From exit
-      const fromexit = mush.db.update({
-        name: fromExit,
-        type: "exit",
-        location: room.id
-      });
-
-      if (fromexit) {
-        mush.broadcast.send(
-          socket,
-          `%chDone.%cn Exit` +
-            `%ch${toexit.name.split(";")[0]}%cn opened to ${
-              room.name.split(";")[0]
-            }.`
-        );
-      }
-
-      mush.db.update({
-        id: room.id,
-        exits: [...fromexit, ...mush.db.id(room).exits]
-      });
     }
   });
 };

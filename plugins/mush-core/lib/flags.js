@@ -151,6 +151,7 @@ class Flags {
             obj.flags.splice(index, 1);
           }
         } else {
+          obj.flags = obj.flags ? obj.flags : [];
           // Else just push the value. Make sure it's lowercase!
           obj.flags.push(flag.toLowerCase());
         }

@@ -174,8 +174,7 @@ class Parser {
           ran = true;
           return run(socket, match, scope, this);
         } catch (error) {
-          this.broadcast.error(socket, error);
-          return console.log(error);
+          return this.broadcast.error(socket, error);
         }
       }
     }

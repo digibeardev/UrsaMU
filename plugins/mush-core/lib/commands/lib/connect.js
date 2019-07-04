@@ -1,7 +1,7 @@
 const shajs = require("sha.js");
 
 module.exports = mush => {
-  mush.cmds.set("connect", {
+  mush.parser.cmds.set("connect", {
     pattern: /^connect\s+(.+)\s+(.+)/i,
     run: (socket, match) => {
       const today = new Date();
@@ -17,23 +17,26 @@ module.exports = mush => {
           .update(password)
           .digest("hex");
         // Sweet Success!
-        if (security === DBRef.password) {
-          socket.id = DBRef.id;
-          mush.broadcast.send(
-            socket,
-            `Login Successful. Welcome to UrsaMU!\nLast connection was: ${
-              DBRef.modified
-            }`
-          );
+        if (DBRef) {
+          if (security === DBRef.password) {
+            // Add the ID to the socket for easy reference later
+            socket.id = DBRef.id;
+            // Update the last time their character was modified
+            mush.db.update(DBRef.id, { modified: today });
+            // Save the db
+            mush.db.save();
+            // add the socket to the global list.
+            mush.sockets.add(socket);
+            socket.id = DBRef.id;
+            // send a success message!
+            mush.broadcast.send(
+              socket,
+              `Login Successful. Welcome to UrsaMU!\nLast connection was: ${
+                DBRef.modified
+              }`
+            );
+          }
 
-          // Add the ID to the socket for easy reference later
-          socket.id = DBRef.id;
-          // Update the last time their character was modified
-          mush.db.update(DBRef.id, { modified: today });
-          // Save the db
-          mush.db.save();
-          // add the socket to the global list.
-          mush.sockets.add(socket);
           // Fail attempt.
         } else {
           socket.end(

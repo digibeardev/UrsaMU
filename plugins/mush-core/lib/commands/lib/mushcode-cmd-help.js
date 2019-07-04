@@ -1,5 +1,5 @@
-module.exports = parser => {
-  parser.cmds.set("help", {
+module.exports = mush => {
+  mush.parser.cmds.set("help", {
     pattern: /^\+?help/,
     run: args => {
       return console.log(

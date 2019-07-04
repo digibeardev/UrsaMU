@@ -102,7 +102,8 @@ class Database extends EventEmitter {
       password,
       description,
       channels,
-      exits
+      exits,
+      owner
     } = record;
 
     // Check to see if an ID was provided with the update request.
@@ -120,7 +121,8 @@ class Database extends EventEmitter {
         location,
         description,
         channels,
-        exits
+        exits,
+        owner
       });
 
       // if The ID exists, update the current entry.

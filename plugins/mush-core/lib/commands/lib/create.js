@@ -45,7 +45,7 @@ module.exports = mush => {
           )
         );
         socket.id = mush.db.name(name).id;
-        mush.flags.set(socket.id, "connected");
+        mush.flags.set(socket, "connected");
         mush.db.save();
       } else {
         mush.broadcast.send(
@@ -62,7 +62,7 @@ module.exports = mush => {
 
   // This is where we actually wire the command with the mush
   // system.
-  mush.cmds.set("create", {
+  mush.parser.cmds.set("create", {
     pattern: /^create\s+(.+)\s+(.+)/i,
     run: (socket, match, scope) => create(socket, match, scope)
   });

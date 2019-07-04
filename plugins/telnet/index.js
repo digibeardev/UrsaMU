@@ -17,9 +17,7 @@ module.exports = mush => {
 
     tSocket.write(connect + "\n");
     // Send an emit about the connection, so we can add the socket to
-    // our list of connections.
-    mush.emit("connected", tSocket);
-
+    // our list of connections
     tSocket.on("data", buffer => {
       mush.parser.exe(tSocket, buffer.toString(), mush.parser.scope);
     });

@@ -9,7 +9,7 @@ module.exports = mush => {
 IF()
 IFELSE()
 
-  FUNCTION:     if(<expression>,<true string>[,<false string>])
+  FUNCTION:   if(<expression>,<true string>[,<false string>])
               ifelse(<expression>,<true string>,<false string>)
 
   This function returns <true string> if BOOLEAN <expression> is TRUE,
@@ -21,13 +21,13 @@ IFELSE()
   });
 
   // If statement logic.
-  mush.funs.set("if", (args, scope) => {
+  mush.parser.funs.set("if", (args, scope) => {
     if (args.length < 2) {
       throw new SyntaxError("if expects at least 2 arguments");
-    } else if (mush.evaluate(args[0], scope) !== false) {
-      return mush.evaluate(args[1], scope);
+    } else if (mush.parser.evaluate(args[0], scope) !== false) {
+      return mush.parser.evaluate(args[1], scope);
     } else {
-      return args[2] ? mush.evaluate(args[2], scope) : "";
+      return args[2] ? mush.parser.evaluate(args[2], scope) : "";
     }
   });
 
@@ -51,13 +51,13 @@ IFELSE()
   });
 
   // Ifelse statement logic.
-  mush.funs.set("ifelse", (args, scope) => {
+  mush.parser.funs.set("ifelse", (args, scope) => {
     if (args.length !== 3) {
       throw new SyntaxError("ifelse expects 3 arguments");
-    } else if (mush.evaluate(args[0], scope) !== false) {
-      return mush.evaluate(args[1], scope);
+    } else if (mush.parser.evaluate(args[0], scope) !== false) {
+      return mush.parser.evaluate(args[1], scope);
     } else {
-      return mush.evaluate(args[2], scope);
+      return mush.parser.evaluate(args[2], scope);
     }
   });
 
@@ -134,7 +134,7 @@ CENTER()
   });
 
   // Center text.
-  mush.funs.set("center", (args, scope) => {
+  mush.parser.funs.set("center", (args, scope) => {
     if (args.length < 2) {
       throw new SyntaxError("center requires at least 2 arguments");
     } else {
@@ -201,10 +201,10 @@ LJUST()
   });
 
   // left justification
-  mush.funs.set("ljust", (args, scope) => {
-    const message = mush.evaluate(args[0], scope);
-    const filler = mush.evaluate(args[2] ? args[2] : " ", scope)
-      ? mush.evaluate(args[2], scope)
+  mush.parser.funs.set("ljust", (args, scope) => {
+    const message = mush.parser.evaluate(args[0], scope);
+    const filler = mush.parser.evaluate(args[2] ? args[2] : " ", scope)
+      ? mush.parser.evaluate(args[2], scope)
       : " ";
     const width = parseInt(mush.evaluate(args[1], scope));
 
@@ -262,10 +262,10 @@ Related Topics: center(), cpad(), ljust(), lpad(), rpad().`
   });
 
   // left justification
-  mush.funs.set("rjust", (args, scope) => {
-    const message = mush.evaluate(args[0], scope);
-    const filler = mush.evaluate(args[2] ? args[2] : " ", scope)
-      ? mush.evaluate(args[2], scope)
+  mush.parser.funs.set("rjust", (args, scope) => {
+    const message = mush.parser.evaluate(args[0], scope);
+    const filler = mush.parser.evaluate(args[2] ? args[2] : " ", scope)
+      ? mush.parser.evaluate(args[2], scope)
       : " ";
     const width = parseInt(mush.evaluate(args[1], scope));
 
@@ -302,12 +302,12 @@ Example:
   });
 
   // repeat()
-  mush.funs.set("repeat", (args, scope) => {
+  mush.parser.funs.set("repeat", (args, scope) => {
     if (args.length < 2) {
       return SyntaxError("repeat expects 2 arguments");
     }
-    const message = mush.evaluate(args[0], scope);
-    const width = parseInt(mush.evaluate(args[1], scope));
+    const message = mush.parser.evaluate(args[0], scope);
+    const width = parseInt(mush.parser.evaluate(args[1], scope));
     if (Number.isInteger(width)) {
       return message.repeat(width);
     }

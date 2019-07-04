@@ -1,229 +1,142 @@
 [
   [
-    "eVt7LU8BB",
+    "dqskb34k1",
     {
-      "id": "eVt7LU8BB",
-      "name": "Kumakun",
+      "id": "dqskb34k1",
+      "name": "Limbo",
+      "type": "Room",
+      "created": "2019-07-01T15:46:25.965Z",
+      "modified": "2019-07-01T15:46:25.965Z",
+      "attributes": {},
+      "flags": [],
+      "contents": []
+    }
+  ],
+  [
+    "CpM3P21bXU",
+    {
+      "id": "CpM3P21bXU",
+      "name": "Test Room",
+      "type": "room",
+      "created": "2019-07-01T15:46:25.967Z",
+      "modified": "2019-07-01T15:46:25.967Z",
+      "attributes": {},
+      "flags": [],
+      "contents": [],
+      "owner": "werwer"
+    }
+  ],
+  [
+    "JqDnrEO870",
+    {
+      "id": "JqDnrEO870",
+      "name": "To Exit",
+      "type": "exit",
+      "created": "2019-07-01T15:46:25.967Z",
+      "modified": "2019-07-01T15:46:25.967Z",
+      "attributes": {},
+      "flags": [],
+      "contents": [],
+      "location": "",
+      "owner": "werwer"
+    }
+  ],
+  [
+    "niEjxjnuWb",
+    {
+      "id": "niEjxjnuWb",
+      "name": "From Exit",
+      "type": "exit",
+      "created": "2019-07-01T15:46:25.967Z",
+      "modified": "2019-07-01T15:46:25.967Z",
+      "attributes": {},
+      "flags": [],
+      "contents": [],
+      "location": "CpM3P21bXU",
+      "owner": "werwer"
+    }
+  ],
+  [
+    "yh3uhVjwp",
+    {
+      "id": "yh3uhVjwp",
+      "name": "kumakun",
       "type": "player",
-      "created": "2019-06-26T06:37:22.946Z",
-      "modified": "2019-06-26T06:37:22.946Z",
-      "_attributes": {},
+      "created": "2019-07-03T02:19:05.579Z",
+      "modified": "2019-07-03T02:19:05.579Z",
       "attributes": {},
       "password": "4e4dfe876770ae660553768ecbcdaaf191d6aa61d2dbb621094177e6cfde2305",
-      "flags": []
+      "flags": [],
+      "contents": []
     }
   ],
   [
-    "7JM-kHWqI",
+    "uEs3dLrdg",
     {
-      "id": "7JM-kHWqI",
+      "id": "uEs3dLrdg",
       "type": "thing",
-      "created": "2019-06-26T22:09:10.439Z",
-      "modified": "2019-06-26T22:09:10.439Z",
-      "_attributes": {},
-      "attributes": {},
-      "flags": []
-    }
-  ],
-  [
-    "WLe1n8r5Y",
-    {
-      "id": "WLe1n8r5Y",
-      "type": "thing",
-      "created": "2019-06-26T22:13:49.493Z",
-      "modified": "2019-06-26T22:13:49.493Z",
-      "_attributes": {},
-      "attributes": {},
-      "flags": []
-    }
-  ],
-  [
-    "y9zrW9W1s",
-    {
-      "id": "y9zrW9W1s",
-      "type": "thing",
-      "created": "2019-06-26T22:47:50.617Z",
-      "modified": "2019-06-26T22:47:50.617Z",
-      "_attributes": {},
-      "attributes": {},
-      "flags": []
-    }
-  ],
-  [
-    "yo_mDXK22",
-    {
-      "id": "yo_mDXK22",
-      "type": "thing",
-      "created": "2019-06-26T22:49:14.860Z",
-      "modified": "2019-06-26T22:49:14.860Z",
-      "_attributes": {},
-      "attributes": {},
-      "flags": []
-    }
-  ],
-  [
-    "YAJjgaNeH",
-    {
-      "id": "YAJjgaNeH",
-      "type": "thing",
-      "created": "2019-06-26T22:50:03.176Z",
-      "modified": "2019-06-26T22:50:03.176Z",
-      "_attributes": {},
-      "attributes": {},
-      "flags": []
-    }
-  ],
-  [
-    "52Kjw90ex",
-    {
-      "id": "52Kjw90ex",
-      "type": "thing",
-      "created": "2019-06-26T22:53:20.147Z",
-      "modified": "2019-06-26T22:53:20.147Z",
-      "_attributes": {},
-      "attributes": {},
-      "flags": []
-    }
-  ],
-  [
-    "5F9Ls4bLJ",
-    {
-      "id": "5F9Ls4bLJ",
-      "type": "thing",
-      "created": "2019-06-26T23:02:35.874Z",
-      "modified": "2019-06-26T23:02:35.874Z",
-      "_attributes": {},
-      "attributes": {},
-      "flags": []
-    }
-  ],
-  [
-    "A5MhH0gfH",
-    {
-      "id": "A5MhH0gfH",
-      "type": "thing",
-      "created": "2019-06-26T23:06:29.711Z",
-      "modified": "2019-06-26T23:06:29.711Z",
-      "_attributes": {},
-      "attributes": {},
-      "flags": []
-    }
-  ],
-  [
-    "hXyl7Ertc",
-    {
-      "id": "hXyl7Ertc",
-      "type": "thing",
-      "created": "2019-06-26T23:08:01.363Z",
-      "modified": "2019-06-26T23:08:01.363Z",
-      "_attributes": {},
-      "attributes": {},
-      "flags": []
-    }
-  ],
-  [
-    "hZZqdu-XT",
-    {
-      "id": "hZZqdu-XT",
-      "type": "thing",
-      "created": "2019-06-27T04:42:59.823Z",
-      "modified": "2019-06-27T04:42:59.823Z",
-      "_attributes": {},
-      "attributes": {},
-      "flags": []
-    }
-  ],
-  [
-    "9u2dFdDus",
-    {
-      "id": "9u2dFdDus",
-      "type": "thing",
-      "created": "2019-06-30T11:54:07.874Z",
-      "modified": "2019-06-30T11:54:07.874Z",
+      "created": "2019-07-03T02:26:39.698Z",
+      "modified": "2019-07-03T02:26:39.698Z",
       "attributes": {},
       "flags": [],
       "contents": []
     }
   ],
   [
-    "Ck0JBxni6",
+    "mxMkQmZWp",
     {
-      "id": "Ck0JBxni6",
+      "id": "mxMkQmZWp",
       "type": "thing",
-      "created": "2019-06-30T12:05:08.433Z",
-      "modified": "2019-06-30T12:05:08.433Z",
+      "created": "2019-07-03T02:53:40.645Z",
+      "modified": "2019-07-03T02:53:40.645Z",
       "attributes": {},
       "flags": [],
       "contents": []
     }
   ],
   [
-    "ifKpkRWQj",
+    "Oh7c4PsjF",
     {
-      "id": "ifKpkRWQj",
+      "id": "Oh7c4PsjF",
       "type": "thing",
-      "created": "2019-06-30T12:08:31.963Z",
-      "modified": "2019-06-30T12:08:31.963Z",
+      "created": "2019-07-03T02:58:15.039Z",
+      "modified": "2019-07-03T02:58:15.039Z",
       "attributes": {},
       "flags": [],
       "contents": []
     }
   ],
   [
-    "EZ6JNr_GH",
+    "C0HiCD_ve",
     {
-      "id": "EZ6JNr_GH",
+      "id": "C0HiCD_ve",
       "type": "thing",
-      "created": "2019-06-30T13:00:44.104Z",
-      "modified": "2019-06-30T13:00:44.104Z",
+      "created": "2019-07-03T14:33:45.762Z",
+      "modified": "2019-07-03T14:33:45.762Z",
       "attributes": {},
       "flags": [],
       "contents": []
     }
   ],
   [
-    "-UMORLm0P",
+    "COojp6e6Q",
     {
-      "id": "-UMORLm0P",
+      "id": "COojp6e6Q",
       "type": "thing",
-      "created": "2019-06-30T13:01:25.408Z",
-      "modified": "2019-06-30T13:01:25.408Z",
+      "created": "2019-07-03T16:50:59.343Z",
+      "modified": "2019-07-03T16:50:59.343Z",
       "attributes": {},
       "flags": [],
       "contents": []
     }
   ],
   [
-    "PMKb_g2gy",
+    "PZwdvmY3L",
     {
-      "id": "PMKb_g2gy",
+      "id": "PZwdvmY3L",
       "type": "thing",
-      "created": "2019-06-30T13:02:06.405Z",
-      "modified": "2019-06-30T13:02:06.405Z",
-      "attributes": {},
-      "flags": [],
-      "contents": []
-    }
-  ],
-  [
-    "NMb_7xgGR",
-    {
-      "id": "NMb_7xgGR",
-      "type": "thing",
-      "created": "2019-06-30T13:07:38.280Z",
-      "modified": "2019-06-30T13:07:38.280Z",
-      "attributes": {},
-      "flags": [],
-      "contents": []
-    }
-  ],
-  [
-    "TBxpUqGkQ",
-    {
-      "id": "TBxpUqGkQ",
-      "type": "thing",
-      "created": "2019-06-30T13:09:32.602Z",
-      "modified": "2019-06-30T13:09:32.602Z",
+      "created": "2019-07-04T05:22:22.622Z",
+      "modified": "2019-07-04T05:22:22.622Z",
       "attributes": {},
       "flags": [],
       "contents": []

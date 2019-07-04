@@ -1,12 +1,9 @@
-const { EventEmitter } = require("events");
 const broadcast = require("./broadcast");
 
-module.exports = class UrsaMu extends EventEmitter {
+module.exports = class UrsaMu {
   constructor(options = {}) {
-    super(options);
     const { plugins } = options;
     this.broadcast = broadcast;
-
     // Check for plugins
     if (plugins) this.plugin(plugins);
   }
