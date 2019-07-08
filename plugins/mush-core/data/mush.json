@@ -1,143 +1,14 @@
 [
   [
-    "dqskb34k1",
+    "krzBLkgew",
     {
-      "id": "dqskb34k1",
-      "name": "Limbo",
-      "type": "Room",
-      "created": "2019-07-01T15:46:25.965Z",
-      "modified": "2019-07-01T15:46:25.965Z",
-      "attributes": {},
-      "flags": [],
-      "contents": []
-    }
-  ],
-  [
-    "CpM3P21bXU",
-    {
-      "id": "CpM3P21bXU",
-      "name": "Test Room",
-      "type": "room",
-      "created": "2019-07-01T15:46:25.967Z",
-      "modified": "2019-07-01T15:46:25.967Z",
-      "attributes": {},
-      "flags": [],
-      "contents": [],
-      "owner": "werwer"
-    }
-  ],
-  [
-    "JqDnrEO870",
-    {
-      "id": "JqDnrEO870",
-      "name": "To Exit",
-      "type": "exit",
-      "created": "2019-07-01T15:46:25.967Z",
-      "modified": "2019-07-01T15:46:25.967Z",
-      "attributes": {},
-      "flags": [],
-      "contents": [],
-      "location": "",
-      "owner": "werwer"
-    }
-  ],
-  [
-    "niEjxjnuWb",
-    {
-      "id": "niEjxjnuWb",
-      "name": "From Exit",
-      "type": "exit",
-      "created": "2019-07-01T15:46:25.967Z",
-      "modified": "2019-07-01T15:46:25.967Z",
-      "attributes": {},
-      "flags": [],
-      "contents": [],
-      "location": "CpM3P21bXU",
-      "owner": "werwer"
-    }
-  ],
-  [
-    "yh3uhVjwp",
-    {
-      "id": "yh3uhVjwp",
-      "name": "kumakun",
+      "id": "krzBLkgew",
+      "name": "Kumakun",
       "type": "player",
-      "created": "2019-07-03T02:19:05.579Z",
-      "modified": "2019-07-03T02:19:05.579Z",
+      "created": "2019-07-08T04:49:28.215Z",
+      "modified": "2019-07-08T04:49:28.215Z",
       "attributes": {},
       "password": "4e4dfe876770ae660553768ecbcdaaf191d6aa61d2dbb621094177e6cfde2305",
-      "flags": [],
-      "contents": []
-    }
-  ],
-  [
-    "uEs3dLrdg",
-    {
-      "id": "uEs3dLrdg",
-      "type": "thing",
-      "created": "2019-07-03T02:26:39.698Z",
-      "modified": "2019-07-03T02:26:39.698Z",
-      "attributes": {},
-      "flags": [],
-      "contents": []
-    }
-  ],
-  [
-    "mxMkQmZWp",
-    {
-      "id": "mxMkQmZWp",
-      "type": "thing",
-      "created": "2019-07-03T02:53:40.645Z",
-      "modified": "2019-07-03T02:53:40.645Z",
-      "attributes": {},
-      "flags": [],
-      "contents": []
-    }
-  ],
-  [
-    "Oh7c4PsjF",
-    {
-      "id": "Oh7c4PsjF",
-      "type": "thing",
-      "created": "2019-07-03T02:58:15.039Z",
-      "modified": "2019-07-03T02:58:15.039Z",
-      "attributes": {},
-      "flags": [],
-      "contents": []
-    }
-  ],
-  [
-    "C0HiCD_ve",
-    {
-      "id": "C0HiCD_ve",
-      "type": "thing",
-      "created": "2019-07-03T14:33:45.762Z",
-      "modified": "2019-07-03T14:33:45.762Z",
-      "attributes": {},
-      "flags": [],
-      "contents": []
-    }
-  ],
-  [
-    "COojp6e6Q",
-    {
-      "id": "COojp6e6Q",
-      "type": "thing",
-      "created": "2019-07-03T16:50:59.343Z",
-      "modified": "2019-07-03T16:50:59.343Z",
-      "attributes": {},
-      "flags": [],
-      "contents": []
-    }
-  ],
-  [
-    "PZwdvmY3L",
-    {
-      "id": "PZwdvmY3L",
-      "type": "thing",
-      "created": "2019-07-04T05:22:22.622Z",
-      "modified": "2019-07-04T05:22:22.622Z",
-      "attributes": {},
       "flags": [],
       "contents": []
     }

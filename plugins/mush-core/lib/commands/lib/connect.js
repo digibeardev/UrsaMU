@@ -31,7 +31,7 @@ module.exports = mush => {
             // send a success message!
             mush.broadcast.send(
               socket,
-              `Login Successful. Welcome to UrsaMU!\nLast connection was: ${
+              `Login Successful. Welcome to UrsaMU!\n\nLast connection was: ${
                 DBRef.modified
               }`
             );
