@@ -37,8 +37,11 @@ Related Topics: @name.
           target.alias = alias;
           mush.broadcast.send(
             socket,
-            `%chDone.%cn ${target.name}'s alias set to %ch${alias}`
+            mush.parser.subs(
+              `%chDone.%cn ${target.name}'s alias set to %ch${alias}`
+            )
           );
+          mush.db.save();
           break;
 
         // No match found.

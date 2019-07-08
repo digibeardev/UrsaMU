@@ -1,16 +1,17 @@
 [
   [
-    "krzBLkgew",
+    "pgSKWczDd",
     {
-      "id": "krzBLkgew",
+      "id": "pgSKWczDd",
       "name": "Kumakun",
       "type": "player",
-      "created": "2019-07-08T04:49:28.215Z",
-      "modified": "2019-07-08T04:49:28.215Z",
+      "created": "2019-07-08T05:49:27.201Z",
+      "modified": "2019-07-08T05:49:27.201Z",
       "attributes": {},
       "password": "4e4dfe876770ae660553768ecbcdaaf191d6aa61d2dbb621094177e6cfde2305",
       "flags": [],
-      "contents": []
+      "contents": [],
+      "alias": "ku"
     }
   ]
 ]
