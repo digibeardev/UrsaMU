@@ -25,20 +25,28 @@ Related Topics: @name.
   mush.parser.cmds.set("@alias", {
     pattern: /^@alias\s+(.*)/,
     run: (socket, match, scope) => {
+      // Pull the information we want from the match array.
       const [name, alias] = match[1].split("=");
-      // Check if 'name' is valid
-      if (mush.db.name(name) || name.toLowerCase() === "me") {
-        if (!mush.db.name(alias)) {
-          mush.db.name(name).alias = alias;
-          socket.broadcast.send(
+
+      // Since this is going to be a little involved, we're going
+      // to use a switch
+      switch (true) {
+        // If the user inputs me for the name
+        case name.toLowerCase() === "me" && !mush.db.name(alias):
+          const target = mush.db.id(socket.id);
+          target.alias = alias;
+          mush.broadcast.send(
             socket,
-            `%chDone.%cn ${name}s alias has been set to ${alias}.`
+            mush.parser.subs(
+              `%chDone.%cn ${target.name}'s alias set to %ch${alias}`
+            )
           );
-        } else {
-          mush.broadcast.send(socket, "That alias is already taken");
-        }
-      } else {
-        mush.socket.send(socket, "I can't find that player.");
+          mush.db.save();
+          break;
+
+        // No match found.
+        default:
+          mush.broadcast.send(socket, "Sorry, that alias isn't available.");
       }
     }
   });

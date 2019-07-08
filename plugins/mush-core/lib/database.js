@@ -53,26 +53,28 @@ class Database extends EventEmitter {
 
         // Cycle through the DB and search for references.
         for (const dbref of Array.from(this.db.keys())) {
+          // capture the dbobject from the dbref.
           const obj = this.db.get(dbref);
-          if (
-            typeof obj === "object" &&
-            name.toLowerCase() == obj.name.toLowerCase()
-          ) {
-            return passed.push(this.db.get(dbref));
+
+          // check to see if the object even has a name property.
+          if (obj.hasOwnProperty("name")) {
+            // Try to make a match.
+            if (name.toLowerCase() == obj.name.toLowerCase()) {
+              return passed.push(this.db.get(dbref));
+              // If we can't find a match by name, let's check and
+              // see if we can match the given name to an alias.
+            } else if (
+              obj.hasOwnProperty("alias") &&
+              name.toLowerCase() === obj.alias.toLowerCase()
+            ) {
+              return passed.push(this.db.get(dbref));
+            }
           }
         }
-
-        // if there's more than one entry in passed, give the whole
-        // array.  Else just the first entry.
-        return passed.length > 1 ? passed : passed[0];
       });
-    }
-    // If there's more than one dbobj in name, return an array,
-    // else just return the object.
-    if (names.length > 1) {
-      return passed;
-    } else {
-      return passed[0];
+      // if there's more than one entry in passed, give the whole
+      // array.  Else just the first entry.
+      return passed.length > 1 ? passed : passed[0];
     }
   }
 
