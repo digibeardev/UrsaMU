@@ -1,8 +1,7 @@
-const UrsaMu = require("./src/ursamu");
+const db = require("./src/database");
 
-// Set up enviornmental variables for the dev project!
-require("dotenv").config();
-
-const mush = new UrsaMu({
-  plugins: ["../plugins/mush-core/", "../plugins/telnet"]
-});
+console.log(
+  db.db.find({ _id: 6 }, (err, doc) => {
+    return doc;
+  })
+);
