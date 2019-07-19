@@ -21,7 +21,7 @@ IFELSE()
   });
 
   // If statement logic.
-  mush.parser.funs.set("if", (args, scope) => {
+  mush.funs.set("if", (args, scope) => {
     if (args.length < 2) {
       throw new SyntaxError("if expects at least 2 arguments");
     } else if (mush.parser.evaluate(args[0], scope) !== false) {
@@ -51,7 +51,7 @@ IFELSE()
   });
 
   // Ifelse statement logic.
-  mush.parser.funs.set("ifelse", (args, scope) => {
+  mush.funs.set("ifelse", (args, scope) => {
     if (args.length !== 3) {
       throw new SyntaxError("ifelse expects 3 arguments");
     } else if (mush.parser.evaluate(args[0], scope) !== false) {
@@ -134,7 +134,7 @@ CENTER()
   });
 
   // Center text.
-  mush.parser.funs.set("center", (args, scope) => {
+  mush.funs.set("center", (args, scope) => {
     if (args.length < 2) {
       throw new SyntaxError("center requires at least 2 arguments");
     } else {
@@ -201,7 +201,7 @@ LJUST()
   });
 
   // left justification
-  mush.parser.funs.set("ljust", (args, scope) => {
+  mush.funs.set("ljust", (args, scope) => {
     const message = mush.parser.evaluate(args[0], scope);
     const filler = mush.parser.evaluate(args[2] ? args[2] : " ", scope)
       ? mush.parser.evaluate(args[2], scope)
@@ -262,7 +262,7 @@ Related Topics: center(), cpad(), ljust(), lpad(), rpad().`
   });
 
   // left justification
-  mush.parser.funs.set("rjust", (args, scope) => {
+  mush.funs.set("rjust", (args, scope) => {
     const message = mush.parser.evaluate(args[0], scope);
     const filler = mush.parser.evaluate(args[2] ? args[2] : " ", scope)
       ? mush.parser.evaluate(args[2], scope)
@@ -302,12 +302,12 @@ Example:
   });
 
   // repeat()
-  mush.parser.funs.set("repeat", (args, scope) => {
+  mush.funs.set("repeat", (args, scope) => {
     if (args.length < 2) {
       return SyntaxError("repeat expects 2 arguments");
     }
-    const message = mush.parser.evaluate(args[0], scope);
-    const width = parseInt(mush.parser.evaluate(args[1], scope));
+    const message = mush.parser.run(args[0], scope);
+    const width = parseInt(mush.parser.run(args[1], scope));
     if (Number.isInteger(width)) {
       return message.repeat(width);
     }

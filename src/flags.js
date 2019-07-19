@@ -1,5 +1,5 @@
 const fs = require("fs");
-const { mapToJson, jsonToMap } = require("../../../src/utilities");
+const _ = require("lodash");
 
 /**
  * Class Flags
@@ -14,18 +14,17 @@ class Flags {
      * This blob of code basically tries to pull the config file,
      * but if it comes up empty create a new Map object.
      */
-    this.flags =
-      fs.readFileSync(
-        require("path").resolve(__dirname, "../data/flags.json"),
-        {
-          encoding: "utf-8"
-        }
-      ) || new Map();
 
-    // If the flag param is a string, then it should be in JSON
-    // form, parse the json and convert it to a Map object.
-    if (typeof this.flags === "string") {
-      this.flags = jsonToMap(this.flags);
+    try {
+      this.flags = JSON.parse(
+        fs.readFileSync("./data/flags.json", {
+          encoding: "utf-8"
+        })
+      );
+      console.log("\u2714 SUCCESS: Game flags loaded.");
+    } catch (error) {
+      console.log("\u2716 ERROR: No flag.json file found.");
+      this.flags = [];
     }
   }
 
@@ -35,12 +34,13 @@ class Flags {
    * @param {FlagOptions} options Any additional options we want
    * set with the flag.
    */
-  add(name, options) {
+  add(options) {
     // Filter through the list of flag options for the
     // ones we're interested in.
-    const { restricted, combined, code } = options;
+    const { name, restricted, combined, code } = options;
 
-    this.flags.set(name.toLowerCase(), {
+    // Push the new flag onto the shack.
+    this.flags.push({
       name,
       restricted,
       combined,
@@ -49,30 +49,36 @@ class Flags {
   }
 
   /**
-   * Get a flag object
-   * @param {string} flag The function can take a single
+   * cleanFlags()
+   * Scrub through a space seperated list of flags removing
+   * any entries that are not in the flag database.
+   * @param {string} flags The function can take a single
    * flag or a list of space seperated flags.
-   * @return {Flag} Returns a flag object.
+   * @return {string[]} Returns a list of flags.
    */
-  get(flags) {
-    const returnFlags = [];
+  cleanFlags(flags) {
+    let returnFlags, not;
     // First we need to split the flag string into an array
-    flags.split(" ").filter(flag => {
-      // check to see if there's a NOT before the flag
-      if (flag[0] === "!") {
-        flag = flag.slice(1);
-      }
-      // If the flag exists add it to the list.
-      if (this.flags.has(flag)) {
-        returnFlags.push(that.flags.get(flag));
-      }
-    });
-    // Return the clean list of flags.
-    if (returnFlags.length > 1) {
-      return returnFlags;
-    } else {
-      return returnFlags[0];
-    }
+    returnFlags = flags
+      .split(" ")
+      .filter(flag => {
+        // check to see if there's a NOT before the flag
+        if (flag[0] === "!") {
+          not = "!";
+          flag = flag.slice(1);
+        }
+        // If the flag exists add it to the list.
+        if (this.flags.exists(flag)) {
+          return not + flag;
+        }
+      })
+      .join(" ");
+
+    return returnFlags;
+  }
+
+  exists(flag) {
+    return _.find(this.flags, { name: flag.toLowerCase() });
   }
 
   /**
@@ -85,49 +91,29 @@ class Flags {
    * @return {boolean} A truthy or falsey response is given
    * depending on if the conditions are met or not.
    */
-  has(obj = {}, flags = " ") {
-    const objFlags = new Set(obj.flags);
-    const cleanFlags = flags.split(" ").filter(flag => {
-      // this is a big conditional statment.  It checks to see
-      // if the flag returns with information (the flag object)
-      // And then checks to make sure that the object actually
-      // has the flag set.
-      if (this.get(flag) && objFlags.has(flag)) {
-        return flag;
+  hasFlags(obj = {}, flags = " ") {
+    funcReturn = true;
+    const cleanFlags = this.cleanFlags(flags);
+    cleanFlags.split(" ").forEach(flag => {
+      if (obj.flags.indexOf(flag) === -1) {
+        funcReturn = false;
       }
     });
-  }
-
-  /**
-   * Clean the given list of flags so that only pre-existing flags remain.
-   * @param {string} flags The list of flags we want reduced down to only
-   * flags that are registered in the system.
-   */
-  clean(flags) {
-    // Split the string list into seperate tokens to be filtered.
-    let cleanFlags = flags.split(" ").filter(flag => {
-      let bang = "";
-      // chop the ! off of the flag if it exists.
-      if (flag[0] === "!") {
-        flag = flag.slice(1);
-        bang = "!";
-      }
-
-      if (this.flags.has(flag.toLowerCase())) {
-        return bang + flag;
-      }
-    });
-    return cleanFlags;
+    return funcReturn;
   }
 
   /**
    * Save the flag database to file.
    */
   save() {
-    fs.writeFileSync(
-      require("path").resolve(__dirname, "../data/flags.json"),
-      mapToJson(this.flags)
-    );
+    try {
+      fs.writeFileSync(
+        `./data/${config.name || "ursa"}.db`,
+        JSON.stringify(this.flags)
+      );
+    } catch (err) {
+      throw err;
+    }
   }
 
   /**

@@ -1,24 +1,73 @@
-const Datastore = require("nedb");
 const shajs = require("sha.js");
-const config = require("./data/config.json");
+const config = require("../data/config.json");
+const fs = require("fs");
+const _ = require("lodash");
 
 class Database {
   constructor() {
-    // Start up the datastore
-    this.db = new Datastore({
-      filename: `../data/${config.name}.db`,
-      autoload: true
+    // Try to load the database from disk, else startup a new
+    // database.
+    try {
+      // Try to load the database file and parse the json.
+      const dbFile = fs.readFileSync(
+        `./data/${config.name || "Ursamu"}.db`,
+        "utf-8"
+      );
+      this.db = JSON.parse(dbFile) || [];
+      // Make an index of the id#s.
+      this.initIndex();
+      console.log("\u2714 SUCCESS: Database Loaded.");
+    } catch {
+      console.log("\u2716 ERROR: No Database Found.");
+      // If the file doesn't exist, create ae blank collection.
+      this.db = [];
+    }
+  }
+
+  initIndex() {
+    this.index = [0];
+
+    // Search through the db collection and collect all of the
+    // current dbrefs.
+    this.db.forEach(entry => {
+      // Push the id of each entry onto the index.
+      this.index.push(entry.id);
     });
+  }
+
+  newId() {
+    // First, check for any gaps in the database. If there's an open
+    // number lower than the next increment use that instead.
+    let mia = this.index.reduce(function(acc, cur, ind, arr) {
+      let diff = cur - arr[ind - 1];
+      if (diff > 1) {
+        let i = 1;
+        while (i < diff) {
+          acc.push(arr[ind - 1] + i);
+          i++;
+        }
+      }
+      return acc;
+    }, []);
+
+    // If we get a return from missing numbers, add the first
+    // to the index, and return it.
+    if (mia.length > 0) {
+      this.index.push(mia[0]);
+      return mia[0];
+
+      // Else we just find the next ID number and inc by one.
+    } else {
+      this.index.push(this.index.length - 1);
+      return this.index.length - 1;
+    }
   }
 
   insert(record) {
     // Deconstruct the input object to make sure we're only adding fields
     // recognized by the game code.
     const today = new Date();
-    let dbref;
-
     const {
-      _id = this.id(),
       name,
       description = "You see nothing special.",
       type = "thing",
@@ -34,49 +83,62 @@ class Database {
       owner = ""
     } = record;
 
+    // Generate a dbref for the object before we insert it into
+    // the database.
+    const id = this.newId();
+
     // Insert santitized record into the database as a new entry.
-    return this.db.insert(
-      {
-        _id,
-        name,
-        description,
-        type,
-        created,
-        modified,
-        channels,
-        password,
-        alias,
-        attributes,
-        flags,
-        contents,
-        location,
-        owner
-      },
-      (err, newDoc) => {
-        if (err) throw err;
-        return newDoc;
-      }
-    );
+    this.db.push({
+      id,
+      name,
+      description,
+      type,
+      created,
+      modified,
+      channels,
+      password,
+      alias,
+      attributes,
+      flags,
+      contents,
+      location,
+      owner
+    });
+
+    return _.find(this.db, { id });
+  }
+
+  save() {
+    try {
+      fs.writeFileSync(
+        `./data/${config.name || "ursa"}.db`,
+        JSON.stringify(this.db)
+      );
+    } catch (err) {
+      throw err;
+    }
   }
 
   update(id, updates) {
-    this.db.update({ _id: id }, updates, {}, (err, replaced) => {
-      if (err) throw err;
-    });
-    return this.id(id);
+    const origObj = this.id(id);
+    const index = _.findIndex(this.db, { id });
+    this.db[index] = _.merge(origObj, updates);
+    return this.db[index];
   }
 
   remove(id) {
-    this.db.remove({ _id: id }, err => {
-      if (err) throw err;
-    });
+    // Find the index of the file we want to remove
+    // from the collection.
+    const index = _.findIndex(this.db, { id });
+    // Splice it out.
+    this.db.splice(index, 1);
+
+    // remove the dbref from the index.
+    this.index.splice(id, 1);
   }
 
   id(id) {
-    return this.db.findOne({ _id: id }, (err, doc) => {
-      if (err) throw err;
-      return doc;
-    });
+    return _.find(this.db, { id });
   }
 }
 

@@ -34,6 +34,8 @@
   "dependencies": {
     "clear-module": "^3.2.0",
     "dotenv": "^8.0.0",
+    "lodash": "^4.17.14",
+    "mu-queue": "github:lcanady/mu-queue",
     "nedb": "^1.8.0",
     "node-fetch": "^2.6.0",
     "sha.js": "^2.4.11",

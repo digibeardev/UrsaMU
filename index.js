@@ -1,7 +1,4 @@
-const db = require("./src/database");
+const UrsaMu = require("./src/engine");
 
-console.log(
-  db.db.find({ _id: 6 }, (err, doc) => {
-    return doc;
-  })
-);
+const mush = new UrsaMu({ plugins: "telnet" });
+console.log(mush);

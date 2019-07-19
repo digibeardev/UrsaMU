@@ -11,11 +11,8 @@ module.exports = mush => {
   const server = net.createServer(socket => {
     const tSocket = new TelnetSocket(socket);
     tSocket.type = "telnet";
-    const connect = fs.readFileSync(
-      require("path").resolve(__dirname, "../mush-core/data/text/connect.txt")
-    );
 
-    tSocket.write(connect + "\n");
+    tSocket.write(mush.txt.get("connect.txt") + "\n");
     // Send an emit about the connection, so we can add the socket to
     // our list of connections
     tSocket.on("data", buffer => {
@@ -23,6 +20,8 @@ module.exports = mush => {
     });
   });
 
-  console.log(`Starting Telnet server on port ${process.env.GAME_PORT}`);
-  server.listen(process.env.GAME_PORT);
+  console.log(
+    `Starting Telnet server on port ${mush.config.ports.telnet || 3000}`
+  );
+  server.listen(mush.config.ports.telnet || 3000);
 };
