@@ -68,7 +68,7 @@ class Flags {
           flag = flag.slice(1);
         }
         // If the flag exists add it to the list.
-        if (this.flags.exists(flag)) {
+        if (this.exists(flag)) {
           return not + flag;
         }
       })
@@ -91,8 +91,8 @@ class Flags {
    * @return {boolean} A truthy or falsey response is given
    * depending on if the conditions are met or not.
    */
-  hasFlags(obj = {}, flags = " ") {
-    funcReturn = true;
+  hasFlags(obj = { flags: [] }, flags = " ") {
+    let funcReturn = true;
     const cleanFlags = this.cleanFlags(flags);
     cleanFlags.split(" ").forEach(flag => {
       if (obj.flags.indexOf(flag) === -1) {
@@ -137,13 +137,12 @@ class Flags {
             obj.flags.splice(index, 1);
           }
         } else {
-          obj.flags = obj.flags ? obj.flags : [];
-          // Else just push the value. Make sure it's lowercase!
+          obj.flags = obj.flags ? obj.flags : (obj.flags = []);
           obj.flags.push(flag.toLowerCase());
         }
       });
-      // Return the modified object.
-      return obj;
+      // update the database record
+      return { flags: obj.flags };
     }
   }
 }

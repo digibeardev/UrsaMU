@@ -1,25 +1,21 @@
-const broadcast = require("./broadcast");
-const database = require("./database");
-const muQueue = require("mu-queue");
-const help = require("./help");
-
 module.exports = class UrsaMu {
   constructor(options = {}) {
     const { plugins } = options;
-
-    this.parser = require("./parser")(this);
-    this.broadcast = broadcast;
+    this.parser = require("./parser");
+    this.broadcast = require("./broadcast");
     this.funs = new Map();
     this.cmds = new Map();
     this.sub = new Map();
     this.txt = new Map();
     this.scope = {};
-    this.db = database;
-    this.sockets = [];
-    this.queue = muQueue;
+    this.db = require("./database");
+    this.flags = require("./flags");
+    this.grid = require("./grid");
+    this.sockets = new Set();
+    this.queue = require("mu-queue");
     this.config = require("../data/config.json");
     this.plugins = plugins;
-    this.help = help;
+    this.help = require("./help");
 
     // Initialize in-game functionality.
     this.init();
@@ -28,9 +24,11 @@ module.exports = class UrsaMu {
   init() {
     // Install in-game commands, functions, and pre-load
     // text files.
+
     require("./commands")(this);
     require("./functions")(this);
     require("../text")(this);
+    require("./exec")(this);
 
     // Run plugins if present.
     if (this.plugins) {

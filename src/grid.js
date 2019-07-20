@@ -5,7 +5,7 @@ const db = require("./database");
  * handle commands related to building the In-Game map.
  */
 class Grid {
-  constructor(options) {
+  constructor() {
     this.db = db;
   }
 

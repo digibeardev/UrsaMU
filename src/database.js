@@ -18,9 +18,12 @@ class Database {
       this.initIndex();
       console.log("\u2714 SUCCESS: Database Loaded.");
     } catch {
-      console.log("\u2716 ERROR: No Database Found.");
       // If the file doesn't exist, create ae blank collection.
       this.db = [];
+      this.initIndex();
+      console.log(
+        "\u2716 ERROR: No Database Found. Starting new database instance."
+      );
     }
   }
 
@@ -120,9 +123,9 @@ class Database {
   }
 
   update(id, updates) {
-    const origObj = this.id(id);
     const index = _.findIndex(this.db, { id });
-    this.db[index] = _.merge(origObj, updates);
+
+    this.db[index] = { ...this.db[index], ...updates };
     return this.db[index];
   }
 
@@ -139,6 +142,17 @@ class Database {
 
   id(id) {
     return _.find(this.db, { id });
+  }
+
+  name(name) {
+    return _.find(this.db, entry => {
+      if (
+        entry.name.toLowerCase() === name.toLowerCase() ||
+        entry.alias.toLowerCase() === name.toLowerCase()
+      ) {
+        return entry;
+      }
+    });
   }
 }
 

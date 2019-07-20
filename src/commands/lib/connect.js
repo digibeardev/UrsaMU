@@ -1,7 +1,7 @@
 const shajs = require("sha.js");
 
 module.exports = mush => {
-  mush.parser.cmds.set("connect", {
+  mush.cmds.set("connect", {
     pattern: /^connect\s+(.+)\s+(.+)/i,
     run: (socket, match) => {
       const today = new Date();
@@ -31,9 +31,9 @@ module.exports = mush => {
             // send a success message!
             mush.broadcast.send(
               socket,
-              `Login Successful. Welcome to UrsaMU!\n\nLast connection was: ${
+              `Login Successful. Welcome to UrsaMU!\nLast connection was: ${
                 DBRef.modified
-              }`
+              }\r\n`
             );
           }
 

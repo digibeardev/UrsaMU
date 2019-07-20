@@ -1,5 +1,3 @@
-const db = require("./database");
-const flags = require("./flags");
 module.exports = mush => {
   /**
    * Evaluate an input stream from the user for commands.
@@ -15,7 +13,7 @@ module.exports = mush => {
     for (const command of mush.cmds.values()) {
       const { pattern, run, restriction } = command;
       const match = string.match(pattern);
-      const obj = flags.has(db.id(socket.id));
+      const obj = mush.flags.hasFlags(mush.db.id(socket.id), restriction);
 
       // If there's a match and the enactor passes the flag restriction of
       // the command or there's no restriction set, try to run the command.
@@ -25,12 +23,12 @@ module.exports = mush => {
         // just straight doesn't exist.
         try {
           ran = true;
-          return run(socket, match, scope, this);
+          return run(socket, match, scope);
         } catch (error) {
-          return this.broadcast.error(socket, error);
+          return mush.broadcast.error(socket, error);
         }
       }
     }
-    if (!ran) this.broadcast.send(socket, 'Huh? Type "help" for help.');
+    if (!ran) mush.broadcast.huh(socket);
   };
 };

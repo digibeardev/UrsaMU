@@ -22,7 +22,7 @@ class Broadcast {
           if (listener.type === "telnet") {
             // If the socket type is telnet, it can only handle
             // the text portion of the request.
-            listener.write(msg.msg ? msg.msg + "\n" : msg + "\n");
+            listener.write(msg.msg ? msg.msg + "\r\n" : msg + "\r\n");
           } else if (listner.type === "websocket") {
             // If msg contains the property message, it's probably a json
             // response.  Otherwise it's probably just text.
@@ -35,7 +35,7 @@ class Broadcast {
         if (socket.type === "telnet") {
           // If the socket type is telnet, it can only handle
           // the text portion of the request.
-          socket.write(msg.msg ? msg.msg + "\n" : msg + "\n");
+          socket.write(msg.msg ? msg.msg + "\r\n" : msg + "\r\n");
         } else if (socketype === "websocket") {
           // If msg contains the property message, it's probably a json
           // response.  Otherwise it's probably just text.
@@ -59,7 +59,7 @@ class Broadcast {
     socket.write(
       "Congrats! You found a bug! Well this is embarrasing.. " +
         "If you could be so kind as to let someone on staff know that you ran into " +
-        `this error? That would be /amazing/!\n\nERROR: ${error.stack}\n`
+        `this error? That would be /amazing/!\n\nERROR: ${error.stack}\r\n`
     );
   }
 
@@ -68,7 +68,7 @@ class Broadcast {
    * @param {*} socket The Socket the message is being sent too.
    */
   huh(socket) {
-    socket.write('Huh? Type "help" for help.\n');
+    socket.write('Huh? Type "help" for help.\r\n');
   }
 }
 

@@ -140,4 +140,4 @@ class Parser {
   }
 }
 
-module.exports = Parser;
+module.exports = new Parser();
