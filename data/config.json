@@ -3,5 +3,6 @@
   "ports": {
     "telnet": 2000,
     "WS": 5000
-  }
+  },
+  "startingRoom": ""
 }

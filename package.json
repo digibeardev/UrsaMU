@@ -32,6 +32,7 @@
   },
   "homepage": "https://github.com/digibeardev/ursamu#readme",
   "dependencies": {
+    "chalk": "^2.4.2",
     "clear-module": "^3.2.0",
     "dotenv": "^8.0.0",
     "lodash": "^4.17.14",

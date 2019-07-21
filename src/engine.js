@@ -3,13 +3,12 @@ module.exports = class UrsaMu {
     const { plugins } = options;
     this.parser = require("./parser");
     this.broadcast = require("./broadcast");
-    this.funs = new Map();
     this.cmds = new Map();
     this.txt = new Map();
     this.scope = {};
     this.db = require("./database");
-    this.flags = require("./flags");
     this.grid = require("./grid");
+    this.flags = require("./flags");
     this.sockets = new Set();
     this.queue = require("mu-queue");
     this.config = require("../data/config.json");
@@ -25,7 +24,6 @@ module.exports = class UrsaMu {
     // text files.
 
     require("./commands")(this);
-    require("./functions")(this);
     require("../text")(this);
     require("./exec")(this);
 

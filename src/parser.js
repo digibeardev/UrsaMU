@@ -9,7 +9,9 @@ const flags = require("./flags");
 class Parser {
   constructor() {
     this.sub = new Map();
+    this.funs = new Map();
     require("./substitutions")(this);
+    require("./functions")(this);
   }
 
   /**

@@ -2,6 +2,7 @@ const shajs = require("sha.js");
 const config = require("../data/config.json");
 const fs = require("fs");
 const _ = require("lodash");
+const { log } = require("./utilities");
 
 class Database {
   constructor() {
@@ -16,14 +17,12 @@ class Database {
       this.db = JSON.parse(dbFile) || [];
       // Make an index of the id#s.
       this.initIndex();
-      console.log("\u2714 SUCCESS: Database Loaded.");
+      log.success("Database Loaded.");
     } catch {
       // If the file doesn't exist, create ae blank collection.
       this.db = [];
       this.initIndex();
-      console.log(
-        "\u2716 ERROR: No Database Found. Starting new database instance."
-      );
+      log.error("No Database Found. Starting new database instance.");
     }
   }
 
@@ -76,6 +75,7 @@ class Database {
       type = "thing",
       created = today,
       modified = today,
+      last = today,
       channels = [],
       password = "",
       alias = "",
@@ -96,6 +96,7 @@ class Database {
       name,
       description,
       type,
+      last,
       created,
       modified,
       channels,

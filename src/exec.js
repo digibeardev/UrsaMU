@@ -29,6 +29,6 @@ module.exports = mush => {
         }
       }
     }
-    if (!ran) mush.broadcast.huh(socket);
+    if (!ran && socket.id) mush.broadcast.huh(socket);
   };
 };

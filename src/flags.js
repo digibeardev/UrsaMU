@@ -1,5 +1,6 @@
 const fs = require("fs");
 const _ = require("lodash");
+const db = require("./database");
 
 /**
  * Class Flags
@@ -17,13 +18,15 @@ class Flags {
 
     try {
       this.flags = JSON.parse(
-        fs.readFileSync("./data/flags.json", {
+        fs.readFileSync("../data/flags.json", {
           encoding: "utf-8"
         })
       );
-      console.log("\u2714 SUCCESS: Game flags loaded.");
+      log.success("Game flags loaded.");
     } catch (error) {
-      console.log("\u2716 ERROR: No flag.json file found.");
+      console.log(
+        log.error("No flags.json file found. Creating new document.")
+      );
       this.flags = [];
     }
   }
@@ -92,14 +95,20 @@ class Flags {
    * depending on if the conditions are met or not.
    */
   hasFlags(obj = { flags: [] }, flags = " ") {
-    let funcReturn = true;
-    const cleanFlags = this.cleanFlags(flags);
-    cleanFlags.split(" ").forEach(flag => {
-      if (obj.flags.indexOf(flag) === -1) {
-        funcReturn = false;
+    let rtrn = true;
+    const cleanFlags = flags.split(" ").filter(flag => {
+      if (_.find(this.flags, { name: flag })) {
+        return true;
+      } else {
+        return false;
       }
     });
-    return funcReturn;
+    cleanFlags.forEach(flag => {
+      if (obj.flags.indexOf(flag) <= -1) {
+        rtrn = false;
+      }
+    });
+    return rtrn;
   }
 
   /**
@@ -123,26 +132,43 @@ class Flags {
    * a flag from an object, use the NOT (!) indicator in front of the flag.
    */
   set(obj, flags) {
-    // First make sure we're dealing with an object.
-    if (typeof obj === "object") {
-      // Break the string of flags into an array, then loop through each...
-      flags.split(" ").forEach(flag => {
-        // Check to see if we're adding or removing a flag
-        if (flag[0] === "!") {
-          flag = flag.slice(1);
-          // This basically means find where flag lives (indexOf) and remove it
-          // from the object.
-          const index = obj.flags.indexOf(flag);
-          if (index !== -1) {
-            obj.flags.splice(index, 1);
-          }
-        } else {
-          obj.flags = obj.flags ? obj.flags : (obj.flags = []);
-          obj.flags.push(flag.toLowerCase());
+    // First, let's make a Set object to hold our working data.  You can't
+    // have repeating values - so it'll filter any repeats for us.
+    const flagSet = new Set(obj.flags);
+
+    flags.split(" ").forEach(flag => {
+      //Check for flag removals
+      if (flag[0] === "!") {
+        // Remove the bang '!' from the flag and delete the record from the
+        // set if it exits.
+        flag = flag.slice(1);
+        flagSet.delete(flag);
+      } else {
+        // Else we're adding an item to the set.
+        flagSet.add(flag);
+      }
+    });
+    return db.update(obj.id, { flags: [...flagSet] });
+  }
+
+  orFlags(enactor, flags) {
+    let ret = false;
+    flags
+      .toLowerCase()
+      .split(" ")
+      .forEach(flag => {
+        if (this.hasFlags(enactor, flag)) {
+          ret = true;
         }
       });
-      // update the database record
-      return { flags: obj.flags };
+    return ret;
+  }
+
+  canEdit(enactor, target) {
+    if (target.id === enactor.id || this.orFlags(enactor, "admin")) {
+      return true;
+    } else {
+      return false;
     }
   }
 }

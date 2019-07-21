@@ -24,6 +24,7 @@ module.exports = mush => {
             socket.id = DBRef.id;
             // Update the last time their character was modified
             mush.db.update(DBRef.id, { modified: today });
+            mush.flags.set(DBRef, "connected");
             // Save the db
             mush.db.save();
             // add the socket to the global list.
