@@ -22,7 +22,7 @@ Related Topics: @name.
 `
   });
 
-  mush.parser.cmds.set("@alias", {
+  mush.cmds.set("@alias", {
     pattern: /^@alias\s+(.*)/,
     run: (socket, match, scope) => {
       // Pull the information we want from the match array.
@@ -37,9 +37,7 @@ Related Topics: @name.
           target.alias = alias;
           mush.broadcast.send(
             socket,
-            mush.parser.subs(
-              `%chDone.%cn ${target.name}'s alias set to %ch${alias}`
-            )
+            `%chDone.%cn ${target.name}'s alias set to %ch${alias}%cn.`
           );
           mush.db.save();
           break;

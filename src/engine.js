@@ -5,7 +5,6 @@ module.exports = class UrsaMu {
     this.broadcast = require("./broadcast");
     this.funs = new Map();
     this.cmds = new Map();
-    this.sub = new Map();
     this.txt = new Map();
     this.scope = {};
     this.db = require("./database");

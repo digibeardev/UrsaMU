@@ -7,7 +7,10 @@ const flags = require("./flags");
  * https://eloquentjavascript.net/12_language.html
  */
 class Parser {
-  constructor() {}
+  constructor() {
+    this.sub = new Map();
+    require("./substitutions")(this);
+  }
 
   /**
    * parseExpression()

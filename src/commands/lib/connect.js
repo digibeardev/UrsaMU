@@ -16,6 +16,7 @@ module.exports = mush => {
         const security = shajs("sha256")
           .update(password)
           .digest("hex");
+
         // Sweet Success!
         if (DBRef) {
           if (security === DBRef.password) {
