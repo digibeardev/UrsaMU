@@ -1,4 +1,4 @@
-# @Say
+# Say
 
 COMMAND: @say
 
