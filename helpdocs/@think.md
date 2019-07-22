@@ -1,10 +1,10 @@
-# @Think
+# Think
 
-COMMAND: @think
+COMMAND: think
 
 ATTRIBUTE: **Think**
 
-SYNTAX: @think me=blah
+SYNTAX: think me=blah
 
 Stuff here
 
