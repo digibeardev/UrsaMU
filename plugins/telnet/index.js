@@ -12,16 +12,15 @@ module.exports = mush => {
     const tSocket = new TelnetSocket(socket);
     tSocket.type = "telnet";
 
-    tSocket.write(mush.txt.get("connect.txt") + "\r\n");
+    tSocket.write(mush.parser.subs(mush.txt.get("connect.txt")) + "\r\n");
 
     tSocket.on("data", buffer => {
       mush.exec(tSocket, buffer.toString(), mush.scope);
     });
   });
 
-  console.log(
-    `\u2714 SUCCESS: Starting Telnet server on port ${mush.config.ports
-      .telnet || 3000}`
+  mush.log.success(
+    `Starting Telnet server on port ${mush.config.get("telnet") || 3000}`
   );
-  server.listen(mush.config.ports.telnet || 3000);
+  server.listen(mush.config.get("telnet") || 3000);
 };

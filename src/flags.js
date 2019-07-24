@@ -1,6 +1,7 @@
 const fs = require("fs");
 const _ = require("lodash");
 const db = require("./database");
+const { log } = require("./utilities");
 
 /**
  * Class Flags
@@ -18,7 +19,7 @@ class Flags {
 
     try {
       this.flags = JSON.parse(
-        fs.readFileSync("../data/flags.json", {
+        fs.readFileSync("./data/flags.json", {
           encoding: "utf-8"
         })
       );
@@ -80,6 +81,10 @@ class Flags {
     return returnFlags;
   }
 
+  /**
+   * Checks if a flag exists or not.
+   * @param {string} flag A single flag.
+   */
   exists(flag) {
     return _.find(this.flags, { name: flag.toLowerCase() });
   }
@@ -151,6 +156,11 @@ class Flags {
     return db.update(obj.id, { flags: [...flagSet] });
   }
 
+  /**
+   * Checks to see if enactor has at least one of the given flags.
+   * @param {DBO} enactor
+   * @param {string} flags
+   */
   orFlags(enactor, flags) {
     let ret = false;
     flags
@@ -164,6 +174,11 @@ class Flags {
     return ret;
   }
 
+  /**
+   * Can enactor edit target?
+   * @param {DBO} enactor The DBO of the enactor,
+   * @param {DBO} target  The DBO of the target.
+   */
   canEdit(enactor, target) {
     if (target.id === enactor.id || this.orFlags(enactor, "admin")) {
       return true;

@@ -14,6 +14,10 @@ module.exports = mush => {
   const create = (socket, match) => {
     // Make sure the socket doesn't already have an ID (isn't already logged in)
     if (!socket.id) {
+      // Check to see if any player objects have been created yet.  If not, the very
+      // first one made is going to have our 'god' flag.
+      const players = mush.db.find({ type: "player" });
+
       // extract the values we want from the args param.
       const [, name = " ", password = " "] = match;
       // Make sure it's a unique name!  If the database returns
@@ -23,6 +27,7 @@ module.exports = mush => {
         // Create the new entry into the database.
         mush.db.insert({
           name,
+          location: mush.config.get("startingRoom"),
           // Gotta secure them passwords! In the future we might want
           // to use something stronger than SHA256.  Ultimately I'd like
           // people to be able to log in with their google ID or Facebook
@@ -36,7 +41,22 @@ module.exports = mush => {
         // give them a boxed new player welcome.
         mush.broadcast.send(socket, mush.txt.get("newconnect.txt") + "\r\n");
         socket.id = mush.db.name(name).id;
-        const setFlags = mush.flags.set(socket, "connected");
+        let setFlags;
+        // If no players exist, assign the 'god' flag to the first player made
+        // on the db. This is something that'll be handled through the web portal
+        // game setup.
+        if (!players) {
+          mush.broadcast.send(
+            socket,
+            "%ch%cy>> God character not created yet. Adding permissions to this " +
+              "player bit. It's suggested that you create a Wizard character and " +
+              "keep this character bit safe!%cn"
+          );
+          setFlags = mush.flags.set(socket, "god connected");
+          // Or it's just a regular player bit.  Skip the extra flag.
+        } else {
+          setFlags = mush.flags.set(socket, "connected");
+        }
         mush.db.update(socket.id, setFlags);
         mush.db.save();
       } else {

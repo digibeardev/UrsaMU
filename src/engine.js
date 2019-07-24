@@ -1,19 +1,30 @@
+const parser = require("./parser");
+const emitter = require("./emitter");
+const broadcast = require("./broadcast");
+const db = require("./database");
+const grid = require("./grid");
+const flags = require("./flags");
+const config = require("./config");
+const help = require("./help");
+
 module.exports = class UrsaMu {
   constructor(options = {}) {
     const { plugins } = options;
-    this.parser = require("./parser");
-    this.broadcast = require("./broadcast");
+    this.parser = parser;
+    this.broadcast = broadcast;
+    this.emitter = emitter;
     this.cmds = new Map();
     this.txt = new Map();
     this.scope = {};
-    this.db = require("./database");
-    this.grid = require("./grid");
-    this.flags = require("./flags");
+    this.log = require("./utilities").log;
+    this.db = db;
+    this.grid = grid;
+    this.flags = flags;
+    this.config = config;
     this.sockets = new Set();
     this.queue = require("mu-queue");
-    this.config = require("../data/config.json");
     this.plugins = plugins;
-    this.help = require("./help");
+    this.help = help;
 
     // Initialize in-game functionality.
     this.init();
@@ -30,6 +41,14 @@ module.exports = class UrsaMu {
     // Run plugins if present.
     if (this.plugins) {
       this.plugin(this.plugins);
+    }
+  }
+
+  exe(socket, command, args = []) {
+    try {
+      return this.cmds.get(command).run(socket, args, this.scope);
+    } catch (error) {
+      throw error;
     }
   }
 

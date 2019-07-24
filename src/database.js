@@ -1,4 +1,3 @@
-const shajs = require("sha.js");
 const config = require("../data/config.json");
 const fs = require("fs");
 const _ = require("lodash");
@@ -11,7 +10,7 @@ class Database {
     try {
       // Try to load the database file and parse the json.
       const dbFile = fs.readFileSync(
-        `./data/${config.name || "Ursamu"}.db`,
+        `./data/${config.name || "Ursamu"}.json`,
         "utf-8"
       );
       this.db = JSON.parse(dbFile) || [];
@@ -22,7 +21,8 @@ class Database {
       // If the file doesn't exist, create ae blank collection.
       this.db = [];
       this.initIndex();
-      log.error("No Database Found. Starting new database instance.");
+      log.warning("No Database Found.");
+      log.success("Starting new database instance.", 2);
     }
   }
 
@@ -83,7 +83,11 @@ class Database {
       flags = [],
       contents = [],
       location = "",
-      owner = ""
+      owner = "",
+      descFormat = "",
+      nameFormat = "",
+      conFormat = "",
+      exitFormat = ""
     } = record;
 
     // Generate a dbref for the object before we insert it into
@@ -106,7 +110,11 @@ class Database {
       flags,
       contents,
       location,
-      owner
+      owner,
+      nameFormat,
+      descFormat,
+      conFormat,
+      exitFormat
     });
 
     return _.find(this.db, { id });
@@ -115,8 +123,8 @@ class Database {
   save() {
     try {
       fs.writeFileSync(
-        `./data/${config.name || "ursa"}.db`,
-        JSON.stringify(this.db)
+        `./data/${config.name || "Ursa"}.json`,
+        JSON.stringify(this.db, {}, 2)
       );
     } catch (err) {
       throw err;
@@ -154,6 +162,10 @@ class Database {
         return entry;
       }
     });
+  }
+
+  find(query) {
+    return _.find(this.db, query);
   }
 }
 

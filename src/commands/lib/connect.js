@@ -30,21 +30,24 @@ module.exports = mush => {
             // add the socket to the global list.
             mush.sockets.add(socket);
             socket.id = DBRef.id;
+            const last = new Date(DBRef.last);
             // send a success message!
             mush.broadcast.send(
               socket,
-              `Login Successful. Welcome to UrsaMU!\nLast connection was: ${
-                DBRef.modified
-              }\r\n`
+              `%chLogin Successful%cn. Welcome to %chUrsaMU!%cn. Last connection was:` +
+                `${last.getDay()}/${last.getMonth()}/${last.getFullYear()}` +
+                ` - ${last.getHours()}:${last.getMinutes()}\r\n`
             );
           }
 
           // Fail attempt.
         } else {
-          socket.end(
+          mush.broadcast.send(
+            socket,
             "Either that player does not exist, or " +
-              "has a different password.\n"
+              "has a different password."
           );
+          socket.end();
         }
         // Else they're already logged in.  Show a 'Huh?' message.
       } else {

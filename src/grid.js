@@ -9,7 +9,6 @@ const { log } = require("./utilities");
  */
 class Grid {
   constructor() {
-    this.db = db;
     this.init();
   }
 
@@ -17,12 +16,12 @@ class Grid {
    * Initiate the in-game grid
    */
   init() {
-    if (!_.find(this.db, { type: "room" })) {
-      log.error("ERROR: No Grid found. Creating Limbo.");
+    if (!_.find(db.db, { type: "room" })) {
+      log.warning("No Grid found. Creating Limbo.");
       const { room } = this.dig({}, "Limbo");
       if (room) {
-        log.success(`Limbo created.`);
-        config.set("startingRoom", room.id);
+        log.success(`Limbo created.`, 2);
+        config.set({ startingRoom: room.id });
         config.save();
       } else {
         log.error("Couldn't create limbo");
@@ -42,15 +41,20 @@ class Grid {
    */
   dig(socket, name, toExit = "", fromExit = "") {
     // Get information about the rooms involved with the change.
-    const room = this.db;
-    const curRoom = this.db.id(socket.id)
-      ? this.db.id(socket.id).location
-      : { id: "" };
+    const room = db.insert({
+      name: name,
+      type: "room",
+      owner: socket.id
+    });
+
+    const curRoom = db.id(socket.id)
+      ? db.id(socket.id).location
+      : { id: "", exits: [] };
 
     let toexit;
     // Create the exits
     if (toExit) {
-      toexit = this.db.update({
+      toexit = db.update({
         name: toExit,
         type: "exit",
         location: curRoom.id,
@@ -58,18 +62,27 @@ class Grid {
       });
     }
 
+    if (curRoom.id) {
+      db.update(curRoom.id, {
+        exits: [...curRoom.exits, ...toexit.id]
+      });
+    }
+
     // Check to see if there's a return exit involved.
     let fromexit;
     if (fromExit) {
-      fromexit = this.db.update({
+      fromexit = db.update({
         name: fromExit,
         type: "exit",
         location: room.id,
         owner: socket.id || ""
       });
+
+      db.update(room.id, { exits: [...room.exits, ...fromexit] });
+      db.save();
     }
 
-    this.db.save();
+    db.save();
     // Return the created objects!
     return { room, toexit, fromexit };
   }
@@ -81,13 +94,13 @@ class Grid {
    * be opened.
    */
   open(name, room) {
-    const exit = this.db.update({
+    const exit = db.update({
       name,
       type: "exit",
       location: room.id
     });
 
-    this.db.save();
+    db.save();
     return exit;
   }
 }

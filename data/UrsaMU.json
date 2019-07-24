@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "name": "Limbo",
+    "description": "You see nothing special.",
+    "type": "room",
+    "last": "2019-07-24T02:36:24.611Z",
+    "created": "2019-07-24T02:36:24.611Z",
+    "modified": "2019-07-24T02:36:24.611Z",
+    "channels": [],
+    "password": "",
+    "alias": "",
+    "attributes": {},
+    "flags": [],
+    "contents": [],
+    "location": "",
+    "owner": "",
+    "nameFormat": "",
+    "descFormat": "",
+    "conFormat": "",
+    "exitFormat": ""
+  },
+  {
+    "id": 2,
+    "name": "Kumakun",
+    "description": "You see nothing special.",
+    "type": "player",
+    "last": "2019-07-24T02:36:30.409Z",
+    "created": "2019-07-24T02:36:30.409Z",
+    "modified": "2019-07-24T20:26:33.736Z",
+    "channels": [],
+    "password": "4e4dfe876770ae660553768ecbcdaaf191d6aa61d2dbb621094177e6cfde2305",
+    "alias": "K",
+    "attributes": {},
+    "flags": [
+      "god",
+      "connected"
+    ],
+    "contents": [],
+    "location": 1,
+    "owner": "",
+    "nameFormat": "",
+    "descFormat": "",
+    "conFormat": "",
+    "exitFormat": ""
+  }
+]
