@@ -34,9 +34,7 @@ module.exports = mush => {
             // send a success message!
             mush.broadcast.send(
               socket,
-              `%chLogin Successful%cn. Welcome to %chUrsaMU!%cn. Last connection was:` +
-                `${last.getDay()}/${last.getMonth()}/${last.getFullYear()}` +
-                ` - ${last.getHours()}:${last.getMinutes()}\r\n`
+              `%chLogin Successful%cn. Welcome to %chUrsaMU!%cn`
             );
           }
 

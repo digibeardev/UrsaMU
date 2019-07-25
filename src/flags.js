@@ -180,7 +180,11 @@ class Flags {
    * @param {DBO} target  The DBO of the target.
    */
   canEdit(enactor, target) {
-    if (target.id === enactor.id || this.orFlags(enactor, "admin")) {
+    if (
+      target.id === enactor.id ||
+      target.owner === enactor.id ||
+      this.orFlags(enactor, "god wizard staff")
+    ) {
       return true;
     } else {
       return false;

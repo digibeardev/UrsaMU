@@ -1,50 +1,69 @@
 module.exports = mush => {
-  mush.parser.cmds.set("@dig", {
+  mush.cmds.set("@dig", {
     // I haven't come up with a way to document functions and
     // commands yet - so these will likely change, but for now?
     // Hi!,
     pattern: /^@dig(\/teleport|\/tele|\/port)?\s+(.*)/i,
-    run: (socket, match, scope) => {
-      if (mush.flags.has(socket, "connected admin")) {
-        // capture all of the pieces we're going to need in order to
-        // dig a 'room'.
-        const teleport = match[1];
-        currRoom = mush.db.id(socket.id)
-          ? mush.db.name(mush.db.id(socket.id).location)
-          : "Unknown Room";
-        const [name, exits] = match[2].split("=");
-        const [toExit, fromExit] = exits.split(",");
+    run: (socket, match) => {
+      // Deconstruct a whole mess of arguments!
+      const [, teleport, args] = match;
+      const [name, exits] = args.split("=");
+      const [toExit, fromExit] = exits.split(",");
 
-        // build the room, exits and link them together.
-        const { room, toexit, fromexit } = mush.grid.dig(
+      const enactor = mush.db.id(socket.id);
+      const curRoom = mush.db.id(enactor.location);
+
+      // Check to see if the player has permissions to dig new
+      // rooms from this location.
+      if (mush.flags.canEdit(enactor, curRoom)) {
+        // Create the new room
+        const room = mush.db.insert({
           name,
-          toExit,
-          fromExit
-        );
-        mush.broadcast.send(
-          socket,
-          `%chDone%cn. Room %ch${room.name}%cn dug.%r` +
-            `%chDone.%cn Exit %ch${toexit.name.split(";")[0]}` +
-            `to %ch${room.name}%cn.`
-        );
-        // If a return exit is specified
-        if (fromexit) {
+          type: "room",
+          owner: socket.id,
+          exits: []
+        });
+        mush.broadcast.send(socket, `%chDone.%cn Room %ch${room.name}%cn dug.`);
+
+        let toexit, fromexit;
+
+        // If a 'to' exit is defined, create the db reference and link.
+        if (toExit) {
+          toexit = mush.db.insert({
+            name: toExit,
+            type: "exit",
+            owner: enactor.id,
+            location: enactor.location
+          });
+
+          mush.db.update(curRoom.id, { exits: [...curRoom.exits, toexit.id] });
           mush.broadcast.send(
             socket,
-            `%chDone.%cn Exit ${fromexit.name} opend to room ${currRoom}`
+            `%chDone.%cn Exit %ch${
+              toexit.name.split(";")[0]
+            }%cn opened to room %ch${room.name}%cn.`
           );
         }
 
-        // Did they use the teleport flag?
-        if (teleport) {
-          const player = mush.db.id(socket.id);
-          player.location = room.id;
-        }
+        if (fromExit) {
+          fromexit = mush.db.insert({
+            name: fromExit.trim(),
+            type: "exit",
+            owner: enactor.id,
+            location: room.id
+          });
 
-        // Save the database.
+          mush.db.update(room.id, { exits: [...room.exits, fromexit.id] });
+          mush.broadcast.send(
+            socket,
+            `%chDone.%cn Exit %ch${
+              fromexit.name.split(";")[0]
+            }%cn opened to room %ch${curRoom.name}%cn.`
+          );
+        }
         mush.db.save();
       } else {
-        mush.broadcast.huh(socket);
+        mush.broadcast.send(socket, "Permission denied.");
       }
     }
   });

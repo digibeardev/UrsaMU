@@ -44,8 +44,10 @@ class Grid {
     const room = db.insert({
       name: name,
       type: "room",
-      owner: socket.id
+      owner: socket.id,
+      exits: []
     });
+    db.save();
 
     const curRoom = db.id(socket.id)
       ? db.id(socket.id).location
