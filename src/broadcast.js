@@ -19,6 +19,10 @@ class Broadcast {
     socket.write(parser.subs(message) + "\r\n");
   }
 
+  sendList(sockets, message) {
+    sockets.forEach(socket => socket.write(message + "\r\n"));
+  }
+
   /**
    * Send an error message to a socket
    * @param {*} socket - The socket the message is being sent to.
@@ -28,7 +32,7 @@ class Broadcast {
     socket.write(
       "Congrats! You found a bug! Well this is embarrasing.. " +
         "If you could be so kind as to let someone on staff know that you ran into " +
-        `this error? That would be /amazing/!\n\nERROR: ${error.stack}\r\n`
+        `this error? That would be /amazing/!\nERROR: ${error.stack}\r\n`
     );
   }
 

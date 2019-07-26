@@ -13,4 +13,3 @@
 |   special topics.  Other 'help' commands include "+help" and "news".       |
 |                                                                            |
 +----------------------------------------------( Last Update: 07/23/2019 )---+
-

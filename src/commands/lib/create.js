@@ -17,6 +17,7 @@ module.exports = mush => {
       // Check to see if any player objects have been created yet.  If not, the very
       // first one made is going to have our 'god' flag.
       const players = mush.db.find({ type: "player" });
+      const room = mush.db.id(mush.config.get("startingRoom"));
 
       // extract the values we want from the args param.
       const [, name = " ", password = " "] = match;
@@ -25,7 +26,7 @@ module.exports = mush => {
       // failure message.
       if (!mush.db.name(name.toLowerCase())) {
         // Create the new entry into the database.
-        mush.db.insert({
+        const enactor = mush.db.insert({
           name,
           location: mush.config.get("startingRoom"),
           // Gotta secure them passwords! In the future we might want
@@ -37,21 +38,23 @@ module.exports = mush => {
             .digest("hex"),
           type: "player"
         });
+
+        // Add the new player to the contents of the starting room.
+        mush.db.update(room.id, { contents: [...room.contents, enactor.id] });
+
         // The player was able to make it through the signup process!  Now let's
         // give them a boxed new player welcome.
         mush.broadcast.send(socket, mush.txt.get("newconnect.txt") + "\r\n");
-        socket.id = mush.db.name(name).id;
+        socket.id = enactor.id;
+
+        // Add the new player to the contents of the starting room.
+        mush.db.update(room.id, { contents: [...room.contents, enactor.id] });
+
         let setFlags;
         // If no players exist, assign the 'god' flag to the first player made
         // on the db. This is something that'll be handled through the web portal
         // game setup.
         if (!players) {
-          mush.broadcast.send(
-            socket,
-            "%ch%cy>> God character not created yet. Adding permissions to this " +
-              "player bit. It's suggested that you create a Wizard character and " +
-              "keep this character bit safe!%cn"
-          );
           setFlags = mush.flags.set(socket, "god connected");
           // Or it's just a regular player bit.  Skip the extra flag.
         } else {

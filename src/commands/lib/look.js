@@ -25,12 +25,28 @@ module.exports = mush => {
         }
       };
 
+      // Format contents for display
+      const contents = (en, tar) => {
+        let cont = target.type === "player" ? "\nCarrying:" : "\nContents:";
+        if (tar.hasOwnProperty("conformat")) {
+          return mush.parser.run(tar.conformat, {
+            "%0": tar.contents.map(item => "#" + item).join(),
+            "%1": tar.contents.map(item => item.name).join()
+          });
+        } else {
+          tar.contents.forEach(item => {
+            cont += `\n${name(en, mush.db.id(item))}`;
+          });
+        }
+        return cont;
+      };
+
       // Format exits for display.
       const exits = (en, tar) => {
         let exits = "\nExits:";
         if (tar.hasOwnProperty("exitformat")) {
           return mush.parser.run(tar.exitformat, {
-            "%0": tar.exits.map(exit => "#" + exit).join()
+            "%0": tar.exits.map(exit => " #" + exit).join()
           });
         } else if (tar.exits > 0) {
           // Format each exit before adding it to the display string.
@@ -80,6 +96,9 @@ module.exports = mush => {
         // Send the built description to the enactor.
         desc += name(enactor, target) + "\n";
         desc += description(enactor, target);
+        if (target.contents.length > 0) {
+          desc += contents(enactor, target);
+        }
         desc += exits(enactor, target);
         mush.broadcast.send(socket, desc);
       }
