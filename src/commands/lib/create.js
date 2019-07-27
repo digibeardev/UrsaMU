@@ -21,6 +21,7 @@ module.exports = mush => {
 
       // extract the values we want from the args param.
       const [, name = " ", password = " "] = match;
+
       // Make sure it's a unique name!  If the database returns
       // any names (Upper or lowercase!) then it should send the
       // failure message.
@@ -46,6 +47,11 @@ module.exports = mush => {
         // give them a boxed new player welcome.
         mush.broadcast.send(socket, mush.txt.get("newconnect.txt") + "\r\n");
         socket.id = enactor.id;
+        mush.broadcast.send(
+          socket,
+          `%cyYou are connected to your %cn%chArchitect%cn %cyplayer.%cn`
+        );
+        mush.exe(socket, "look", []);
 
         // Add the new player to the contents of the starting room.
         mush.db.update(room.id, { contents: [...room.contents, enactor.id] });
@@ -55,7 +61,7 @@ module.exports = mush => {
         // on the db. This is something that'll be handled through the web portal
         // game setup.
         if (!players) {
-          setFlags = mush.flags.set(socket, "god connected");
+          setFlags = mush.flags.set(socket, "architect connected");
           // Or it's just a regular player bit.  Skip the extra flag.
         } else {
           setFlags = mush.flags.set(socket, "connected");

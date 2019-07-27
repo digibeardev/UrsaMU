@@ -1,8 +1,7 @@
 [
   {
-    "name": "god",
-    "restricted": "god",
-    "code": "@"
+    "name": "architect",
+    "restricted": "architect"
   },
   {
     "name": "wizard",
@@ -20,7 +19,7 @@
   },
   {
     "name": "admin",
-    "combined": "god wizard staff"
+    "combined": "architect wizard staff"
   },
   {
     "name": "connected",

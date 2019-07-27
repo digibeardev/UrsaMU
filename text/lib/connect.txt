@@ -1,15 +1,15 @@
-+----------------------------------------------------------------------------+
-|--------------------------|  Welcome to UrsaMU  |---------------------------|
-+----------------------------------------------------------------------------+
-|                                                                            |
-|   "connect <name> <password>" connects you to an existing character.       |
-|   "connect guest" connects you to a guest account if one is prepared.      |
-|   "create <name> <password>" creates a new character.                      |
-|                                                                            |
-|   "WHO" tells you who is logged in to the game (case sensitive).           |
-|   "QUIT" exits the game and saves your character.                          |
-|                                                                            |
-|   Once logged on, "help" gives help on specific commands, functions, and   |
-|   special topics.  Other 'help' commands include "+help" and "news".       |
-|                                                                            |
-+----------------------------------------------( Last Update: 07/23/2019 )---+
+%cr+%ch----------------------------------------------------------------------------%cn%cr+%cn
+%ch%cr|%cn%cr-------------------------%ch%cr<<%cn  %chWelcome to UrsaMU%cn  %ch%cr>>%cn%cr--------------------------%ch%cr|%cn
+%cr+%ch----------------------------------------------------------------------------%cn%cr+%cn
+%cr|%cn                                                                            %cr|%cn
+%cr|%cn   "%chconnect%cn <%chname%cn> <%chpassword%cn>" connects you to an existing character.       %cr|%cn
+%cr|%cn   "%chconnect guest%cn" connects you to a guest account if one is prepared.      %cr|%cn
+%cr|%cn   "%chcreate%cn <%chname%cn> <%chpassword%cn>" creates a new character.                      %cr|%cn
+%cr|%cn                                                                            %cr|%cn
+%cr|%cn   "WHO" tells you who is logged in to the game (case sensitive).           %cr|%cn
+%cr|%cn   "QUIT" exits the game and saves your character.                          %cr|%cn
+%cr|%cn                                                                            %cr|%cn
+%cr|%cn   Once logged on, "help" gives help on specific commands, functions, and   %cr|%cn
+%cr|%cn   special topics.  Other 'help' commands include "+help" and "news".       %cr|%cn
+%cr|%cn                                                                            %cr|%cn
+%cr+----------------------------------------------------------%cr+%ch(%cn %ch07/23/2019%cn %ch%cr)%cn%cr+--+%cn

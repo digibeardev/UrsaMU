@@ -1,4 +1,6 @@
 const parser = require("./parser");
+const db = require("./database");
+const flags = require("./flags");
 
 /**
  * new Broadcast()
@@ -19,8 +21,22 @@ class Broadcast {
     socket.write(parser.subs(message) + "\r\n");
   }
 
-  sendList(sockets, message) {
-    sockets.forEach(socket => socket.write(message + "\r\n"));
+  /**
+   * sendList sends a message to an array of multiple sockets.
+   * @param {Objects[]} targets a list of targets a message is to be sent too.
+   * @param {String} message The message to be sent.
+   * @param {string} flags Any flag restrictions the message has 'connected' for instance.
+   */
+  sendList(targets, message, flags = "") {
+    targets.forEach(target => {
+      if (flags.hasFlags(db.id(target), flags) || !flags) {
+        try {
+          target.write(message + "\r\n");
+        } catch {
+          //Handle sending messages to objects without a 'write' method.
+        }
+      }
+    });
   }
 
   /**

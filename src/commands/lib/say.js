@@ -9,7 +9,7 @@ module.exports = mush => {
           `You say, "` + mush.parser.run(match[1], scope) + `"`
         );
       } catch (error) {
-        mush.broadcast.send(socket, "You say, " + match[1] + '"');
+        mush.broadcast.send(socket, `You say, "` + match[1] + `"`);
       }
     }
   });

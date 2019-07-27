@@ -22,7 +22,7 @@ module.exports = class UrsaMu {
     this.flags = flags;
     this.config = config;
     this.sockets = new Set();
-    this.queue = require("mu-queue");
+    this.pQueue = [];
     this.plugins = plugins;
     this.help = help;
 
@@ -37,6 +37,7 @@ module.exports = class UrsaMu {
     require("./commands")(this);
     require("../text")(this);
     require("./exec")(this);
+    require("./gameTimers")(this);
 
     // Run plugins if present.
     if (this.plugins) {

@@ -4,6 +4,7 @@ module.exports = mush => {
     // commands yet - so these will likely change, but for now?
     // Hi!,
     pattern: /^@dig(\/teleport|\/tele|\/port)?\s+(.*)/i,
+    restriction: "admin",
     run: (socket, match) => {
       // Deconstruct a whole mess of arguments!
       const [, teleport, args] = match;
@@ -18,19 +19,22 @@ module.exports = mush => {
       if (mush.flags.canEdit(enactor, curRoom)) {
         // Create the new room
         const room = mush.db.insert({
-          name,
+          name: name.trim(),
           type: "room",
           owner: socket.id,
           exits: []
         });
-        mush.broadcast.send(socket, `%chDone.%cn Room %ch${room.name}%cn dug.`);
+        mush.broadcast.send(
+          socket,
+          `%chDone.%cn Room %ch${room.name.trim()}%cn dug.`
+        );
 
         let toexit, fromexit;
 
         // If a 'to' exit is defined, create the db reference and link.
         if (toExit) {
           toexit = mush.db.insert({
-            name: toExit,
+            name: toExit.trim(),
             type: "exit",
             owner: enactor.id,
             location: enactor.location

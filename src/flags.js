@@ -86,12 +86,19 @@ class Flags {
    * @param {string} flag A single flag.
    */
   exists(flag) {
+    if (flag[0] === "!" || flag[0] === "@") {
+      flag = flag.slice(1);
+    }
     return _.find(this.flags, { name: flag.toLowerCase() });
   }
 
   /**
    * Check to see if an object has all of the flags listed.
-   * if one fails, the entire stack fails.
+   * if one fails, the entire stack fails. Optional modfiers
+   * are available.
+   * '!flag' checks to see if the target does NOT have a flag.
+   * '@flag' Optional flag.If it can exist.
+   * giving a regular flag means it must exist to pass.
    * @param {DBO} obj The database object representing the
    * the thing being checked for flags
    * @param {string} flags A string of space seperated flags
@@ -101,16 +108,36 @@ class Flags {
    */
   hasFlags(obj = { flags: [] }, flags = " ") {
     let rtrn = true;
-    const cleanFlags = flags.split(" ").filter(flag => {
-      if (_.find(this.flags, { name: flag })) {
-        return true;
-      } else {
-        return false;
-      }
-    });
+
+    // We only want to deal with flags that have been defined in the
+    // system.
+    const cleanFlags = flags.split(" ").filter(flag => this.exists(flag));
+
     cleanFlags.forEach(flag => {
-      if (obj.flags.indexOf(flag) <= -1) {
-        rtrn = false;
+      // First to see if it's a combined flag.  If so we'll handle it with
+      // orFlags().
+      const flagObj = this.exists(flag);
+      if (flagObj.hasOwnProperty("combined")) {
+        if (this.orFlags(obj, flagObj.combined)) {
+          rtrn = true;
+        }
+      } else {
+        // !flag.  Check to make sure it's NOT included in the list.
+        if (flag[0] === "!") {
+          if (obj.flags.indexOf(flag.slice(1)) <= -1) {
+            rtrn = true;
+          }
+          // @flag.  Optional flag.
+        } else if (flag[0] === "@") {
+          if (obj.flags.indexOf(flag.slice(1)) !== -1) {
+            rtrn = true;
+          }
+          // Else check to see if a flag is listed on the object
+        } else {
+          if (obj.flags.indexOf(flag) <= -1) {
+            rtrn = false;
+          }
+        }
       }
     });
     return rtrn;
@@ -183,7 +210,7 @@ class Flags {
     if (
       target.id === enactor.id ||
       target.owner === enactor.id ||
-      this.orFlags(enactor, "god wizard staff")
+      this.orFlags(enactor, "architect wizard staff")
     ) {
       return true;
     } else {
