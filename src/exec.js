@@ -10,12 +10,19 @@ module.exports = mush => {
 
   mush.exec = (socket, string, scope) => {
     let ran = false;
-    // First we need to check to see if an exit name was enetered.
-    const exit = matchExit(string);
-    if (exit && run === false) {
-      // Exit match was made.
-      ran = true;
-      move(mush.db.id(socket.id), exit);
+
+    // We only need to search for exits if the bit is actually logged in.
+    if (socket.id) {
+      const enactor = mush.db.id(socket.id);
+      const curRoom = mush.db.id(enactor.location);
+      // First we need to check to see if an exit name was enetered.
+      const exit = matchExit(curRoom, string);
+      if (exit && !ran) {
+        // Exit match was made.
+        ran = true;
+        move(mush.db.id(socket.id), exit);
+        mush.exe(socket, "look", []);
+      }
     }
 
     // Cycle through the commands on the command object looking for a

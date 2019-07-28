@@ -37,7 +37,9 @@ module.exports = mush => {
             name: toExit.trim(),
             type: "exit",
             owner: enactor.id,
-            location: enactor.location
+            location: enactor.location,
+            to: room.id,
+            from: curRoom.id
           });
 
           mush.db.update(curRoom.id, { exits: [...curRoom.exits, toexit.id] });
@@ -54,7 +56,9 @@ module.exports = mush => {
             name: fromExit.trim(),
             type: "exit",
             owner: enactor.id,
-            location: room.id
+            location: room.id,
+            to: curRoom.id,
+            from: room.id
           });
 
           mush.db.update(room.id, { exits: [...room.exits, fromexit.id] });
