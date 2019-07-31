@@ -2,9 +2,6 @@ const flags = require("./flags");
 
 /**
  * Create New MUSH Parser()
- * This parser is based off of an article I found on
- * writing a scripting language with JavaScript.
- * https://eloquentjavascript.net/12_language.html
  */
 class Parser {
   constructor() {
@@ -34,6 +31,7 @@ class Parser {
       // We hit one of those special characters.  Everything
       // before it becomes a 'word' object.
       expr = { type: "word", value: match[0].trim() };
+    } else if ((match = /^\[/.exec(program))) {
     } else {
       // If the character is something else throw an error.
       // Room for degubbing here later!

@@ -23,7 +23,7 @@ module.exports = mush => {
         target &&
         (enactor.id === target.id ||
           enactor.locaation === target.location ||
-          mush.flags.hasflags(enactor, "admin"))
+          mush.flags.canEdit(enactor, target))
       ) {
         if (!desc) desc = "You see nothing special.";
         mush.db.update(target.id, { description: desc });
