@@ -1,4 +1,5 @@
 const db = require("./database");
+const broadcast = require("./broadcast");
 
 module.exports.matchExit = (obj, string) => {
   // Utility function to format my exits into regular expressions.
@@ -28,12 +29,22 @@ module.exports.move = (enactor, eObj) => {
   const curRoom = db.id(enactor.location);
 
   // Remove the enactor from the current room's contents list.
-  const curCont = curRoom.contents.splice(curCont.indexOf(enactor.id), 1);
-  db.update(curRoom.id, { contents: curCont });
+  broadcast.sendList(
+    curRoom.contents,
+    `${enactor.name} has left.`,
+    "connected"
+  );
+  curRoom.contents.splice(curRoom.contents.indexOf(enactor.id), 1);
+  db.update(curRoom.id, { contents: curRoom.contents });
 
   // Add the enactor to the new location
   const newRoom = db.id(eObj.to);
   db.update(enactor.id, { location: newRoom.id });
   db.update(newRoom.id, { contents: [...newRoom.contents, enactor.id] });
+  broadcast.sendList(
+    newRoom.contents,
+    `${enactor.name} has arrived.`,
+    "connected"
+  );
   db.save();
 };

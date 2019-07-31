@@ -9,9 +9,19 @@ module.exports = mush => {
       const name = (en, tar) => {
         // Make sure the enactor has permission to modify the target.
         // if so show dbref and flag codes, etc. Extra admin stuff.
-        if (mush.flags.canEdit(en, tar)) {
-          return `${tar.moniker ? tar.moniker : tar.name}(#${tar.id})`;
-          // To do, add flag and object type codes later.
+        if (!tar.nameFormat) {
+          if (mush.flags.canEdit(en, tar)) {
+            return `${tar.moniker ? tar.moniker : tar.name}(#${tar.id})`;
+            // To do, add flag and object type codes later.
+          } else {
+            return `${tar.moniker ? tar.moniker : tar.name}`;
+          }
+        } else if (tar.nameFormat && en.location === tar.id) {
+          return mush.parser.run(tar.nameFormat, {
+            "%0": mush.flags.canEdit(en, tar)
+              ? tar.name + `(#${tar.id})`
+              : tar.name
+          });
         } else {
           return tar.moniker ? tar.moniker : tar.name;
         }
@@ -35,7 +45,13 @@ module.exports = mush => {
           });
         } else {
           tar.contents.forEach(item => {
-            cont += `\n${name(en, mush.db.id(item))}`;
+            if (
+              (mush.db.id(item).type === "player" &&
+                mush.flags.hasFlags(mush.db.id(item), "connected")) ||
+              mush.db.id(item).type !== "player"
+            ) {
+              cont += `\n${name(en, mush.db.id(item))}`;
+            }
           });
         }
         return cont;

@@ -28,7 +28,7 @@ module.exports = mush => {
             // Save the db
             mush.db.save();
             // add the socket to the global list.
-            mush.sockets.add(socket);
+            mush.queues.sockets.add(socket);
             socket.id = DBRef.id;
             const last = new Date(DBRef.last);
             // send a success message!
@@ -41,7 +41,7 @@ module.exports = mush => {
               socket,
               `%cyYou are connected to your %cn%chArchitect%cn %cyplayer.%cn`
             );
-            mush.exe(socket, "look", []);
+            mush.exe(socket, "look", ["here"]);
           }
 
           // Fail attempt.

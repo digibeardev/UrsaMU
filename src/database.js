@@ -77,20 +77,20 @@ class Database {
       modified = today,
       last = today,
       channels = [],
-      password = "",
-      alias = "",
+      password,
+      alias,
       attributes = {},
       flags = [],
       contents = [],
       exits = [],
-      location = "",
-      owner = "",
-      to = "",
-      from = "",
-      descFormat = "",
-      nameFormat = "",
-      conFormat = "",
-      exitFormat = ""
+      location,
+      owner,
+      to,
+      from,
+      descFormat,
+      nameFormat,
+      conFormat,
+      exitFormat
     } = record;
 
     // Generate a dbref for the object before we insert it into
@@ -161,8 +161,10 @@ class Database {
 
   name(name) {
     return _.find(this.db, entry => {
-      if (
-        entry.name.toLowerCase() === name.toLowerCase() ||
+      if (entry.name.toLowerCase() === name.toLowerCase()) {
+        return entry;
+      } else if (
+        entry.hasOwnProperty("alias") &&
         entry.alias.toLowerCase() === name.toLowerCase()
       ) {
         return entry;
@@ -170,8 +172,30 @@ class Database {
     });
   }
 
+  /**
+   * Find database items using an object literal.
+   * @param {object} query An object litereal with key:value pairs to
+   * match in order to find valid entries.
+   */
   find(query) {
-    return _.find(this.db, query);
+    return this.db.filter(obj => {
+      let match = [];
+      for (const key in query) {
+        if (obj.hasOwnProperty(key) && obj[key] === query[key]) {
+          match.push(true);
+        } else {
+          match.push(false);
+        }
+      }
+
+      // See if there's a false in the results array.  If one is present, the
+      // whole query fails.
+      if (match.indexOf(false) !== -1) {
+        return false;
+      } else {
+        return true;
+      }
+    });
   }
 }
 

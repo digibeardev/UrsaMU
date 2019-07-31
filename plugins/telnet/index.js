@@ -18,15 +18,13 @@ module.exports = mush => {
     if (!players) {
       mush.broadcast.send(
         socket,
-        "%cy-----------------------------------------------------------------------------%cn\n" +
-          "No %chArchitect%cn player login found.  Your first login will be given the flag. " +
-          "I suggest you use it to create a %chWizard%cn player, then keep your first login safe!%cn\n" +
-          "%cy-----------------------------------------------------------------------------%cn\n"
+        "%rNo %chArchitect%cn player login found.  Your first login will be given the flag. " +
+          "We suggest you use it to create a %chWizard%cn player, then keep your first login safe!%cn%r"
       );
     }
 
     tSocket.on("data", buffer => {
-      mush.pQueue.push({ socket: tSocket, data: buffer.toString() });
+      mush.queues.pQueue.push({ socket: tSocket, data: buffer.toString() });
     });
   });
 

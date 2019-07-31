@@ -1,5 +1,6 @@
 const parser = require("./parser");
 const db = require("./database");
+const queue = require("./queues");
 const flags = require("./flags");
 
 /**
@@ -27,13 +28,15 @@ class Broadcast {
    * @param {String} message The message to be sent.
    * @param {string} flags Any flag restrictions the message has 'connected' for instance.
    */
-  sendList(targets, message, flags = "") {
+  sendList(targets, message, flgs = "", noEmit = []) {
     targets.forEach(target => {
-      if (flags.hasFlags(db.id(target), flags) || !flags) {
+      console.log(!noEmit.indexOf(target));
+      if (flags.hasFlags(db.id(target), flgs) && noEmit.indexOf(target) < 0) {
         try {
-          target.write(message + "\r\n");
-        } catch {
-          //Handle sending messages to objects without a 'write' method.
+          this.send(queue.idToSocket(target), message);
+          console.log(queue.idToSocket(target));
+        } catch (error) {
+          throw error;
         }
       }
     });

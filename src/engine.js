@@ -2,10 +2,9 @@ const parser = require("./parser");
 const emitter = require("./emitter");
 const broadcast = require("./broadcast");
 const db = require("./database");
-const grid = require("./grid");
 const flags = require("./flags");
 const config = require("./config");
-const help = require("./help");
+const queue = require("./queues");
 
 module.exports = class UrsaMu {
   constructor(options = {}) {
@@ -18,13 +17,10 @@ module.exports = class UrsaMu {
     this.scope = {};
     this.log = require("./utilities").log;
     this.db = db;
-    this.grid = grid;
     this.flags = flags;
+    this.queues = queue;
     this.config = config;
-    this.sockets = new Set();
-    this.pQueue = [];
     this.plugins = plugins;
-    this.help = help;
 
     // Initialize in-game functionality.
     this.init();
@@ -38,6 +34,14 @@ module.exports = class UrsaMu {
     require("../text")(this);
     require("./exec")(this);
     require("./gameTimers")(this);
+
+    // Clear all of the connected flags incase the server didn't go down clean.
+    this.db.db
+      .filter(entry => entry.type === "player")
+      .forEach(entry => {
+        this.flags.set(entry, "!connected");
+      });
+    this.db.save();
 
     // Run plugins if present.
     if (this.plugins) {

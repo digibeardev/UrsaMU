@@ -104,6 +104,12 @@ class Parser {
       if (scope[expr.value]) {
         return scope[expr.value];
       } else {
+        // scope variables may be imbedded in longer strings, we'll have
+        // to use regular expressions to make sure they're changed.
+        for (const key in scope) {
+          expr.value = expr.value.replace(key, scope[key]);
+        }
+
         return expr.value;
       }
 
