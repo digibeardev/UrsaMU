@@ -30,11 +30,9 @@ class Broadcast {
    */
   sendList(targets, message, flgs = "", noEmit = []) {
     targets.forEach(target => {
-      console.log(!noEmit.indexOf(target));
       if (flags.hasFlags(db.id(target), flgs) && noEmit.indexOf(target) < 0) {
         try {
           this.send(queue.idToSocket(target), message);
-          console.log(queue.idToSocket(target));
         } catch (error) {
           throw error;
         }

@@ -26,7 +26,7 @@
     "type": "player",
     "last": "2019-07-28T20:25:36.522Z",
     "created": "2019-07-28T20:25:36.522Z",
-    "modified": "2019-07-31T02:18:39.824Z",
+    "modified": "2019-07-31T02:39:19.496Z",
     "channels": [],
     "password": "4e4dfe876770ae660553768ecbcdaaf191d6aa61d2dbb621094177e6cfde2305",
     "attributes": {},
@@ -120,13 +120,11 @@
     "type": "player",
     "last": "2019-07-30T03:40:34.434Z",
     "created": "2019-07-30T03:40:34.434Z",
-    "modified": "2019-07-31T02:18:48.029Z",
+    "modified": "2019-07-31T02:39:39.090Z",
     "channels": [],
     "password": "4e4dfe876770ae660553768ecbcdaaf191d6aa61d2dbb621094177e6cfde2305",
     "attributes": {},
-    "flags": [
-      "connected"
-    ],
+    "flags": [],
     "contents": [],
     "location": 1,
     "exits": []
