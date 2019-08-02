@@ -79,7 +79,7 @@ class Database {
       channels = [],
       password,
       alias,
-      attributes = {},
+      attributes = [],
       flags = [],
       contents = [],
       exits = [],
