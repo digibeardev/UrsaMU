@@ -15,7 +15,7 @@ module.exports = mush => {
 
     tSocket.write(mush.parser.subs(mush.txt.get("connect.txt")) + "\r\n");
 
-    if (!players) {
+    if (players.length <= 0) {
       mush.broadcast.send(
         socket,
         "%rNo %chArchitect%cn player login found.  Your first login will be given the flag. " +

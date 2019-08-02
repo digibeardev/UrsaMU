@@ -29,6 +29,16 @@ module.exports = class UrsaMu {
   init() {
     // Install in-game commands, functions, and pre-load
     // text files.
+    let room;
+    const rooms = this.db.find({ type: "room" });
+    if (rooms.length <= 0) {
+      this.log.warning("No Grid found.");
+      room = this.db.insert({ name: "Limbo", type: "room" });
+    }
+    if (room) {
+      this.log.success("Limbo succesfully dug.", 2);
+      this.config.set("playerStart", room.id);
+    }
 
     require("./commands")(this);
     require("../text")(this);
@@ -64,8 +74,7 @@ module.exports = class UrsaMu {
       plugins.forEach(plugin => {
         try {
           require(`../plugins/${plugin}`)(this);
-
-          console.log(`SUCESS: Plugin installed: ${plugin}.`);
+          this.log.success(`Plugin installed: ${plugin}.`);
         } catch (error) {
           console.error(`ERROR: Could not import plugin: ${plugin}`);
           console.error(`ERROR: ${error.stack}`);

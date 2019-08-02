@@ -47,10 +47,7 @@ module.exports = mush => {
         // give them a boxed new player welcome.
         mush.broadcast.send(socket, mush.txt.get("newconnect.txt") + "\r\n");
         socket.id = enactor.id;
-        mush.broadcast.send(
-          socket,
-          `%cyYou are connected to your %cn%chArchitect%cn %cyplayer.%cn`
-        );
+
         mush.exe(socket, "look", []);
 
         // Add the new player to the contents of the starting room.
@@ -60,7 +57,7 @@ module.exports = mush => {
         // If no players exist, assign the 'god' flag to the first player made
         // on the db. This is something that'll be handled through the web portal
         // game setup.
-        if (!players) {
+        if (players.length <= 0) {
           setFlags = mush.flags.set(socket, "architect connected");
           // Or it's just a regular player bit.  Skip the extra flag.
         } else {

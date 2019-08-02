@@ -4,27 +4,40 @@
     "name": "Limbo",
     "description": "You see nothing special.",
     "type": "room",
-    "last": "2019-08-02T00:37:15.649Z",
-    "created": "2019-08-02T00:37:15.649Z",
-    "modified": "2019-08-02T00:37:15.649Z",
+    "last": "2019-08-02T01:09:31.110Z",
+    "created": "2019-08-02T01:09:31.110Z",
+    "modified": "2019-08-02T01:09:31.110Z",
     "channels": [],
     "attributes": [],
     "flags": [],
-    "contents": [],
+    "contents": [
+      2
+    ],
     "exits": []
   },
   {
     "id": 2,
-    "name": "Limbo",
+    "name": "kumakun",
     "description": "You see nothing special.",
-    "type": "room",
-    "last": "2019-08-02T00:40:12.891Z",
-    "created": "2019-08-02T00:40:12.891Z",
-    "modified": "2019-08-02T00:40:12.891Z",
+    "type": "player",
+    "last": "2019-08-02T01:12:10.304Z",
+    "created": "2019-08-02T01:12:10.304Z",
+    "modified": "2019-08-02T01:38:42.880Z",
     "channels": [],
-    "attributes": [],
-    "flags": [],
+    "password": "4e4dfe876770ae660553768ecbcdaaf191d6aa61d2dbb621094177e6cfde2305",
+    "attributes": [
+      {
+        "name": "Foobar",
+        "value": "Baz"
+      }
+    ],
+    "flags": [
+      "architect",
+      "connected"
+    ],
     "contents": [],
-    "exits": []
+    "location": 1,
+    "exits": [],
+    "alias": "K"
   }
 ]
