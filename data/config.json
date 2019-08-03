@@ -1,8 +1,6 @@
 {
-  "name": "Ursamu",
-  "ports": {
-    "telnet": 2000,
-    "WS": 5000
-  },
-  "startingRoom": ""
+  "name": "UrsaMU",
+  "telnet": 2000,
+  "ws": 3000,
+  "startingRoom": 1
 }

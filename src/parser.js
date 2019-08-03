@@ -2,9 +2,6 @@ const flags = require("./flags");
 
 /**
  * Create New MUSH Parser()
- * This parser is based off of an article I found on
- * writing a scripting language with JavaScript.
- * https://eloquentjavascript.net/12_language.html
  */
 class Parser {
   constructor() {
@@ -104,6 +101,12 @@ class Parser {
       if (scope[expr.value]) {
         return scope[expr.value];
       } else {
+        // scope variables may be imbedded in longer strings, we'll have
+        // to use regular expressions to make sure they're changed.
+        for (const key in scope) {
+          expr.value = expr.value.replace(key, scope[key]);
+        }
+
         return expr.value;
       }
 
@@ -129,19 +132,38 @@ class Parser {
     return string;
   }
 
-  // For some text functions, we need to strip the substitution variables
-  // from the text before we take into account things like character width.
+  /**
+   *  For some text functions, we need to strip the substitution variables
+   * from the text before we take into account things like character width.
+   * @param {string} string The string we'll be stripping the substitutions from.
+   */
   stripSubs(string) {
     // Remove color codes
     return string.replace(/%[cCxX]./g, "").replace(/%./g, "");
   }
 
+  /**
+   * Strip ansi codes from text.
+   * @param {string} string String to strip ansi from
+   */
   stripAnsi(string) {
     return require("strip-ansi")(string);
   }
 
+  // Absolutely cheating for now, until someone figures out how to nest
+  // brackets with a grammar or something. :)
+  /**
+   * Evaluate a string through the mushcode parser.  As of right now, only one
+   * level of bracket matching is supported.  Nested brackets are a known bug.
+   * @param {string} string The string to evaluate.
+   * @param {object} scope The context of the evaluation.
+   */
   run(string, scope) {
-    return this.subs(this.evaluate(this.parse(string), scope));
+    let replaced = string.replace(/\[([^\]]+)\]/, (...args) => {
+      return this.evaluate(this.parse(args[1]), scope);
+    });
+
+    return this.subs(this.evaluate(this.parse(replaced), scope));
   }
 }
 
