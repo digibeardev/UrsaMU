@@ -10,4 +10,4 @@ Provides an alternate name by which the player is known.  The alternate name is 
 
 When setting an alias, the alias is checked to see that it is both a legal player name and not already in use.  Only if both checks succeed is the alias set.
 
-Related Topics: [@name](./name.md)
+Related Topics: [@name](@name)

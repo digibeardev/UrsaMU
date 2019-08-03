@@ -41,6 +41,7 @@
     "sha.js": "^2.4.11",
     "shortid": "^2.2.14",
     "strip-ansi": "^5.2.0",
-    "telnet-stream": "^1.0.4"
+    "telnet-stream": "^1.0.4",
+    "vm2": "^3.8.3"
   }
 }

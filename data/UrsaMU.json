@@ -4,40 +4,72 @@
     "name": "Limbo",
     "description": "You see nothing special.",
     "type": "room",
-    "last": "2019-08-02T01:09:31.110Z",
-    "created": "2019-08-02T01:09:31.110Z",
-    "modified": "2019-08-02T01:09:31.110Z",
+    "last": "2019-08-03T03:59:07.973Z",
+    "created": "2019-08-03T03:59:07.973Z",
+    "modified": "2019-08-03T03:59:07.973Z",
     "channels": [],
+    "alias": "",
     "attributes": [],
     "flags": [],
     "contents": [
-      2
+      2,
+      3,
+      4
     ],
     "exits": []
   },
   {
     "id": 2,
-    "name": "kumakun",
+    "name": "Kumakun",
     "description": "You see nothing special.",
     "type": "player",
-    "last": "2019-08-02T01:12:10.304Z",
-    "created": "2019-08-02T01:12:10.304Z",
-    "modified": "2019-08-02T01:38:42.880Z",
+    "last": "2019-08-03T03:59:22.602Z",
+    "created": "2019-08-03T03:59:22.602Z",
+    "modified": "2019-08-03T04:08:51.390Z",
     "channels": [],
     "password": "4e4dfe876770ae660553768ecbcdaaf191d6aa61d2dbb621094177e6cfde2305",
-    "attributes": [
-      {
-        "name": "Foobar",
-        "value": "Baz"
-      }
-    ],
+    "alias": "k",
+    "attributes": [],
     "flags": [
       "architect",
       "connected"
     ],
     "contents": [],
     "location": 1,
-    "exits": [],
-    "alias": "K"
+    "exits": []
+  },
+  {
+    "id": 3,
+    "name": "Foobar",
+    "description": "You see nothing special.",
+    "type": "player",
+    "last": "2019-08-03T03:59:40.428Z",
+    "created": "2019-08-03T03:59:40.428Z",
+    "modified": "2019-08-03T03:59:40.428Z",
+    "channels": [],
+    "password": "4e4dfe876770ae660553768ecbcdaaf191d6aa61d2dbb621094177e6cfde2305",
+    "alias": "",
+    "attributes": [],
+    "flags": [],
+    "contents": [],
+    "location": 1,
+    "exits": []
+  },
+  {
+    "id": 4,
+    "name": "Tester",
+    "description": "You see nothing special.",
+    "type": "player",
+    "last": "2019-08-03T04:08:23.839Z",
+    "created": "2019-08-03T04:08:23.839Z",
+    "modified": "2019-08-03T04:08:23.839Z",
+    "channels": [],
+    "password": "4e4dfe876770ae660553768ecbcdaaf191d6aa61d2dbb621094177e6cfde2305",
+    "alias": "",
+    "attributes": [],
+    "flags": [],
+    "contents": [],
+    "location": 1,
+    "exits": []
   }
 ]

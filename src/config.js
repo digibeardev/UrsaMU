@@ -3,7 +3,20 @@ const { log } = require("./utilities");
 
 class Config {
   constructor() {
-    this.config = require("../data/config.json");
+    try {
+      this.config = require("../data/config.json");
+      log.success("Configuration file loaded.");
+    } catch {
+      log.warning("No config file found. Creating one.");
+      this.config = {
+        name: "UrsaMU",
+        telnet: 2000,
+        ws: 3000,
+        startingRoom: 1
+      };
+      this.save();
+      log.success("Configuration file made.", 2);
+    }
   }
 
   get(name) {

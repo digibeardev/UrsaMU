@@ -5,6 +5,7 @@ const db = require("./database");
 const flags = require("./flags");
 const config = require("./config");
 const queue = require("./queues");
+const { VM } = require("vm2");
 
 module.exports = class UrsaMu {
   constructor(options = {}) {
@@ -21,6 +22,7 @@ module.exports = class UrsaMu {
     this.queues = queue;
     this.config = config;
     this.plugins = plugins;
+    this.VM = VM;
 
     // Initialize in-game functionality.
     this.init();
@@ -37,7 +39,7 @@ module.exports = class UrsaMu {
     }
     if (room) {
       this.log.success("Limbo succesfully dug.", 2);
-      this.config.set("playerStart", room.id);
+      this.config.set("startingRoom", room.id);
     }
 
     require("./commands")(this);
@@ -59,6 +61,12 @@ module.exports = class UrsaMu {
     }
   }
 
+  /**
+   * Force a player bit to execute a command
+   * @param {Object} socket The socket of the enactor
+   * @param {*} command The command to be executed
+   * @param {*} args Any special arguments to pass along with the command
+   */
   exe(socket, command, args = []) {
     try {
       return this.cmds.get(command).run(socket, args, this.scope);

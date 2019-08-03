@@ -1,2 +1,8 @@
-# @name
+# @NAME
+
+  COMMAND: @name \<object> = \<new name>
+
+  Changes the name of \<object>.  \<object> can be a thing, player, exit, or room, specified as **\<name>** or **#\<dbref>** or '**me**' or '**here**'.
+
+  See '**@list options**' as to whether or not a player name may contain spaces.
 

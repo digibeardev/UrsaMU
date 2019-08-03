@@ -29,7 +29,9 @@ module.exports = mush => {
           });
           mush.broadcast.send(
             socket,
-            `Attribute %ch${attribute.toLowerCase().trim()}%cn set on %ch${
+            `Done. Attribute %ch${attribute
+              .toLowerCase()
+              .trim()}%cn set on %ch${
               target.moniker ? target.moniker : target.name
             }%cn.`
           );
@@ -43,6 +45,43 @@ module.exports = mush => {
         mush.broadcast.send(socket, "Flags set.");
         mush.db.save();
       }
+    }
+  });
+
+  mush.cmds.set("&attribute", {
+    pattern: /^&(.*)\s+(.*)\s?=S?(.*)/i,
+    restriction: "connected",
+    run: (socket, data) => {
+      let [, attribute, target, setting] = data;
+      const enactor = mush.db.id(socket.id);
+
+      if (target.toLowerCase() === "me") {
+        target = enactor;
+      } else if (target.toLowerCase() === "here") {
+        target = mush.db.id(enactor.location);
+        // if it starts with a # it's probably a dbref.
+      } else if (target[0] === "#") {
+        target = mush.db.id(parseInt(target.slice(1)));
+        // Else it's probably a name.  Try and match it.
+      } else {
+        target = mush.db.name(target);
+      }
+
+      if (mush.flags.canEdit(enactor, target)) {
+        mush.db.update(target.id, {
+          attributes: [
+            ...target.attributes,
+            { name: attribute, value: setting }
+          ]
+        });
+      }
+      mush.broadcast.send(
+        socket,
+        `Done. Attribute '%ch${attribute.toLowerCase()}%cn' set on %ch${
+          target.moniker ? target.moniker : target.name
+        }%cn.`
+      );
+      mush.db.save();
     }
   });
 };

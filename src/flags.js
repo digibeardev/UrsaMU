@@ -2,7 +2,7 @@ const fs = require("fs");
 const _ = require("lodash");
 const db = require("./database");
 const { log } = require("./utilities");
-
+const config = require("./config");
 /**
  * Class Flags
  * The flags class tracks the different markers set on players
@@ -24,11 +24,42 @@ class Flags {
         })
       );
       log.success("Game flags loaded.");
-    } catch (error) {
-      console.log(
-        log.error("No flags.json file found. Creating new document.")
-      );
-      this.flags = [];
+    } catch {
+      log.warning("No Flags database found.  Creating new instance.");
+      this.flags = [
+        {
+          name: "architect",
+          restricted: "architect"
+        },
+        {
+          name: "wizard",
+          restricted: "god",
+          code: "W"
+        },
+        {
+          name: "staff",
+          restricted: "wizard",
+          code: "w"
+        },
+        {
+          name: "royalty",
+          restricted: "wizard"
+        },
+        {
+          name: "admin",
+          combined: "architect wizard staff"
+        },
+        {
+          name: "connected",
+          restricted: "admin",
+          code: "C"
+        }
+      ];
+      try {
+        this.save();
+      } catch (error) {
+        throw error;
+      }
     }
   }
 
@@ -148,10 +179,7 @@ class Flags {
    */
   save() {
     try {
-      fs.writeFileSync(
-        `./data/${config.name || "ursa"}.db`,
-        JSON.stringify(this.flags)
-      );
+      fs.writeFileSync(`./data/flags.json`, JSON.stringify(this.flags));
     } catch (err) {
       throw err;
     }

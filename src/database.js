@@ -1,4 +1,4 @@
-const config = require("../data/config.json");
+const config = require("./config");
 const fs = require("fs");
 const _ = require("lodash");
 const { log } = require("./utilities");
@@ -10,7 +10,7 @@ class Database {
     try {
       // Try to load the database file and parse the json.
       const dbFile = fs.readFileSync(
-        `./data/${config.name || "Ursamu"}.json`,
+        `./data/${config.name || "UrsaMU"}.json`,
         "utf-8"
       );
       this.db = JSON.parse(dbFile) || [];
@@ -78,7 +78,7 @@ class Database {
       last = today,
       channels = [],
       password,
-      alias,
+      alias = "",
       attributes = [],
       flags = [],
       contents = [],
@@ -129,7 +129,7 @@ class Database {
   save() {
     try {
       fs.writeFileSync(
-        `./data/${config.name || "Ursa"}.json`,
+        `./data/${config.name || "UrsaMU"}.json`,
         JSON.stringify(this.db, {}, 2)
       );
     } catch (err) {
