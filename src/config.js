@@ -1,17 +1,21 @@
-const fs = "fs";
-const config = require("../data/config.json");
+const fs = require("fs");
 const { log } = require("./utilities");
 
 class Config {
   constructor() {
     try {
-      this.config = JSON.stringify(
-        fs.readFileSync("../data/config.json", "utf-8")
-      );
-      log.success("Configuration file loaded");
+      this.config = require("../data/config.json");
+      log.success("Configuration file loaded.");
     } catch {
-      log.error("Unable to load configuration file.");
-      this.config = {};
+      log.warning("No config file found. Creating one.");
+      this.config = {
+        name: "UrsaMU",
+        telnet: 2000,
+        ws: 3000,
+        startingRoom: 1
+      };
+      this.save();
+      log.success("Configuration file made.", 2);
     }
   }
 
@@ -26,7 +30,10 @@ class Config {
 
   save() {
     try {
-      fs.writeFileSync("./data/config.json", JSON.stringify(this.config));
+      fs.writeFileSync(
+        "./data/config.json",
+        JSON.stringify(this.config, {}, 2)
+      );
     } catch {
       log.error("Unable to save configuration fille.");
     }

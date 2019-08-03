@@ -28,23 +28,30 @@ module.exports = mush => {
             // Save the db
             mush.db.save();
             // add the socket to the global list.
-            mush.sockets.add(socket);
+            mush.queues.sockets.add(socket);
             socket.id = DBRef.id;
+            const last = new Date(DBRef.last);
             // send a success message!
             mush.broadcast.send(
               socket,
-              `Login Successful. Welcome to UrsaMU!\nLast connection was: ${
-                DBRef.modified
-              }\r\n`
+              `%chLogin Successful%cn. Welcome to %chUrsaMU!%cn`
             );
+
+            mush.broadcast.send(
+              socket,
+              `%cyYou are connected to your %cn%chArchitect%cn %cyplayer.%cn`
+            );
+            mush.exe(socket, "look", ["here"]);
           }
 
           // Fail attempt.
         } else {
-          socket.end(
+          mush.broadcast.send(
+            socket,
             "Either that player does not exist, or " +
-              "has a different password.\n"
+              "has a different password."
           );
+          socket.end();
         }
         // Else they're already logged in.  Show a 'Huh?' message.
       } else {

@@ -14,15 +14,22 @@ module.exports = mush => {
   const create = (socket, match) => {
     // Make sure the socket doesn't already have an ID (isn't already logged in)
     if (!socket.id) {
+      // Check to see if any player objects have been created yet.  If not, the very
+      // first one made is going to have our 'god' flag.
+      const players = mush.db.find({ type: "player" });
+      const room = mush.db.id(mush.config.get("startingRoom"));
+
       // extract the values we want from the args param.
       const [, name = " ", password = " "] = match;
+
       // Make sure it's a unique name!  If the database returns
       // any names (Upper or lowercase!) then it should send the
       // failure message.
       if (!mush.db.name(name.toLowerCase())) {
         // Create the new entry into the database.
-        mush.db.insert({
+        const enactor = mush.db.insert({
           name,
+          location: mush.config.get("startingRoom"),
           // Gotta secure them passwords! In the future we might want
           // to use something stronger than SHA256.  Ultimately I'd like
           // people to be able to log in with their google ID or Facebook
@@ -32,11 +39,30 @@ module.exports = mush => {
             .digest("hex"),
           type: "player"
         });
+
+        // Add the new player to the contents of the starting room.
+        mush.db.update(room.id, { contents: [...room.contents, enactor.id] });
+
         // The player was able to make it through the signup process!  Now let's
         // give them a boxed new player welcome.
         mush.broadcast.send(socket, mush.txt.get("newconnect.txt") + "\r\n");
-        socket.id = mush.db.name(name).id;
-        const setFlags = mush.flags.set(socket, "connected");
+        socket.id = enactor.id;
+
+        mush.exe(socket, "look", []);
+
+        // Add the new player to the contents of the starting room.
+        mush.db.update(room.id, { contents: [...room.contents, enactor.id] });
+
+        let setFlags;
+        // If no players exist, assign the 'god' flag to the first player made
+        // on the db. This is something that'll be handled through the web portal
+        // game setup.
+        if (players.length <= 0) {
+          setFlags = mush.flags.set(socket, "architect connected");
+          // Or it's just a regular player bit.  Skip the extra flag.
+        } else {
+          setFlags = mush.flags.set(socket, "connected");
+        }
         mush.db.update(socket.id, setFlags);
         mush.db.save();
       } else {

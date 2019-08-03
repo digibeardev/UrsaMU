@@ -1,7 +1,8 @@
 const fs = require("fs");
 const _ = require("lodash");
 const db = require("./database");
-
+const { log } = require("./utilities");
+const config = require("./config");
 /**
  * Class Flags
  * The flags class tracks the different markers set on players
@@ -18,16 +19,47 @@ class Flags {
 
     try {
       this.flags = JSON.parse(
-        fs.readFileSync("../data/flags.json", {
+        fs.readFileSync("./data/flags.json", {
           encoding: "utf-8"
         })
       );
       log.success("Game flags loaded.");
-    } catch (error) {
-      console.log(
-        log.error("No flags.json file found. Creating new document.")
-      );
-      this.flags = [];
+    } catch {
+      log.warning("No Flags database found.  Creating new instance.");
+      this.flags = [
+        {
+          name: "architect",
+          restricted: "architect"
+        },
+        {
+          name: "wizard",
+          restricted: "god",
+          code: "W"
+        },
+        {
+          name: "staff",
+          restricted: "wizard",
+          code: "w"
+        },
+        {
+          name: "royalty",
+          restricted: "wizard"
+        },
+        {
+          name: "admin",
+          combined: "architect wizard staff"
+        },
+        {
+          name: "connected",
+          restricted: "admin",
+          code: "C"
+        }
+      ];
+      try {
+        this.save();
+      } catch (error) {
+        throw error;
+      }
     }
   }
 
@@ -80,13 +112,24 @@ class Flags {
     return returnFlags;
   }
 
+  /**
+   * Checks if a flag exists or not.
+   * @param {string} flag A single flag.
+   */
   exists(flag) {
+    if (flag[0] === "!" || flag[0] === "@") {
+      flag = flag.slice(1);
+    }
     return _.find(this.flags, { name: flag.toLowerCase() });
   }
 
   /**
    * Check to see if an object has all of the flags listed.
-   * if one fails, the entire stack fails.
+   * if one fails, the entire stack fails. Optional modfiers
+   * are available.
+   * '!flag' checks to see if the target does NOT have a flag.
+   * '@flag' Optional flag.If it can exist.
+   * giving a regular flag means it must exist to pass.
    * @param {DBO} obj The database object representing the
    * the thing being checked for flags
    * @param {string} flags A string of space seperated flags
@@ -96,16 +139,36 @@ class Flags {
    */
   hasFlags(obj = { flags: [] }, flags = " ") {
     let rtrn = true;
-    const cleanFlags = flags.split(" ").filter(flag => {
-      if (_.find(this.flags, { name: flag })) {
-        return true;
-      } else {
-        return false;
-      }
-    });
+
+    // We only want to deal with flags that have been defined in the
+    // system.
+    const cleanFlags = flags.split(" ").filter(flag => this.exists(flag));
+
     cleanFlags.forEach(flag => {
-      if (obj.flags.indexOf(flag) <= -1) {
-        rtrn = false;
+      // First to see if it's a combined flag.  If so we'll handle it with
+      // orFlags().
+      const flagObj = this.exists(flag);
+      if (flagObj.hasOwnProperty("combined")) {
+        if (this.orFlags(obj, flagObj.combined)) {
+          rtrn = true;
+        }
+      } else {
+        // !flag.  Check to make sure it's NOT included in the list.
+        if (flag[0] === "!") {
+          if (obj.flags.indexOf(flag.slice(1)) <= -1) {
+            rtrn = true;
+          }
+          // @flag.  Optional flag.
+        } else if (flag[0] === "@") {
+          if (obj.flags.indexOf(flag.slice(1)) !== -1) {
+            rtrn = true;
+          }
+          // Else check to see if a flag is listed on the object
+        } else {
+          if (obj.flags.indexOf(flag) <= -1) {
+            rtrn = false;
+          }
+        }
       }
     });
     return rtrn;
@@ -116,10 +179,7 @@ class Flags {
    */
   save() {
     try {
-      fs.writeFileSync(
-        `./data/${config.name || "ursa"}.db`,
-        JSON.stringify(this.flags)
-      );
+      fs.writeFileSync(`./data/flags.json`, JSON.stringify(this.flags));
     } catch (err) {
       throw err;
     }
@@ -151,6 +211,11 @@ class Flags {
     return db.update(obj.id, { flags: [...flagSet] });
   }
 
+  /**
+   * Checks to see if enactor has at least one of the given flags.
+   * @param {DBO} enactor
+   * @param {string} flags
+   */
   orFlags(enactor, flags) {
     let ret = false;
     flags
@@ -164,8 +229,17 @@ class Flags {
     return ret;
   }
 
+  /**
+   * Can enactor edit target?
+   * @param {DBO} enactor The DBO of the enactor,
+   * @param {DBO} target  The DBO of the target.
+   */
   canEdit(enactor, target) {
-    if (target.id === enactor.id || this.orFlags(enactor, "admin")) {
+    if (
+      target.id === enactor.id ||
+      target.owner === enactor.id ||
+      this.orFlags(enactor, "architect wizard staff")
+    ) {
       return true;
     } else {
       return false;

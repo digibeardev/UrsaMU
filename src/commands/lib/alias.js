@@ -1,27 +1,4 @@
 module.exports = mush => {
-  mush.help.add({
-    name: "@alias",
-    type: "Command",
-    category: "OOC",
-    entry: `
-@ALIAS
-
-  COMMAND:   @alias <player> = <name>
-  ATTRIBUTE: Alias
-
-  Provides an alternate name by which the player is known.  The alternate
-  name is only used for players when referenced as '*<name>' or by commands
-  that only take playernames (such as page or @stats).  You may not set
-  an alias on any other object type.
-
-  When setting an alias, the alias is checked to see that it is both a legal
-  player name and not already in use.  Only if both checks succeed is the
-  alias set.
-
-Related Topics: @name.
-`
-  });
-
   mush.cmds.set("@alias", {
     pattern: /^@alias\s+(.*)/,
     run: (socket, match, scope) => {

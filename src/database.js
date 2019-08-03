@@ -1,5 +1,4 @@
-const shajs = require("sha.js");
-const config = require("../data/config.json");
+const config = require("./config");
 const fs = require("fs");
 const _ = require("lodash");
 const { log } = require("./utilities");
@@ -11,7 +10,7 @@ class Database {
     try {
       // Try to load the database file and parse the json.
       const dbFile = fs.readFileSync(
-        `./data/${config.name || "Ursamu"}.db`,
+        `./data/${config.name || "UrsaMU"}.json`,
         "utf-8"
       );
       this.db = JSON.parse(dbFile) || [];
@@ -22,7 +21,8 @@ class Database {
       // If the file doesn't exist, create ae blank collection.
       this.db = [];
       this.initIndex();
-      log.error("No Database Found. Starting new database instance.");
+      log.warning("No Database Found.");
+      log.success("Starting new database instance.", 2);
     }
   }
 
@@ -77,13 +77,20 @@ class Database {
       modified = today,
       last = today,
       channels = [],
-      password = "",
+      password,
       alias = "",
-      attributes = {},
+      attributes = [],
       flags = [],
       contents = [],
-      location = "",
-      owner = ""
+      exits = [],
+      location,
+      owner,
+      to,
+      from,
+      descFormat,
+      nameFormat,
+      conFormat,
+      exitFormat
     } = record;
 
     // Generate a dbref for the object before we insert it into
@@ -106,7 +113,14 @@ class Database {
       flags,
       contents,
       location,
-      owner
+      owner,
+      exits,
+      to,
+      from,
+      nameFormat,
+      descFormat,
+      conFormat,
+      exitFormat
     });
 
     return _.find(this.db, { id });
@@ -115,8 +129,8 @@ class Database {
   save() {
     try {
       fs.writeFileSync(
-        `./data/${config.name || "ursa"}.db`,
-        JSON.stringify(this.db)
+        `./data/${config.name || "UrsaMU"}.json`,
+        JSON.stringify(this.db, {}, 2)
       );
     } catch (err) {
       throw err;
@@ -147,11 +161,39 @@ class Database {
 
   name(name) {
     return _.find(this.db, entry => {
-      if (
-        entry.name.toLowerCase() === name.toLowerCase() ||
+      if (entry.name.toLowerCase() === name.toLowerCase()) {
+        return entry;
+      } else if (
+        entry.hasOwnProperty("alias") &&
         entry.alias.toLowerCase() === name.toLowerCase()
       ) {
         return entry;
+      }
+    });
+  }
+
+  /**
+   * Find database items using an object literal.
+   * @param {object} query An object litereal with key:value pairs to
+   * match in order to find valid entries.
+   */
+  find(query) {
+    return this.db.filter(obj => {
+      let match = [];
+      for (const key in query) {
+        if (obj.hasOwnProperty(key) && obj[key] === query[key]) {
+          match.push(true);
+        } else {
+          match.push(false);
+        }
+      }
+
+      // See if there's a false in the results array.  If one is present, the
+      // whole query fails.
+      if (match.indexOf(false) !== -1) {
+        return false;
+      } else {
+        return true;
       }
     });
   }

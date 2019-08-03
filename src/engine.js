@@ -1,19 +1,28 @@
+const parser = require("./parser");
+const emitter = require("./emitter");
+const broadcast = require("./broadcast");
+const db = require("./database");
+const flags = require("./flags");
+const config = require("./config");
+const queue = require("./queues");
+const { VM } = require("vm2");
+
 module.exports = class UrsaMu {
   constructor(options = {}) {
     const { plugins } = options;
-    this.parser = require("./parser");
-    this.broadcast = require("./broadcast");
+    this.parser = parser;
+    this.broadcast = broadcast;
+    this.emitter = emitter;
     this.cmds = new Map();
     this.txt = new Map();
     this.scope = {};
-    this.db = require("./database");
-    this.grid = require("./grid");
-    this.flags = require("./flags");
-    this.sockets = new Set();
-    this.queue = require("mu-queue");
-    this.config = require("../data/config.json");
+    this.log = require("./utilities").log;
+    this.db = db;
+    this.flags = flags;
+    this.queues = queue;
+    this.config = config;
     this.plugins = plugins;
-    this.help = require("./help");
+    this.VM = VM;
 
     // Initialize in-game functionality.
     this.init();
@@ -22,14 +31,47 @@ module.exports = class UrsaMu {
   init() {
     // Install in-game commands, functions, and pre-load
     // text files.
+    let room;
+    const rooms = this.db.find({ type: "room" });
+    if (rooms.length <= 0) {
+      this.log.warning("No Grid found.");
+      room = this.db.insert({ name: "Limbo", type: "room" });
+    }
+    if (room) {
+      this.log.success("Limbo succesfully dug.", 2);
+      this.config.set("startingRoom", room.id);
+    }
 
     require("./commands")(this);
     require("../text")(this);
     require("./exec")(this);
+    require("./gameTimers")(this);
+
+    // Clear all of the connected flags incase the server didn't go down clean.
+    this.db.db
+      .filter(entry => entry.type === "player")
+      .forEach(entry => {
+        this.flags.set(entry, "!connected");
+      });
+    this.db.save();
 
     // Run plugins if present.
     if (this.plugins) {
       this.plugin(this.plugins);
+    }
+  }
+
+  /**
+   * Force a player bit to execute a command
+   * @param {Object} socket The socket of the enactor
+   * @param {*} command The command to be executed
+   * @param {*} args Any special arguments to pass along with the command
+   */
+  exe(socket, command, args = []) {
+    try {
+      return this.cmds.get(command).run(socket, args, this.scope);
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -40,8 +82,7 @@ module.exports = class UrsaMu {
       plugins.forEach(plugin => {
         try {
           require(`../plugins/${plugin}`)(this);
-
-          console.log(`SUCESS: Plugin installed: ${plugin}.`);
+          this.log.success(`Plugin installed: ${plugin}.`);
         } catch (error) {
           console.error(`ERROR: Could not import plugin: ${plugin}`);
           console.error(`ERROR: ${error.stack}`);

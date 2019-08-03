@@ -1,4 +1,7 @@
 const parser = require("./parser");
+const db = require("./database");
+const queue = require("./queues");
+const flags = require("./flags");
 
 /**
  * new Broadcast()
@@ -20,6 +23,24 @@ class Broadcast {
   }
 
   /**
+   * sendList sends a message to an array of multiple sockets.
+   * @param {Objects[]} targets a list of targets a message is to be sent too.
+   * @param {String} message The message to be sent.
+   * @param {string} flags Any flag restrictions the message has 'connected' for instance.
+   */
+  sendList(targets, message, flgs = "", noEmit = []) {
+    targets.forEach(target => {
+      if (flags.hasFlags(db.id(target), flgs) && noEmit.indexOf(target) < 0) {
+        try {
+          this.send(queue.idToSocket(target), message);
+        } catch (error) {
+          throw error;
+        }
+      }
+    });
+  }
+
+  /**
    * Send an error message to a socket
    * @param {*} socket - The socket the message is being sent to.
    * @param {*} error - The Error object message to send.
@@ -28,7 +49,7 @@ class Broadcast {
     socket.write(
       "Congrats! You found a bug! Well this is embarrasing.. " +
         "If you could be so kind as to let someone on staff know that you ran into " +
-        `this error? That would be /amazing/!\n\nERROR: ${error.stack}\r\n`
+        `this error? That would be /amazing/!\nERROR: ${error.stack}\r\n`
     );
   }
 
