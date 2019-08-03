@@ -42,6 +42,7 @@ module.exports = mush => {
               `%cyYou are connected to your %cn%chArchitect%cn %cyplayer.%cn`
             );
             mush.exe(socket, "look", ["here"]);
+            mush.emitter.emit("connected", DBRef);
           }
 
           // Fail attempt.
