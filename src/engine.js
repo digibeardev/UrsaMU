@@ -6,10 +6,11 @@ const flags = require("./flags");
 const config = require("./config");
 const queue = require("./queues");
 const { VM } = require("vm2");
-
+const help = require("./help");
 module.exports = class UrsaMu {
   constructor(options = {}) {
     const { plugins } = options;
+    this.help = help;
     this.parser = parser;
     this.broadcast = broadcast;
     this.emitter = emitter;
