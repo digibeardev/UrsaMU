@@ -4,31 +4,31 @@
     "name": "Limbo",
     "description": "You see nothing special.",
     "type": "room",
-    "last": "2019-08-03T03:59:07.973Z",
-    "created": "2019-08-03T03:59:07.973Z",
-    "modified": "2019-08-03T03:59:07.973Z",
+    "last": "2019-08-07T05:13:40.160Z",
+    "created": "2019-08-07T05:13:40.160Z",
+    "modified": "2019-08-07T05:13:40.160Z",
     "channels": [],
     "alias": "",
     "attributes": [],
     "flags": [],
     "contents": [
-      2,
-      3,
-      4
+      2
     ],
-    "exits": []
+    "exits": [
+      4
+    ]
   },
   {
     "id": 2,
     "name": "Kumakun",
     "description": "You see nothing special.",
     "type": "player",
-    "last": "2019-08-03T03:59:22.602Z",
-    "created": "2019-08-03T03:59:22.602Z",
-    "modified": "2019-08-06T03:22:33.555Z",
+    "last": "2019-08-07T05:13:49.763Z",
+    "created": "2019-08-07T05:13:49.763Z",
+    "modified": "2019-08-07T05:16:01.514Z",
     "channels": [],
     "password": "4e4dfe876770ae660553768ecbcdaaf191d6aa61d2dbb621094177e6cfde2305",
-    "alias": "k",
+    "alias": "",
     "attributes": [],
     "flags": [
       "architect",
@@ -40,36 +40,57 @@
   },
   {
     "id": 3,
-    "name": "Foobar",
+    "name": "Test Room",
     "description": "You see nothing special.",
-    "type": "player",
-    "last": "2019-08-03T03:59:40.428Z",
-    "created": "2019-08-03T03:59:40.428Z",
-    "modified": "2019-08-03T03:59:40.428Z",
+    "type": "room",
+    "last": "2019-08-07T05:13:58.501Z",
+    "created": "2019-08-07T05:13:58.501Z",
+    "modified": "2019-08-07T05:13:58.501Z",
     "channels": [],
-    "password": "4e4dfe876770ae660553768ecbcdaaf191d6aa61d2dbb621094177e6cfde2305",
     "alias": "",
     "attributes": [],
     "flags": [],
     "contents": [],
-    "location": 1,
-    "exits": []
+    "owner": 2,
+    "exits": [
+      5
+    ]
   },
   {
     "id": 4,
-    "name": "Tester",
+    "name": "Test Room <TR>;tr",
     "description": "You see nothing special.",
-    "type": "player",
-    "last": "2019-08-03T04:08:23.839Z",
-    "created": "2019-08-03T04:08:23.839Z",
-    "modified": "2019-08-03T04:08:23.839Z",
+    "type": "exit",
+    "last": "2019-08-07T05:14:37.292Z",
+    "created": "2019-08-07T05:14:37.292Z",
+    "modified": "2019-08-07T05:14:37.292Z",
     "channels": [],
-    "password": "4e4dfe876770ae660553768ecbcdaaf191d6aa61d2dbb621094177e6cfde2305",
     "alias": "",
     "attributes": [],
     "flags": [],
     "contents": [],
-    "location": 1,
-    "exits": []
+    "owner": 2,
+    "exits": [],
+    "to": 3,
+    "from": 1
+  },
+  {
+    "id": 5,
+    "name": "Return Exit <RE>;re;leave;exit;o",
+    "description": "You see nothing special.",
+    "type": "thing",
+    "last": "2019-08-07T05:14:37.292Z",
+    "created": "2019-08-07T05:14:37.292Z",
+    "modified": "2019-08-07T05:14:37.292Z",
+    "channels": [],
+    "alias": "",
+    "attributes": [],
+    "flags": [],
+    "contents": [],
+    "location": 3,
+    "owner": 2,
+    "exits": [],
+    "to": 1,
+    "from": 3
   }
 ]

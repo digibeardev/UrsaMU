@@ -18,9 +18,21 @@ class Help {
           .split(".")
           .slice(0, -1)
           .join("."),
-        { text: fs.readFileSync(filePath, "utf-8") }
+        {
+          text: fs.readFileSync(filePath, "utf-8"),
+          category: "general",
+          visible: true
+        }
       );
     });
+  }
+
+  get(help) {
+    return this.help.get(help);
+  }
+
+  has(help) {
+    return this.help.has(help);
   }
 }
 

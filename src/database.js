@@ -158,6 +158,9 @@ class Database {
   }
 
   id(id) {
+    if (typeof id === "string" && id[0] === "#") {
+      id = parseInt(id.slice(1));
+    }
     return _.find(this.db, { id });
   }
 

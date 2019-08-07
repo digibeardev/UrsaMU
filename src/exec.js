@@ -1,4 +1,5 @@
 const { matchExit, move } = require("./movement");
+const parser = require("./parser");
 
 module.exports = mush => {
   /**

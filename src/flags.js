@@ -33,7 +33,7 @@ class Flags {
         },
         {
           name: "wizard",
-          restricted: "god",
+          restricted: "architect",
           code: "W"
         },
         {
