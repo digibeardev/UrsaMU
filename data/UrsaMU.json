@@ -25,10 +25,10 @@
     "type": "player",
     "last": "2019-08-07T05:13:49.763Z",
     "created": "2019-08-07T05:13:49.763Z",
-    "modified": "2019-08-07T05:16:01.514Z",
+    "modified": "2019-08-07T21:37:45.145Z",
     "channels": [],
     "password": "4e4dfe876770ae660553768ecbcdaaf191d6aa61d2dbb621094177e6cfde2305",
-    "alias": "",
+    "alias": "K",
     "attributes": [],
     "flags": [
       "architect",
@@ -71,7 +71,7 @@
     "contents": [],
     "owner": 2,
     "exits": [],
-    "to": 3,
+    "to": 8,
     "from": 1
   },
   {
@@ -92,5 +92,73 @@
     "exits": [],
     "to": 1,
     "from": 3
+  },
+  {
+    "id": 6,
+    "name": "Another Room",
+    "description": "You see nothing special.",
+    "type": "room",
+    "last": "2019-08-07T07:18:12.812Z",
+    "created": "2019-08-07T07:18:12.812Z",
+    "modified": "2019-08-07T07:18:12.812Z",
+    "channels": [],
+    "alias": "",
+    "attributes": [],
+    "flags": [],
+    "contents": [],
+    "owner": 2,
+    "exits": []
+  },
+  {
+    "id": 7,
+    "name": "Another Test Room",
+    "description": "You see nothing special.",
+    "type": "room",
+    "last": "2019-08-07T16:05:46.546Z",
+    "created": "2019-08-07T16:05:46.546Z",
+    "modified": "2019-08-07T16:05:46.546Z",
+    "channels": [],
+    "alias": "",
+    "attributes": [],
+    "flags": [],
+    "contents": [],
+    "owner": 2,
+    "exits": []
+  },
+  {
+    "id": 8,
+    "name": "Foobar Room",
+    "description": "You see nothing special.",
+    "type": "room",
+    "last": "2019-08-07T20:46:43.713Z",
+    "created": "2019-08-07T20:46:43.713Z",
+    "modified": "2019-08-07T20:46:43.713Z",
+    "channels": [],
+    "alias": "",
+    "attributes": [],
+    "flags": [],
+    "contents": [],
+    "owner": 2,
+    "exits": [
+      9
+    ]
+  },
+  {
+    "id": 9,
+    "name": "Limbo",
+    "description": "You see nothing special.",
+    "type": "exit",
+    "last": "2019-08-07T21:11:17.873Z",
+    "created": "2019-08-07T21:11:17.873Z",
+    "modified": "2019-08-07T21:11:17.873Z",
+    "channels": [],
+    "alias": "",
+    "attributes": [],
+    "flags": [],
+    "contents": [],
+    "owner": 2,
+    "exits": [],
+    "to": 1,
+    "from": 8
   }
 ]

@@ -7,10 +7,13 @@ const config = require("./config");
 const queue = require("./queues");
 const { VM } = require("vm2");
 const help = require("./help");
+const grid = require("./grid");
+
 module.exports = class UrsaMu {
   constructor(options = {}) {
     const { plugins } = options;
     this.help = help;
+    this.grid = grid;
     this.parser = parser;
     this.broadcast = broadcast;
     this.emitter = emitter;
