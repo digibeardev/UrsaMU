@@ -25,11 +25,16 @@
     "type": "player",
     "last": "2019-08-07T05:13:49.763Z",
     "created": "2019-08-07T05:13:49.763Z",
-    "modified": "2019-08-07T21:37:45.145Z",
+    "modified": "2019-08-08T19:55:47.102Z",
     "channels": [],
     "password": "4e4dfe876770ae660553768ecbcdaaf191d6aa61d2dbb621094177e6cfde2305",
     "alias": "K",
-    "attributes": [],
+    "attributes": [
+      {
+        "name": "_foobar",
+        "value": "Baz"
+      }
+    ],
     "flags": [
       "architect",
       "connected"
@@ -50,7 +55,9 @@
     "alias": "",
     "attributes": [],
     "flags": [],
-    "contents": [],
+    "contents": [
+      2
+    ],
     "owner": 2,
     "exits": [
       5

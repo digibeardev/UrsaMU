@@ -8,10 +8,11 @@ const queue = require("./queues");
 const { VM } = require("vm2");
 const help = require("./help");
 const grid = require("./grid");
-
+const attrs = require("./attributes");
 module.exports = class UrsaMu {
   constructor(options = {}) {
     const { plugins } = options;
+    this.attrs = attrs;
     this.help = help;
     this.grid = grid;
     this.parser = parser;
@@ -88,8 +89,8 @@ module.exports = class UrsaMu {
           require(`../plugins/${plugin}`)(this);
           this.log.success(`Plugin installed: ${plugin}.`);
         } catch (error) {
-          console.error(`ERROR: Could not import plugin: ${plugin}`);
-          console.error(`ERROR: ${error.stack}`);
+          this.log.error(`Could not import plugin: ${plugin}`);
+          this.log.error(`${error.stack}`);
         }
       });
 
@@ -98,13 +99,28 @@ module.exports = class UrsaMu {
       try {
         require("../plugins/" + plugins)(this);
       } catch (error) {
-        console.error(`ERROR: Could not import plugin: ${plugins}`);
-        console.error(`ERROR: ${error}`);
+        this.log.error(`Could not import plugin: ${plugins}`);
+        this.log.error(`${error.stack}`);
       }
 
       // Else it's not a format the plugin system can read.
     } else {
-      console.error(`ERROR: Unable to read plugin: ${plugins}.`);
+      this.logs.error(`Unable to read plugin: ${plugins}.`);
+    }
+  }
+
+  /**
+   * Load middleware into memory.  The system provides three variables
+   * to middleware, socket, data, and scope.  See the commands directory
+   * for more practical examples.
+   * @param {object} middleware  The middleware we want to load.
+   */
+  use(middleware) {
+    try {
+      require(middleware)(this);
+      return true;
+    } catch (error) {
+      return false;
     }
   }
 };
