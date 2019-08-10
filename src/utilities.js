@@ -1,4 +1,5 @@
 const chalk = require("chalk");
+const { readdirSync } = require("fs");
 
 /**
  * Log Formatting.
@@ -24,3 +25,8 @@ class Log {
 }
 
 module.exports.log = new Log();
+
+module.exports.getDirs = source =>
+  readdirSync(source, { withFileTypes: true })
+    .filter(dirent => dirent.isDirectory())
+    .map(dirent => dirent.name);

@@ -136,8 +136,8 @@ module.exports = parser => {
     if (args.length < 2) {
       return SyntaxError("repeat expects 2 arguments");
     }
-    const message = parser.parser.run(args[0], scope);
-    const width = parseInt(parser.parser.run(args[1], scope));
+    const message = parser.evaluate(args[0], scope);
+    const width = parseInt(parser.evaluate(args[1], scope));
     if (Number.isInteger(width)) {
       return message.repeat(width);
     }
