@@ -16,7 +16,8 @@
     ],
     "exits": [
       4
-    ]
+    ],
+    "nameFormat": "center(%ch%cr<<%cn %ch%0 %cr>>%cn,78,%cr-%cn)"
   },
   {
     "id": 2,
@@ -25,7 +26,7 @@
     "type": "player",
     "last": "2019-08-07T05:13:49.763Z",
     "created": "2019-08-07T05:13:49.763Z",
-    "modified": "2019-08-08T19:55:47.102Z",
+    "modified": "2019-08-09T18:42:35.022Z",
     "channels": [],
     "password": "4e4dfe876770ae660553768ecbcdaaf191d6aa61d2dbb621094177e6cfde2305",
     "alias": "K",
@@ -148,7 +149,8 @@
     "owner": 2,
     "exits": [
       9
-    ]
+    ],
+    "parent": 1
   },
   {
     "id": 9,

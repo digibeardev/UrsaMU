@@ -8,9 +8,9 @@ module.exports = mush => {
 
       const enactor = mush.db.id(socket.id);
       // Get the target dbref information
-      if (tarName === "me") {
+      if (tarName.trim() === "me") {
         target = mush.db.id(socket.id);
-      } else if (tarName === "here") {
+      } else if (tarName.trim() === "here") {
         target = mush.db.id(enactor.location);
       } else {
         target = mush.db.id(tarName);

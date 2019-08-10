@@ -18,6 +18,8 @@ class Attributes {
   }
 
   get(id, attribute) {
-    return _.find(target.attributes, { id });
+    return _.find(target.attributes, { name: attribute });
   }
 }
+
+module.exports = new Attributes();
