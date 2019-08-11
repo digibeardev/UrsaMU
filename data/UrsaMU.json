@@ -11,12 +11,8 @@
     "alias": "",
     "attributes": [],
     "flags": [],
-    "contents": [
-      2
-    ],
-    "exits": [
-      4
-    ],
+    "contents": [2],
+    "exits": [4],
     "nameFormat": "center(%ch%cr<<%cn %ch%0 %cr>>%cn,78,%cr-%cn)"
   },
   {
@@ -36,10 +32,7 @@
         "value": "Baz"
       }
     ],
-    "flags": [
-      "architect",
-      "connected"
-    ],
+    "flags": ["architect", "connected"],
     "contents": [],
     "location": 1,
     "exits": []
@@ -56,13 +49,9 @@
     "alias": "",
     "attributes": [],
     "flags": [],
-    "contents": [
-      2
-    ],
+    "contents": [2],
     "owner": 2,
-    "exits": [
-      5
-    ]
+    "exits": [5]
   },
   {
     "id": 4,
@@ -147,9 +136,7 @@
     "flags": [],
     "contents": [],
     "owner": 2,
-    "exits": [
-      9
-    ],
+    "exits": [9],
     "parent": 1
   },
   {
