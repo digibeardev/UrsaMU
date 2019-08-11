@@ -142,4 +142,39 @@ module.exports = parser => {
       return message.repeat(width);
     }
   });
+
+  // Columns
+  parser.funs.set("columns", (args, scope) => {
+    if (args.length < 2) {
+      return SyntaxError("columns expects 2 arguments");
+    }
+    let indent, delim;
+    const list = parser.evaluate(args[0], scope);
+    const width = parseInt(parser.evaluate(args[1], scope));
+    if (args[2]) {
+      delim = parser.evaluate(args[2], scope);
+    } else {
+      delim = " ";
+    }
+
+    if (args[3]) {
+      indent = parseInt(parser.evaluate(args[3], scope));
+    } else {
+      indent = 0;
+    }
+    let output = "";
+    let line = "  ";
+    // Start working with the main list.
+    list.split(delim).forEach(item => {
+      if (indent + line.length + item.length >= 78) {
+        line += "%r" + " ".repeat(indent) + item.padEnd(width);
+        output += line;
+        line = "";
+      } else {
+        line += item.padEnd(width);
+      }
+    });
+    // Tack the last line onto the end! ^_^
+    return "%s".repeat(indent) + output + line;
+  });
 };
