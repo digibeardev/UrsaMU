@@ -2,7 +2,7 @@
   {
     "id": 1,
     "name": "Limbo",
-    "description": "You see nothing special.",
+    "description": "%r%tWelcome to the game! If you're here right now? It's a time of great flux.  The world is consistantly chanigning as I progress with the code.  Hang out and talk for now, but there will be more to actually see later!%r",
     "type": "room",
     "last": "2019-08-07T05:13:40.160Z",
     "created": "2019-08-07T05:13:40.160Z",
@@ -11,8 +11,12 @@
     "alias": "",
     "attributes": [],
     "flags": [],
-    "contents": [2],
-    "exits": [4],
+    "contents": [
+      2
+    ],
+    "exits": [
+      4
+    ],
     "nameFormat": "center(%ch%cr<<%cn %ch%0 %cr>>%cn,78,%cr-%cn)"
   },
   {
@@ -22,7 +26,7 @@
     "type": "player",
     "last": "2019-08-07T05:13:49.763Z",
     "created": "2019-08-07T05:13:49.763Z",
-    "modified": "2019-08-11T09:16:53.520Z",
+    "modified": "2019-08-12T03:16:06.176Z",
     "channels": [],
     "password": "4e4dfe876770ae660553768ecbcdaaf191d6aa61d2dbb621094177e6cfde2305",
     "alias": "K",
@@ -32,7 +36,10 @@
         "value": "Baz"
       }
     ],
-    "flags": ["architect", "connected"],
+    "flags": [
+      "architect",
+      "connected"
+    ],
     "contents": [],
     "location": 1,
     "exits": []
@@ -49,9 +56,13 @@
     "alias": "",
     "attributes": [],
     "flags": [],
-    "contents": [2],
+    "contents": [
+      2
+    ],
     "owner": 2,
-    "exits": [5]
+    "exits": [
+      5
+    ]
   },
   {
     "id": 4,
@@ -136,7 +147,9 @@
     "flags": [],
     "contents": [],
     "owner": 2,
-    "exits": [9],
+    "exits": [
+      9
+    ],
     "parent": 1
   },
   {

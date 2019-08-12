@@ -1,3 +1,4 @@
+const { resolve } = require("path");
 module.exports = mush => {
   mush.cmds.set("@reload", {
     pattern: /^@?reload\s+(.*)/i,
@@ -7,7 +8,9 @@ module.exports = mush => {
         mush.flags.save();
         mush.db.save();
         mush.config.save();
-        delete require.cache[require.resolve(`./${data[1]}.js`)];
+        // delete the reference in the require cash
+        delete require.cache[require.resolve(`./${data[1].trim()}.js`)];
+        require(`./${data[1].trim()}`)(mush);
         mush.broadcast.send(
           socket,
           `%chDone%cn. Command "%ch${data[1]}%cn" reloaded.`
@@ -15,7 +18,7 @@ module.exports = mush => {
       } catch (error) {
         mush.broadcast.send(
           socket,
-          `Unable to reload module.  Error: ${error.message}`
+          `Unable to reload module.  Error: ${error.stack}`
         );
       }
     }
