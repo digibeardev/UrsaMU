@@ -64,6 +64,43 @@ module.exports = class UrsaMu {
     if (this.plugins) {
       this.plugin(this.plugins);
     }
+
+    // Check for server events!
+    this.emitter.on("connected", socket => {
+      const enactor = this.db.id(socket.id);
+      const curRoom = this.db.id(enactor.location);
+      this.broadcast.sendList(
+        socket,
+        curRoom.contents,
+        `${enactor.name} has connected.`,
+        "connected"
+      );
+    });
+
+    this.emitter.on("disconnected", socket => {
+      const enactor = this.db.id(socket.id);
+      const curRoom = this.db.id(enactor.location);
+      this.broadcast.sendList(
+        socket,
+        curRoom.contents,
+        `${enactor.name} has disconnected.`,
+        "connected"
+      );
+    });
+
+    this.emitter.on("close", socket => {
+      if (socket.id) {
+        const enactor = this.db.id(socket.id);
+        const curRoom = this.db.id(enactor.location);
+        this.broadcast.sendList(
+          socket,
+          curRoom.contents,
+          `${enactor.name} has disconnected.`,
+          "connected"
+          this.queues.sockets.delete(socket)
+          );
+      }
+    });
   }
 
   /**

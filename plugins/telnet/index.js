@@ -28,6 +28,8 @@ module.exports = mush => {
     });
   });
 
+  tSocket.on("close", tSocket => mush.emitter.emit("close", socket));
+
   mush.log.success(
     `Starting Telnet server on port ${mush.config.get("telnet") || 3000}`
   );

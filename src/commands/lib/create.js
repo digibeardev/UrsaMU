@@ -65,6 +65,7 @@ module.exports = mush => {
         }
         mush.db.update(socket.id, setFlags);
         mush.db.save();
+        mush.emitter.emit("connected", socket);
       } else {
         mush.broadcast.send(
           socket,
