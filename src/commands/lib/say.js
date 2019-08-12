@@ -13,6 +13,7 @@ module.exports = mush => {
           `You say, "` + mush.parser.run(match[1], scope) + `"`
         );
         mush.broadcast.sendList(
+          socket,
           conList,
           `${
             enactor.moniker ? enactor.moniker : enactor.name
@@ -24,6 +25,7 @@ module.exports = mush => {
         conList = mush.db.id(enactor.location).contents;
         mush.broadcast.send(socket, `You say, "` + match[1] + `"`);
         mush.broadcast.sendList(
+          socket,
           conList,
           `${enactor.moniker ? enactor.moniker : enactor.name} says "${
             match[1]

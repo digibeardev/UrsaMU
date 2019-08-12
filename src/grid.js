@@ -28,12 +28,14 @@ class Grid {
     }
   }
 
-  move(enactor, eObj) {
+  move(socket, eObj) {
     // Update the enactor's current location.
+    const enactor = db.id(socket.id);
     const curRoom = db.id(enactor.location);
 
     // Remove the enactor from the current room's contents list.
     broadcast.sendList(
+      socket,
       curRoom.contents,
       `${enactor.name} has left.`,
       "connected"
@@ -46,6 +48,7 @@ class Grid {
     db.update(enactor.id, { location: newRoom.id });
     db.update(newRoom.id, { contents: [...newRoom.contents, enactor.id] });
     broadcast.sendList(
+      socket,
       newRoom.contents,
       `${enactor.name} has arrived.`,
       "connected"
