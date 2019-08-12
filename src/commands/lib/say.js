@@ -30,8 +30,7 @@ module.exports = mush => {
           `${enactor.moniker ? enactor.moniker : enactor.name} says "${
             match[1]
           }"`,
-          "connected",
-          [enactor.id]
+          "connected"
         );
       }
     }
