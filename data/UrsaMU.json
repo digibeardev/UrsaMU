@@ -2,40 +2,34 @@
   {
     "id": 1,
     "name": "Limbo",
-    "description": "%r%tWelcome to the game! If you're here right now? It's a time of great flux.  The world is consistantly chanigning as I progress with the code.  Hang out and talk for now, but there will be more to actually see later!%r",
+    "description": "You see nothing special.",
     "type": "room",
-    "last": "2019-08-07T05:13:40.160Z",
-    "created": "2019-08-07T05:13:40.160Z",
-    "modified": "2019-08-07T05:13:40.160Z",
+    "last": "2019-08-12T03:57:23.332Z",
+    "created": "2019-08-12T03:57:23.332Z",
+    "modified": "2019-08-12T03:57:23.332Z",
     "channels": [],
+    "parent": null,
     "alias": "",
     "attributes": [],
     "flags": [],
     "contents": [
-      2
+      2,
+      3
     ],
-    "exits": [
-      4
-    ],
-    "nameFormat": "center(%ch%cr<<%cn %ch%0 %cr>>%cn,78,%cr-%cn)"
+    "exits": []
   },
   {
     "id": 2,
     "name": "Kumakun",
     "description": "You see nothing special.",
     "type": "player",
-    "last": "2019-08-07T05:13:49.763Z",
-    "created": "2019-08-07T05:13:49.763Z",
-    "modified": "2019-08-12T03:16:06.176Z",
+    "last": "2019-08-12T04:04:51.933Z",
+    "created": "2019-08-12T04:04:51.933Z",
+    "modified": "2019-08-12T04:09:58.758Z",
     "channels": [],
     "password": "4e4dfe876770ae660553768ecbcdaaf191d6aa61d2dbb621094177e6cfde2305",
-    "alias": "K",
-    "attributes": [
-      {
-        "name": "_foobar",
-        "value": "Baz"
-      }
-    ],
+    "alias": "",
+    "attributes": [],
     "flags": [
       "architect",
       "connected"
@@ -46,128 +40,21 @@
   },
   {
     "id": 3,
-    "name": "Test Room",
+    "name": "tester",
     "description": "You see nothing special.",
-    "type": "room",
-    "last": "2019-08-07T05:13:58.501Z",
-    "created": "2019-08-07T05:13:58.501Z",
-    "modified": "2019-08-07T05:13:58.501Z",
+    "type": "player",
+    "last": "2019-08-12T04:06:07.948Z",
+    "created": "2019-08-12T04:06:07.948Z",
+    "modified": "2019-08-12T04:10:21.051Z",
     "channels": [],
+    "password": "4e4dfe876770ae660553768ecbcdaaf191d6aa61d2dbb621094177e6cfde2305",
     "alias": "",
     "attributes": [],
-    "flags": [],
-    "contents": [
-      2
+    "flags": [
+      "connected"
     ],
-    "owner": 2,
-    "exits": [
-      5
-    ]
-  },
-  {
-    "id": 4,
-    "name": "Test Room <TR>;tr",
-    "description": "You see nothing special.",
-    "type": "exit",
-    "last": "2019-08-07T05:14:37.292Z",
-    "created": "2019-08-07T05:14:37.292Z",
-    "modified": "2019-08-07T05:14:37.292Z",
-    "channels": [],
-    "alias": "",
-    "attributes": [],
-    "flags": [],
     "contents": [],
-    "owner": 2,
-    "exits": [],
-    "to": 8,
-    "from": 1
-  },
-  {
-    "id": 5,
-    "name": "Return Exit <RE>;re;leave;exit;o",
-    "description": "You see nothing special.",
-    "type": "thing",
-    "last": "2019-08-07T05:14:37.292Z",
-    "created": "2019-08-07T05:14:37.292Z",
-    "modified": "2019-08-07T05:14:37.292Z",
-    "channels": [],
-    "alias": "",
-    "attributes": [],
-    "flags": [],
-    "contents": [],
-    "location": 3,
-    "owner": 2,
-    "exits": [],
-    "to": 1,
-    "from": 3
-  },
-  {
-    "id": 6,
-    "name": "Another Room",
-    "description": "You see nothing special.",
-    "type": "room",
-    "last": "2019-08-07T07:18:12.812Z",
-    "created": "2019-08-07T07:18:12.812Z",
-    "modified": "2019-08-07T07:18:12.812Z",
-    "channels": [],
-    "alias": "",
-    "attributes": [],
-    "flags": [],
-    "contents": [],
-    "owner": 2,
+    "location": 1,
     "exits": []
-  },
-  {
-    "id": 7,
-    "name": "Another Test Room",
-    "description": "You see nothing special.",
-    "type": "room",
-    "last": "2019-08-07T16:05:46.546Z",
-    "created": "2019-08-07T16:05:46.546Z",
-    "modified": "2019-08-07T16:05:46.546Z",
-    "channels": [],
-    "alias": "",
-    "attributes": [],
-    "flags": [],
-    "contents": [],
-    "owner": 2,
-    "exits": []
-  },
-  {
-    "id": 8,
-    "name": "Foobar Room",
-    "description": "You see nothing special.",
-    "type": "room",
-    "last": "2019-08-07T20:46:43.713Z",
-    "created": "2019-08-07T20:46:43.713Z",
-    "modified": "2019-08-07T20:46:43.713Z",
-    "channels": [],
-    "alias": "",
-    "attributes": [],
-    "flags": [],
-    "contents": [],
-    "owner": 2,
-    "exits": [
-      9
-    ],
-    "parent": 1
-  },
-  {
-    "id": 9,
-    "name": "Limbo",
-    "description": "You see nothing special.",
-    "type": "exit",
-    "last": "2019-08-07T21:11:17.873Z",
-    "created": "2019-08-07T21:11:17.873Z",
-    "modified": "2019-08-07T21:11:17.873Z",
-    "channels": [],
-    "alias": "",
-    "attributes": [],
-    "flags": [],
-    "contents": [],
-    "owner": 2,
-    "exits": [],
-    "to": 1,
-    "from": 8
   }
 ]

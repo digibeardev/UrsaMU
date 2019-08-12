@@ -84,7 +84,6 @@ class Database {
       contents = [],
       exits = [],
       location,
-      parent,
       owner,
       to,
       from,
@@ -108,7 +107,6 @@ class Database {
       created,
       modified,
       channels,
-      parent,
       password,
       alias,
       attributes,
@@ -170,15 +168,23 @@ class Database {
   }
 
   id(id) {
-    if (typeof id === "string" && id[0] === "#") {
-      id = parseInt(id.slice(1));
-    }
-    const target = _.find(this.db, { id });
-    if (target && target.hasOwnProperty("parent")) {
-      let parent = this.id(target.parent);
-      return Object.setPrototypeOf(target, parent);
-    } else {
-      return target;
+    if (id) {
+      if (typeof id === "string" && id[0] === "#") {
+        id = parseInt(id.slice(1));
+      }
+      const target = _.find(this.db, { id });
+      if (target && target.hasOwnProperty("parent")) {
+        if (target.parent) {
+          let parent = this.id(target.parent) || null;
+          if (Object.getPrototypeOf(target) !== parent) {
+            return Object.setPrototypeOf(target, parent);
+          }
+        } else {
+          return target;
+        }
+      } else {
+        return target;
+      }
     }
   }
 
