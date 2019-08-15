@@ -29,8 +29,7 @@ module.exports = mush => {
         // send a message to the socket that doesn't have any parsing needed.
         mush.broadcast.send(
           socket,
-          `${enactor.moniker ? enactor.moniker : enactor.name} ${(match[1],
-          scope)}`
+          `${enactor.moniker ? enactor.moniker : enactor.name} ${match[1]}`
         );
 
         // Send a message to the rest of the locations contents.
