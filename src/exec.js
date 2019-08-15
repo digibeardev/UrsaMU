@@ -35,26 +35,28 @@ module.exports = mush => {
       // any channel definitions.
       const [alias, ...rest] = string.split(" ");
       const chan = find(enactor.channels, { alias });
-      const channel = mush.channels.get(chan.name);
-      string = string.replace("\r\n", "\n");
       if (chan) {
-        let msg = "";
-        if (rest.join(" ")[0] === ":") {
-          msg += `${
-            enactor.moniker ? enactor.moniker : enactor.name
-          } ${rest.join(" ").slice(1)}`;
-        } else if (rest.join(" ")[0] === ";") {
-          msg += `${
-            enactor.moniker ? enactor.moniker : enactor.name
-          }${rest.join(" ").slice(1)}`;
-        } else {
-          msg += `${
-            enactor.moniker ? enactor.moniker : enactor.name
-          } says "${rest.join(" ").trim()}"`;
-        }
+        string = string.replace("\r\n", "\n");
+        if (chan) {
+          let msg = "";
+          if (rest.join(" ")[0] === ":") {
+            msg += `${
+              enactor.moniker ? enactor.moniker : enactor.name
+            } ${rest.join(" ").slice(1)}`;
+          } else if (rest.join(" ")[0] === ";") {
+            msg += `${
+              enactor.moniker ? enactor.moniker : enactor.name
+            }${rest.join(" ").slice(1)}`;
+          } else {
+            msg += `${
+              enactor.moniker ? enactor.moniker : enactor.name
+            } says "${rest.join(" ").trim()}"`;
+          }
 
-        mush.emitter.emit("channel", channel, msg.trim());
-        ran = true;
+          mush.emitter.emit("channel", channel, msg.trim());
+          ran = true;
+        }
+        const channel = mush.channels.get(chan.name);
       }
     }
 

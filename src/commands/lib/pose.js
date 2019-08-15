@@ -48,6 +48,7 @@ module.exports = mush => {
       } catch {
         conList = mush.db.id(enactor.location).contents;
         mush.broadcast.sendList(
+          socket,
           conList,
           `${enactor.moniker ? enactor.moniker : enactor.name}${match[1]}`,
           "connected"

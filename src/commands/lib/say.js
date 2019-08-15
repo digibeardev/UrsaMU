@@ -4,11 +4,11 @@ module.exports = mush => {
     restricted: "connected",
     run: (socket, match, scope) => {
       if (socket.id) {
+        // Get enactor information from socket,
         const enactor = mush.db.id(socket.id);
-        let conList;
-        conList = mush.db.id(enactor.location).contents;
         try {
-          conList = mush.db.id(enactor.location).contents;
+          // Get a list of contents from the enactor's current location.
+          let conList = mush.db.id(enactor.location).contents;
           mush.broadcast.send(
             socket,
             `You say, "` + mush.parser.run(match[1], scope) + `"`
@@ -19,8 +19,7 @@ module.exports = mush => {
             `${
               enactor.moniker ? enactor.moniker : enactor.name
             } says "${mush.parser.run(match[1], scope)}"`,
-            "connected",
-            [enactor.id]
+            "connected"
           );
         } catch {
           conList = mush.db.id(enactor.location).contents;

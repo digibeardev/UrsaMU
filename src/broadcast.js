@@ -34,8 +34,13 @@ class Broadcast {
    */
   sendList(socket, targets, message, flgs = "") {
     targets.forEach(target => {
-      if (flags.hasFlags(db.id(target), flgs) && socket.id !== target) {
+      if (
+        flags.hasFlags(db.id(target), flgs) &&
+        queue.idToSocket(target)._socket.writable &&
+        socket.id !== target
+      ) {
         try {
+          const test = queue.idToSocket(target);
           this.send(queue.idToSocket(target), message);
         } catch (error) {
           throw error;
