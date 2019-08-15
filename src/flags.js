@@ -142,9 +142,8 @@ class Flags {
     cleanFlags.forEach(flag => {
       // First to see if it's a combined flag.  If so we'll handle it with
       // orFlags().
-      const flagObj = this.exists(flag);
-      if (flagObj.hasOwnProperty("combined")) {
-        if (this.orFlags(obj, flagObj.combined)) {
+      if (flag.hasOwnProperty("combined")) {
+        if (this.orFlags(obj, flag.combined)) {
           rtrn = true;
         }
       } else {
