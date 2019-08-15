@@ -7,6 +7,15 @@ module.exports = mush => {
       let conList;
       conList = mush.db.id(enactor.location).contents;
       try {
+        // send a message to the socket
+        mush.broadcast.send(
+          socket,
+          `${
+            enactor.moniker ? enactor.moniker : enactor.name
+          } ${mush.parser.run(match[1], scope)}`
+        );
+
+        // send a message to the rest of the room's 'connected' contents.
         conList = mush.db.id(enactor.location).contents;
         mush.broadcast.sendList(
           socket,
@@ -17,6 +26,15 @@ module.exports = mush => {
           "connected"
         );
       } catch {
+        // send a message to the socket that doesn't have any parsing needed.
+        mush.broadcast.send(
+          socket,
+          `${
+            enactor.moniker ? enactor.moniker : enactor.name
+          } ${mush.parser.run(match[1], scope)}`
+        );
+
+        // Send a message to the rest of the locations contents.
         conList = mush.db.id(enactor.location).contents;
         mush.broadcast.sendList(
           socket,
