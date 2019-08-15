@@ -1,11 +1,5 @@
-------------------------------------------------------------------------------
-Welcome to %chUrsaMU!%cn
-
-Type %chRegister%cn to create a new player account using your email. 
-Coming soon! Facebook & Gmail OAuth logins!
-
-If you already have a player account, log directly into your character 
-With %chConnect <name> <password>%cn. 
-
+---< Welcome to UrsaMU! >-----------------------------------------------------
+To create a new character, type %chcreate%cn <%chname%cn> <%chpassword%cn>
+To log into an existing %chconnect%cn <%chname%cn> <%chpassword%cn>. 
 You can sign in as a guest using %chconnect guest%cn
 ------------------------------------------------------------------------------

@@ -112,6 +112,26 @@ module.exports = class UrsaMu {
         "connected"
       );
     });
+
+    this.emitter.on("channel", (chan, msg) => {
+      this.queues.sockets.forEach(socket => {
+        const target = this.db.id(socket.id);
+
+        // loop through each channel, and see if there's a match.
+        for (const channel of target.channels) {
+          if (channel.name == chan.name) {
+            let header = "";
+            header += chan.moniker ? chan.moniker : `%ch<${chan.name}>%cn`;
+            // I would check to make sure the stream is writable first, but the library
+            // I'm using for telnet at the moment doesn't pass that information up the
+            // chain by default.  We may need a custom telnet module later.  Fun!
+            try {
+              this.broadcast.send(socket, `${header} ${msg}`);
+            } catch {}
+          }
+        }
+      });
+    });
   }
 
   /**

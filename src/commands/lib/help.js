@@ -46,11 +46,14 @@ module.exports = mush => {
               .get(help[1].trim())
               .text.replace(
                 /(?:\*\*)(.*)(?:\*\*)/,
-                ($1, $2, $3) => `%ch${$2}%cn`
+                (...args) => `%ch${args[1]}%cn`
               )
               .replace(/`([^`]+)`/g, (...args) => `%cy${args[1]}%cn`)
-              .replace(/\[(.*)\]\((?:.*)\)/g, (...args) => `${args[1]}`)
-              .replace(/#\s(.*)/g, (...args) => "")
+              .replace(
+                /\[([@?\w]+)\]\([^\)]+\)/g,
+                (...args) => `${args[1].replace("@", " @")}`
+              )
+              .replace(/#\s(.*)/g, () => "")
           );
           mush.broadcast.send(socket, "%r[repeat(%cr-%cn,78)]");
           if (mush.flags.hasFlags(mush.db.id(socket.id), "admin")) {

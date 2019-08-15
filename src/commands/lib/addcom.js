@@ -24,7 +24,12 @@ module.exports = mush => {
               socket,
               `%chDone.%cn Joined channel '%ch${
                 chan.name
-              }' with alias '%ch${alias}%cn'.`
+              }%cn' with alias '%ch${alias}%cn'.`
+            );
+            mush.emitter.emit(
+              "channel",
+              chan,
+              `${enactor.name} has joined the channel.`
             );
           } else {
             mush.broadcast.send(socket, "Permission denied.");
