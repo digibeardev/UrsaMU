@@ -36,8 +36,9 @@ class Broadcast {
     targets.forEach(target => {
       if (
         flags.hasFlags(db.id(target), flgs) &&
-        queue.idToSocket(target)._socket.writable &&
-        socket.id !== target
+        (socket.id !== target &&
+          queue.idToSocket(target) &&
+          queue.idToSocket(target)._socket.writable)
       ) {
         try {
           const test = queue.idToSocket(target);
