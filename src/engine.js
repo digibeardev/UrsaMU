@@ -6,10 +6,20 @@ const flags = require("./flags");
 const config = require("./config");
 const queue = require("./queues");
 const { VM } = require("vm2");
+const help = require("./helpsys");
+const grid = require("./grid");
+const attrs = require("./attributes");
+const useraccts = require("./userAccts");
+const channels = require("./channels");
+const utilities = require("./utilities");
 
 module.exports = class UrsaMu {
   constructor(options = {}) {
     const { plugins } = options;
+    this.attrs = attrs;
+    this.accounts = useraccts;
+    this.help = help;
+    this.grid = grid;
     this.parser = parser;
     this.broadcast = broadcast;
     this.emitter = emitter;
@@ -23,6 +33,8 @@ module.exports = class UrsaMu {
     this.config = config;
     this.plugins = plugins;
     this.VM = VM;
+    this.sha256 = utilities.sha256;
+    this.channels = channels;
 
     // Initialize in-game functionality.
     this.init();
@@ -42,9 +54,27 @@ module.exports = class UrsaMu {
       this.config.set("startingRoom", room.id);
     }
 
-    require("./commands")(this);
-    require("../text")(this);
-    require("./exec")(this);
+    try {
+      require("./commands")(this);
+      this.log.success("Commands loaded.");
+    } catch (error) {
+      this.log.error(`Unable to load commands. Error: ${error}`);
+    }
+
+    try {
+      require("../text")(this);
+      this.log.success("Text files loaded.");
+    } catch (error) {
+      this.log.error(`Unable to load text files. Error: ${error}`);
+    }
+
+    try {
+      require("./exec")(this);
+      this.log.success("Command parser loaded.");
+    } catch (error) {
+      this.log.error(`Unable to load command parser. Error: ${error}`);
+    }
+
     require("./gameTimers")(this);
 
     // Clear all of the connected flags incase the server didn't go down clean.
@@ -59,6 +89,49 @@ module.exports = class UrsaMu {
     if (this.plugins) {
       this.plugin(this.plugins);
     }
+
+    // Check for server events!
+    this.emitter.on("connected", socket => {
+      const enactor = this.db.id(socket.id);
+      const curRoom = this.db.id(enactor.location);
+      this.broadcast.sendList(
+        socket,
+        curRoom.contents,
+        `${enactor.name} has connected.`,
+        "connected"
+      );
+    });
+
+    this.emitter.on("disconnected", socket => {
+      const enactor = this.db.id(socket.id);
+      const curRoom = this.db.id(enactor.location);
+      this.broadcast.sendList(
+        socket,
+        curRoom.contents,
+        `${enactor.name} has disconnected.`,
+        "connected"
+      );
+    });
+
+    this.emitter.on("channel", (chan, msg) => {
+      this.queues.sockets.forEach(socket => {
+        const target = this.db.id(socket.id);
+
+        // loop through each channel, and see if there's a match.
+        for (const channel of target.channels) {
+          if (channel.name == chan.name) {
+            let header = "";
+            header += chan.moniker ? chan.moniker : `%ch<${chan.name}>%cn`;
+            // I would check to make sure the stream is writable first, but the library
+            // I'm using for telnet at the moment doesn't pass that information up the
+            // chain by default.  We may need a custom telnet module later.  Fun!
+            try {
+              this.broadcast.send(socket, `${header} ${msg}`);
+            } catch {}
+          }
+        }
+      });
+    });
   }
 
   /**
@@ -84,8 +157,8 @@ module.exports = class UrsaMu {
           require(`../plugins/${plugin}`)(this);
           this.log.success(`Plugin installed: ${plugin}.`);
         } catch (error) {
-          console.error(`ERROR: Could not import plugin: ${plugin}`);
-          console.error(`ERROR: ${error.stack}`);
+          this.log.error(`Could not import plugin: ${plugin}`);
+          this.log.error(`${error.stack}`);
         }
       });
 
@@ -94,13 +167,13 @@ module.exports = class UrsaMu {
       try {
         require("../plugins/" + plugins)(this);
       } catch (error) {
-        console.error(`ERROR: Could not import plugin: ${plugins}`);
-        console.error(`ERROR: ${error}`);
+        this.log.error(`Could not import plugin: ${plugins}`);
+        this.log.error(`${error.stack}`);
       }
 
       // Else it's not a format the plugin system can read.
     } else {
-      console.error(`ERROR: Unable to read plugin: ${plugins}.`);
+      this.logs.error(`Unable to read plugin: ${plugins}.`);
     }
   }
 };

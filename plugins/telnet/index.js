@@ -26,6 +26,8 @@ module.exports = mush => {
     tSocket.on("data", buffer => {
       mush.queues.pQueue.push({ socket: tSocket, data: buffer.toString() });
     });
+
+    tSocket.on("close", tSocket => mush.emitter.emit("close", socket));
   });
 
   mush.log.success(

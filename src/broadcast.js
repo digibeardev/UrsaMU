@@ -18,8 +18,12 @@ class Broadcast {
    * literal sent to the command.
    *
    */
-  send(socket, message) {
-    socket.write(parser.subs(message) + "\r\n");
+  send(socket, message, scope = {}) {
+    try {
+      socket.write(parser.run(message, scope) + "\r\n");
+    } catch {
+      socket.write(parser.subs(message) + "\r\n");
+    }
   }
 
   /**
@@ -28,10 +32,15 @@ class Broadcast {
    * @param {String} message The message to be sent.
    * @param {string} flags Any flag restrictions the message has 'connected' for instance.
    */
-  sendList(targets, message, flgs = "", noEmit = []) {
+  sendList(socket, targets, message, flgs = "") {
     targets.forEach(target => {
-      if (flags.hasFlags(db.id(target), flgs) && noEmit.indexOf(target) < 0) {
+      if (
+        flags.hasFlags(db.id(target), flgs) &&
+        queue.idToSocket(target)._socket.writable &&
+        socket.id !== target
+      ) {
         try {
+          const test = queue.idToSocket(target);
           this.send(queue.idToSocket(target), message);
         } catch (error) {
           throw error;

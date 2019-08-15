@@ -159,7 +159,7 @@ class Parser {
    * @param {object} scope The context of the evaluation.
    */
   run(string, scope) {
-    let replaced = string.replace(/\[([^\]]+)\]/, (...args) => {
+    let replaced = string.replace(/\[([^\]]+)\]/g, (...args) => {
       return this.evaluate(this.parse(args[1]), scope);
     });
 

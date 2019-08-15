@@ -3,13 +3,16 @@ module.exports = mush => {
     // I haven't come up with a way to document functions and
     // commands yet - so these will likely change, but for now?
     // Hi!,
-    pattern: /^@dig(\/teleport|\/tele|\/port)?\s+(.*)/i,
+    pattern: /^@dig(\/tel[eport]+)?\s+(.*)/i,
     restriction: "admin",
     run: (socket, match) => {
       // Deconstruct a whole mess of arguments!
       const [, teleport, args] = match;
       const [name, exits] = args.split("=");
-      const [toExit, fromExit] = exits.split(",");
+      let toexit, fromexit, toExit, fromExit;
+      if (exits) {
+        [toExit, fromExit] = exits.split(",");
+      }
 
       const enactor = mush.db.id(socket.id);
       const curRoom = mush.db.id(enactor.location);
@@ -26,10 +29,8 @@ module.exports = mush => {
         });
         mush.broadcast.send(
           socket,
-          `%chDone.%cn Room %ch${room.name.trim()}%cn dug.`
+          `%chDone.%cn Room %ch${room.name.trim()}(#${room.id})%cn dug.`
         );
-
-        let toexit, fromexit;
 
         // If a 'to' exit is defined, create the db reference and link.
         if (toExit) {

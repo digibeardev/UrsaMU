@@ -37,11 +37,8 @@ module.exports = mush => {
               `%chLogin Successful%cn. Welcome to %chUrsaMU!%cn`
             );
 
-            mush.broadcast.send(
-              socket,
-              `%cyYou are connected to your %cn%chArchitect%cn %cyplayer.%cn`
-            );
             mush.exe(socket, "look", ["here"]);
+            mush.emitter.emit("connected", socket);
           }
 
           // Fail attempt.

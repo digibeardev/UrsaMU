@@ -123,7 +123,13 @@ class Database {
       exitFormat
     });
 
-    return _.find(this.db, { id });
+    let dbo = _.find(this.db, { id });
+    if (dbo.parent) {
+      let pob = this.db.id(parent);
+      return Object.setPrototypeOf(dbo, pob);
+    } else {
+      return dbo;
+    }
   }
 
   save() {
@@ -141,7 +147,13 @@ class Database {
     const index = _.findIndex(this.db, { id });
 
     this.db[index] = { ...this.db[index], ...updates };
-    return this.db[index];
+
+    if (this.db[index].parent) {
+      const parent = this.id(this.db[index].parent);
+      return Object.setPrototypeOf(this.db[index], parent);
+    } else {
+      return this.db[index];
+    }
   }
 
   remove(id) {
@@ -156,7 +168,24 @@ class Database {
   }
 
   id(id) {
-    return _.find(this.db, { id });
+    if (id) {
+      if (typeof id === "string" && id[0] === "#") {
+        id = parseInt(id.slice(1));
+      }
+      const target = _.find(this.db, { id });
+      if (target && target.hasOwnProperty("parent")) {
+        if (target.parent) {
+          let parent = this.id(target.parent) || null;
+          if (Object.getPrototypeOf(target) !== parent) {
+            return Object.setPrototypeOf(target, parent);
+          }
+        } else {
+          return target;
+        }
+      } else {
+        return target;
+      }
+    }
   }
 
   name(name) {
@@ -167,7 +196,11 @@ class Database {
         entry.hasOwnProperty("alias") &&
         entry.alias.toLowerCase() === name.toLowerCase()
       ) {
-        return entry;
+        if (entry.parent) {
+          return Object.setPrototypeOf(entry, this.db.id(entry.parent));
+        } else {
+          return entry;
+        }
       }
     });
   }

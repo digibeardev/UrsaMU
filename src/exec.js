@@ -1,4 +1,6 @@
 const { matchExit, move } = require("./movement");
+const parser = require("./parser");
+const { find } = require("lodash");
 
 module.exports = mush => {
   /**
@@ -20,8 +22,41 @@ module.exports = mush => {
       if (exit && !ran) {
         // Exit match was made.
         ran = true;
-        move(mush.db.id(socket.id), exit);
+        move(socket, exit);
         mush.exe(socket, "look", []);
+      }
+    }
+
+    // We only need to search for channels if the socket is actually
+    // logged in.
+    if (socket.id) {
+      const enactor = mush.db.id(socket.id);
+      // We need to split the input string, and try and match it to
+      // any channel definitions.
+      const [alias, ...rest] = string.split(" ");
+      const chan = find(enactor.channels, { alias });
+      if (chan) {
+        string = string.replace("\r\n", "\n");
+        if (chan) {
+          let msg = "";
+          if (rest.join(" ")[0] === ":") {
+            msg += `${
+              enactor.moniker ? enactor.moniker : enactor.name
+            } ${rest.join(" ").slice(1)}`;
+          } else if (rest.join(" ")[0] === ";") {
+            msg += `${
+              enactor.moniker ? enactor.moniker : enactor.name
+            }${rest.join(" ").slice(1)}`;
+          } else {
+            msg += `${
+              enactor.moniker ? enactor.moniker : enactor.name
+            } says "${rest.join(" ").trim()}"`;
+          }
+
+          mush.emitter.emit("channel", channel, msg.trim());
+          ran = true;
+        }
+        const channel = mush.channels.get(chan.name);
       }
     }
 
