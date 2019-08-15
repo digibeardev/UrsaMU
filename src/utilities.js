@@ -1,5 +1,6 @@
 const chalk = require("chalk");
 const { readdirSync } = require("fs");
+const shajs = require("sha.js");
 
 /**
  * Log Formatting.
@@ -26,7 +27,8 @@ class Log {
 
 module.exports.log = new Log();
 
-module.exports.getDirs = source =>
-  readdirSync(source, { withFileTypes: true })
-    .filter(dirent => dirent.isDirectory())
-    .map(dirent => dirent.name);
+const sha256 = string => {
+  return shajs("sha256")
+    .update(string.trim())
+    .digest("hex");
+};

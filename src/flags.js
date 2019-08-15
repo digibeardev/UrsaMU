@@ -28,26 +28,21 @@ class Flags {
       log.warning("No Flags database found.  Creating new instance.");
       this.flags = [
         {
-          name: "architect",
-          restricted: "architect"
+          name: "immortal",
+          restricted: "immortal"
         },
         {
           name: "wizard",
-          restricted: "architect",
+          restricted: "immortal",
           code: "W"
         },
         {
-          name: "staff",
-          restricted: "wizard",
-          code: "w"
-        },
-        {
           name: "royalty",
-          restricted: "wizard"
+          restricted: "wizard imortal"
         },
         {
           name: "admin",
-          combined: "architect wizard staff"
+          combined: "immortal wizard admin"
         },
         {
           name: "connected",
@@ -238,7 +233,16 @@ class Flags {
     if (
       target.id === enactor.id ||
       target.owner === enactor.id ||
-      this.orFlags(enactor, "architect wizard staff")
+      (this.hasFlags(target, "immortal") &&
+        this.hasFlags(enactor, "immortal")) ||
+      (this.hasFlags(target, "wizard") &&
+        this.orFlags(enactor, "immortal wizard")) ||
+      (this.hasFlags(target, "royalty") &&
+        this.orFlags(enactor, "immortal wizard royalty")) ||
+      (this.hasFlags(target, "staff") &&
+        this.orFlags(enactor, "imortal wizard royalty staff")) ||
+      (this.hasFlags(target, "!immortal !wizard !royalty !staff") &&
+        this.orFlags(enactor, "immortal wizard royalty staff"))
     ) {
       return true;
     } else {

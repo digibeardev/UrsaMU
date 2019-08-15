@@ -21,7 +21,7 @@ module.exports = mush => {
       if (exit && !ran) {
         // Exit match was made.
         ran = true;
-        move(mush.db.id(socket.id), exit);
+        move(socket, exit);
         mush.exe(socket, "look", []);
       }
     }

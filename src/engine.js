@@ -9,10 +9,15 @@ const { VM } = require("vm2");
 const help = require("./helpsys");
 const grid = require("./grid");
 const attrs = require("./attributes");
+const useraccts = require("./userAccts");
+const channels = require("./channels");
+const utilities = require("./utilities");
+
 module.exports = class UrsaMu {
   constructor(options = {}) {
     const { plugins } = options;
     this.attrs = attrs;
+    this.accounts = useraccts;
     this.help = help;
     this.grid = grid;
     this.parser = parser;
@@ -28,6 +33,8 @@ module.exports = class UrsaMu {
     this.config = config;
     this.plugins = plugins;
     this.VM = VM;
+    this.sha256 = utilities.sha256;
+    this.channels = channels;
 
     // Initialize in-game functionality.
     this.init();
@@ -47,9 +54,27 @@ module.exports = class UrsaMu {
       this.config.set("startingRoom", room.id);
     }
 
-    require("./commands")(this);
-    require("../text")(this);
-    require("./exec")(this);
+    try {
+      require("./commands")(this);
+      this.log.success("Commands loaded.");
+    } catch (error) {
+      this.log.error(`Unable to load commands. Error: ${error}`);
+    }
+
+    try {
+      require("../text")(this);
+      this.log.success("Text files loaded.");
+    } catch (error) {
+      this.log.error(`Unable to load text files. Error: ${error}`);
+    }
+
+    try {
+      require("./exec")(this);
+      this.log.success("Command parser loaded.");
+    } catch (error) {
+      this.log.error(`Unable to load command parser. Error: ${error}`);
+    }
+
     require("./gameTimers")(this);
 
     // Clear all of the connected flags incase the server didn't go down clean.
@@ -86,20 +111,6 @@ module.exports = class UrsaMu {
         `${enactor.name} has disconnected.`,
         "connected"
       );
-    });
-
-    this.emitter.on("close", socket => {
-      if (socket.id) {
-        const enactor = this.db.id(socket.id);
-        const curRoom = this.db.id(enactor.location);
-        this.broadcast.sendList(
-          socket,
-          curRoom.contents,
-          `${enactor.name} has disconnected.`,
-          "connected"
-          this.queues.sockets.delete(socket)
-          );
-      }
     });
   }
 
@@ -143,21 +154,6 @@ module.exports = class UrsaMu {
       // Else it's not a format the plugin system can read.
     } else {
       this.logs.error(`Unable to read plugin: ${plugins}.`);
-    }
-  }
-
-  /**
-   * Load middleware into memory.  The system provides three variables
-   * to middleware, socket, data, and scope.  See the commands directory
-   * for more practical examples.
-   * @param {object} middleware  The middleware we want to load.
-   */
-  use(middleware) {
-    try {
-      require(middleware)(this);
-      return true;
-    } catch (error) {
-      return false;
     }
   }
 };

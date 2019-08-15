@@ -26,9 +26,9 @@ module.exports = mush => {
     tSocket.on("data", buffer => {
       mush.queues.pQueue.push({ socket: tSocket, data: buffer.toString() });
     });
-  });
 
-  tSocket.on("close", tSocket => mush.emitter.emit("close", socket));
+    tSocket.on("close", tSocket => mush.emitter.emit("close", socket));
+  });
 
   mush.log.success(
     `Starting Telnet server on port ${mush.config.get("telnet") || 3000}`

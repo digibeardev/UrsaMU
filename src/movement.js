@@ -21,12 +21,14 @@ module.exports.matchExit = (obj, string) => {
     }
 };
 
-module.exports.move = (enactor, eObj) => {
+module.exports.move = (socket, eObj) => {
+  const enactor = db.id(socket.id);
   // Update the enactor's current location.
   const curRoom = db.id(enactor.location);
 
   // Remove the enactor from the current room's contents list.
   broadcast.sendList(
+    socket,
     curRoom.contents,
     `${enactor.name} has left.`,
     "connected"
@@ -39,6 +41,7 @@ module.exports.move = (enactor, eObj) => {
   db.update(enactor.id, { location: newRoom.id });
   db.update(newRoom.id, { contents: [...newRoom.contents, enactor.id] });
   broadcast.sendList(
+    socket,
     newRoom.contents,
     `${enactor.name} has arrived.`,
     "connected"
