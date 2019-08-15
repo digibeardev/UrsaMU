@@ -16,6 +16,8 @@ module.exports = parser => {
 
   // Highlight
   parser.sub.set(/%[cCxX]h/g, "\u001b[1m");
+  parser.sub.set(/%[cCxX]u/g, "\u001b[4m");
+  parser.sub.set(/%[cCxX]i/g, "\u001b[3m");
 
   // Background color codes
   parser.sub.set(/%[cCxX]X/g, "\u001b[40m");
