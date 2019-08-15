@@ -1,3 +1,5 @@
+const { find } = require("lodash");
+
 module.exports = mush => {
   // Command addcom
   mush.cmds.set("addcom", {
@@ -7,22 +9,36 @@ module.exports = mush => {
       const [, alias, channel] = data;
       const enactor = mush.db.id(socket.id);
       const chan = mush.channels.get(channel);
-
-      // Check to see if they're allowed to join the channel first.
-      if (mush.flags.orFlags(socket, chan.join) || !chan.join) {
-        enactor.channels = [
-          ...enactor.channels,
-          { name: chan.name, alias, status: true, title: "" }
-        ];
-        mush.db.update(enactor.id, { channels: enactor.channels });
-        mush.broadcast.send(
-          socket,
-          `%chDone.%cn Joined channel '%ch${
-            chan.name
-          }' with alias '%ch${alias}%cn'.`
-        );
+      const pchan = find(enactor.channels, { alias }); // Oink!
+      // Check to see if the channel even exists first.
+      if (chan) {
+        if (!pchan) {
+          // Check to see if they're allowed to join the channel first.
+          if (mush.flags.orFlags(socket, chan.join) || !chan.join) {
+            enactor.channels = [
+              ...enactor.channels,
+              { name: chan.name, alias, status: true, title: "" }
+            ];
+            mush.db.update(enactor.id, { channels: enactor.channels });
+            mush.broadcast.send(
+              socket,
+              `%chDone.%cn Joined channel '%ch${
+                chan.name
+              }' with alias '%ch${alias}%cn'.`
+            );
+          } else {
+            mush.broadcast.send(socket, "Permission denied.");
+          }
+        } else {
+          mush.broadcast.send(
+            socket,
+            `Alias '%ch${pchan.alias}%cn' is already asigned to channel '%ch${
+              pchan.name
+            }%cn'.`
+          );
+        }
       } else {
-        mush.broadcast.send(socket, "Permission denied.");
+        mush.broadcast.send(socket, "That channel doesn't exist.");
       }
     }
   });
