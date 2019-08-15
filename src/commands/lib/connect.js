@@ -2,7 +2,7 @@ const shajs = require("sha.js");
 
 module.exports = mush => {
   mush.cmds.set("connect", {
-    pattern: /^connect\s+(.+)\s+(.+)/i,
+    pattern: /^c[onnect]+\s+(.+)\s+(.+)/i,
     run: (socket, match) => {
       const today = new Date();
 
