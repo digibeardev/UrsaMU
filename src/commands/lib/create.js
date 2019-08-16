@@ -1,6 +1,4 @@
 const shajs = require("sha.js");
-const fs = require("fs");
-const path = require("path");
 
 module.exports = mush => {
   /**
@@ -58,7 +56,7 @@ module.exports = mush => {
         // on the db. This is something that'll be handled through the web portal
         // game setup.
         if (players.length <= 0) {
-          setFlags = mush.flags.set(socket, "architect connected");
+          setFlags = mush.flags.set(socket, "immortal connected");
           // Or it's just a regular player bit.  Skip the extra flag.
         } else {
           setFlags = mush.flags.set(socket, "connected");

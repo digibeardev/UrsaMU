@@ -142,7 +142,14 @@ class Flags {
     cleanFlags.forEach(flag => {
       // First to see if it's a combined flag.  If so we'll handle it with
       // orFlags().
-      const flagObj = _.find(this.flags, { name: flag.toLocaleLowerCase() });
+      let flagObj;
+      for (const flg of this.flags) {
+        if (flg.name === flag) {
+          flagObj = flg;
+          break;
+        }
+      }
+
       if (flagObj.hasOwnProperty("combined")) {
         if (this.orFlags(obj, flagObj.combined)) {
           rtrn = true;
