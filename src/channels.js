@@ -20,21 +20,21 @@ class Channels {
           see: "",
           join: "",
           talk: "",
-          mod: "admin"
+          mod: "immortal wizard royalty"
         },
         {
           name: "Newbie",
           see: "",
           join: "",
           talk: "",
-          mod: "admin"
+          mod: "immortal wizard royalty"
         },
         {
-          name: "Admin",
-          see: "Admin",
-          join: "Admin",
-          talk: "Admin",
-          mod: "Admin"
+          name: "Staff",
+          see: "immortal wizard royalty",
+          join: "immortal wizard royalty",
+          talk: "immortal wizard royalty",
+          mod: "immortal wizard"
         }
       ];
       this.save();

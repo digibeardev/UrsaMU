@@ -5,7 +5,7 @@ module.exports = mush => {
 
   mush.cmds.set("@js", {
     pattern: /^@js\s+(.*)/i,
-    restriction: "connected admin",
+    restriction: "connected immortal|wizard|royalty",
     run: (socket, data) => {
       return socket.write(vm.run(data[1]) + "\r\n");
     }

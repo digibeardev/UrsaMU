@@ -157,6 +157,10 @@ class Flags {
       } else if (obj.flags.indexOf(flag) !== -1) {
         results.push(true);
         // ... Or not.
+      } else if (/^.+\|.+/g.exec(flag)) {
+        if (this.orFlags(obj, flag.split("|").join(" "))) {
+          results.push(true);
+        }
       } else {
         results.push(false);
       }

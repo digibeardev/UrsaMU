@@ -51,7 +51,6 @@ module.exports = mush => {
                 mush.flags.hasFlags(obj, "connected")) ||
               obj.type !== "player"
             ) {
-              console.log(mush.flags.hasFlags(obj, "connected"));
               cont += `\n${name(en, obj)}`;
             }
           });
