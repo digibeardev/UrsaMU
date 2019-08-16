@@ -1,7 +1,7 @@
 module.exports = mush => {
   mush.cmds.set("@teleport", {
     pattern: /^@te[leport]+\s+(.*)\s?=\s?(.*)/i,
-    restriction: "connected admin",
+    restriction: "connected immortal|wizard|royalty",
     run: (socket, data) => {
       let [, obj, dest] = data;
       // get enactor and current room data.

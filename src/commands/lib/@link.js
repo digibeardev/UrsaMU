@@ -1,7 +1,7 @@
 module.exports = mush => {
   mush.cmds.set("@link", {
     pattern: /^@?link\s+(.*)\s?=\s?(.*)/i,
-    restriction: "connected amdin",
+    restriction: "connected immortal|wizard|royalty",
     run: (socket, data) => {
       let [, obj, dbref] = data;
 

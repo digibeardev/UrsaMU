@@ -4,7 +4,7 @@ module.exports = mush => {
     // commands yet - so these will likely change, but for now?
     // Hi!,
     pattern: /^@dig(\/tel[eport]+)?\s+(.*)/i,
-    restriction: "admin",
+    restriction: "connected immortal|wizard|royalty",
     run: (socket, match) => {
       // Deconstruct a whole mess of arguments!
       const [, teleport, args] = match;

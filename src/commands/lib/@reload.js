@@ -2,7 +2,7 @@ const { resolve } = require("path");
 module.exports = mush => {
   mush.cmds.set("@reload", {
     pattern: /^@?reload\s+(.*)/i,
-    restriction: "connected admin",
+    restriction: "connected immortal|wizard|royalty",
     run: (socket, data) => {
       try {
         mush.flags.save();

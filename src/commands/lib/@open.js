@@ -1,7 +1,7 @@
 module.exports = mush => {
   mush.cmds.set("@open", {
     pattern: /^@open\s+(.*)\s?=\s?(.*)?/i,
-    restricted: "connected admin",
+    restricted: "connected immortal|wizard|royalty",
     run: (socket, data) => {
       const enactor = mush.db.id(socket.id);
       const curRoom = mush.db.id(enactor.location);
