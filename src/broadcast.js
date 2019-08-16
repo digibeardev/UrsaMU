@@ -41,8 +41,8 @@ class Broadcast {
           target !== socket.id)
       ) {
         try {
-          const test = queue.idToSocket(target);
-          this.send(queue.idToSocket(target), message);
+          const tSocket = queue.idToSocket(target);
+          this.send(tSocket, message);
         } catch (error) {
           throw error;
         }

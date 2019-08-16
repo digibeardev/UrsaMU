@@ -42,7 +42,7 @@ class Flags {
         },
         {
           name: "admin",
-          combined: "immortal wizard admin"
+          combined: "immortal wizard royalty"
         },
         {
           name: "connected",
@@ -142,8 +142,9 @@ class Flags {
     cleanFlags.forEach(flag => {
       // First to see if it's a combined flag.  If so we'll handle it with
       // orFlags().
-      if (flag.hasOwnProperty("combined")) {
-        if (this.orFlags(obj, flag.combined)) {
+      const flagObj = _.find(this.flags, { name: flag.toLocaleLowerCase() });
+      if (flagObj.hasOwnProperty("combined")) {
+        if (this.orFlags(obj, flagObj.combined)) {
           rtrn = true;
         }
       } else {
