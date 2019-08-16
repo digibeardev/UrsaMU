@@ -138,14 +138,13 @@ class Flags {
     // Split the flag param into an array of flags for
     // faster processing.  Check the target object for
     // the presence of the flags.
-    flags = flags.split(" ");
+    flags = flags.split(" ").filter(Boolean);
     const results = [];
 
     for (let flag of flags) {
       // If there's a not(!) in front of a flag, check
       // to make sure it's NOT on the object.
       if (flag[0] === "!") {
-        not = "!";
         flag = flag.slice(1);
         // If the flag is in the object's array,
         // fail.
@@ -155,7 +154,7 @@ class Flags {
           results.push(false);
         }
         // A normal search, Found it!
-      } else if (flags.indexOf(flag) !== -1) {
+      } else if (obj.flags.indexOf(flag) !== -1) {
         results.push(true);
         // ... Or not.
       } else {

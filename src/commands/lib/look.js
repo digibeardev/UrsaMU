@@ -45,12 +45,14 @@ module.exports = mush => {
           });
         } else {
           tar.contents.forEach(item => {
+            const obj = mush.db.id(item);
             if (
-              (mush.db.id(item).type === "player" &&
-                mush.flags.hasFlags(mush.db.id(item), "connected")) ||
-              mush.db.id(item).type !== "player"
+              (obj.type === "player" &&
+                mush.flags.hasFlags(obj, "connected")) ||
+              obj.type !== "player"
             ) {
-              cont += `\n${name(en, mush.db.id(item))}`;
+              console.log(mush.flags.hasFlags(obj, "connected"));
+              cont += `\n${name(en, obj)}`;
             }
           });
         }

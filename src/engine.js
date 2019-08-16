@@ -83,6 +83,7 @@ module.exports = class UrsaMu {
       .forEach(entry => {
         this.flags.set(entry, "!connected");
       });
+
     this.db.save();
 
     // Run plugins if present.
@@ -119,7 +120,7 @@ module.exports = class UrsaMu {
 
         // loop through each channel, and see if there's a match.
         for (const channel of target.channels) {
-          if (channel.name == chan.name) {
+          if (channel.name == chan.name && channel.status) {
             let header = "";
             header += chan.moniker ? chan.moniker : `%ch<${chan.name}>%cn`;
             // I would check to make sure the stream is writable first, but the library
