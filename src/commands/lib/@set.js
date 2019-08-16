@@ -1,5 +1,5 @@
 module.exports = mush => {
-  mush.cmds.set("set", {
+  mush.cmds.set("@set", {
     pattern: /^@?set\s+(.*)\s?=\s?(.*)/i,
     restriction: "connected",
     run: (socket, data) => {
@@ -40,10 +40,31 @@ module.exports = mush => {
           mush.broadcast.send("Permission denied.");
         }
       } else {
-        // Else they're trying to set a flag.
-        mush.flags.set(target, action.toLowerCase());
-        mush.broadcast.send(socket, "Flags set.");
-        mush.db.save();
+        const results = [];
+        // Else they're trying to set a flag.  Grab the DBO
+        // and check to see if they have permission to set the flag.
+        for (const flg of action.split(" ").filter(Boolean)) {
+          flag = mush.flags.exists(flg);
+
+          // If the enactor passes any restrictions on who can
+          // set what flag, add true to the stack else false...
+          if (mush.flags.orFlags(enactor, flag.restricted)) {
+            results.push("true");
+          } else {
+            results.push("false");
+          }
+        }
+
+        // If there's no false answer in the index, then the
+        // enactor passed all of the flags locks, else if a false
+        // is present the whole thing fails.
+        if (results.indexOf("false") === -1) {
+          mush.flags.set(target, action.toLowerCase());
+          mush.broadcast.send(socket, "Flag(s) set.");
+          mush.db.save();
+        } else {
+          mush.broadcast.send(socket, "Permission denied.");
+        }
       }
     }
   });
