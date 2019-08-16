@@ -2,6 +2,9 @@ const { find } = require("lodash");
 
 module.exports = mush => {
   // Command addcom
+  // USAGE: addcom <alias>=<channel>
+  // Join a channel where you have the proper permissions
+  // to do so.
   mush.cmds.set("addcom", {
     pattern: /^addcom\s(\w+)\s?=s?(\w+)/,
     restriction: "connected",

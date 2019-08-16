@@ -52,11 +52,10 @@ module.exports = mush => {
               enactor.moniker ? enactor.moniker : enactor.name
             } says "${rest.join(" ").trim()}"`;
           }
-
+          const channel = mush.channels.get(chan.name);
           mush.emitter.emit("channel", channel, msg.trim());
           ran = true;
         }
-        const channel = mush.channels.get(chan.name);
       }
     }
 
