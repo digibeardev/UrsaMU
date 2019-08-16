@@ -123,8 +123,6 @@ class Flags {
    * if one fails, the entire stack fails. Optional modfiers
    * are available.
    * '!flag' checks to see if the target does NOT have a flag.
-   * '@flag' Optional flag.If it can exist.
-   * giving a regular flag means it must exist to pass.
    * @param {DBO} obj The database object representing the
    * the thing being checked for flags
    * @param {string} flags A string of space seperated flags
@@ -133,47 +131,45 @@ class Flags {
    * depending on if the conditions are met or not.
    */
   hasFlags(obj = { flags: [] }, flags = " ") {
-    let rtrn = true;
+    // We need to iterate through the flag collection
+    // without hitting the call stack limit.  Right now
+    // has flags is a couple layers deep in recursion.
 
-    // We only want to deal with flags that have been defined in the
-    // system.
-    const cleanFlags = flags.split(" ").filter(flag => this.exists(flag));
+    // Split the flag param into an array of flags for
+    // faster processing.  Check the target object for
+    // the presence of the flags.
+    flags = flags.split(" ");
+    const results = [];
 
-    cleanFlags.forEach(flag => {
-      // First to see if it's a combined flag.  If so we'll handle it with
-      // orFlags().
-      let flagObj;
-      for (const flg of this.flags) {
-        if (flg.name === flag) {
-          flagObj = flg;
-          break;
-        }
-      }
-
-      if (flagObj.hasOwnProperty("combined")) {
-        if (this.orFlags(obj, flagObj.combined)) {
-          rtrn = true;
-        }
-      } else {
-        // !flag.  Check to make sure it's NOT included in the list.
-        if (flag[0] === "!") {
-          if (obj.flags.indexOf(flag.slice(1)) <= -1) {
-            rtrn = true;
-          }
-          // @flag.  Optional flag.
-        } else if (flag[0] === "@") {
-          if (obj.flags.indexOf(flag.slice(1)) !== -1) {
-            rtrn = true;
-          }
-          // Else check to see if a flag is listed on the object
+    for (let flag of flags) {
+      // If there's a not(!) in front of a flag, check
+      // to make sure it's NOT on the object.
+      if (flag[0] === "!") {
+        not = "!";
+        flag = flag.slice(1);
+        // If the flag is in the object's array,
+        // fail.
+        if (obj.flags.indexOf(flag) === -1) {
+          results.push(true);
         } else {
-          if (obj.flags.indexOf(flag) <= -1) {
-            rtrn = false;
-          }
+          results.push(false);
         }
+        // A normal search, Found it!
+      } else if (flags.indexOf(flag) !== -1) {
+        results.push(true);
+        // ... Or not.
+      } else {
+        results.push(false);
       }
-    });
-    return rtrn;
+    }
+
+    // Now we test to see if there were any negative
+    // results in the array means missing flags.
+    if (results.indexOf(false) === -1) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /**
@@ -220,14 +216,14 @@ class Flags {
    */
   orFlags(enactor, flags) {
     let ret = false;
-    flags
-      .toLowerCase()
-      .split(" ")
-      .forEach(flag => {
-        if (this.hasFlags(enactor, flag)) {
-          ret = true;
-        }
-      });
+    flags.toLowerCase().split(" ");
+
+    for (const flag of flags) {
+      if (this.hasFlags(enactor, flag)) {
+        ret = true;
+      }
+    }
+
     return ret;
   }
 
