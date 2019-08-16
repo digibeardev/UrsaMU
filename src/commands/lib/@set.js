@@ -60,7 +60,7 @@ module.exports = mush => {
         // is present the whole thing fails.
         if (results.indexOf("false") === -1) {
           mush.flags.set(target, action.toLowerCase());
-          mush.broadcast.send(socket, "Flags set.");
+          mush.broadcast.send(socket, "Flag(s) set.");
           mush.db.save();
         } else {
           mush.broadcast.send(socket, "Permission denied.");
