@@ -76,9 +76,7 @@ class Parser {
         throw new SyntaxError("Expected ',' or ')'");
       }
     }
-    // Make's function currying possible.  Not something
-    // I really use, but it was in the example, so why not?
-    // Easter egg? :D
+
     return this.parseApply(expr, program.slice(1));
   }
 

@@ -13,20 +13,6 @@ module.exports = mush => {
   mush.exec = (socket, string, scope) => {
     let ran = false;
 
-    // We only need to search for exits if the bit is actually logged in.
-    if (socket.id) {
-      const enactor = mush.db.id(socket.id);
-      const curRoom = mush.db.id(enactor.location);
-      // First we need to check to see if an exit name was enetered.
-      const exit = matchExit(curRoom, string);
-      if (exit && !ran) {
-        // Exit match was made.
-        ran = true;
-        move(socket, exit);
-        mush.exe(socket, "look", []);
-      }
-    }
-
     // We only need to search for channels if the socket is actually
     // logged in.
     if (socket.id) {
@@ -81,7 +67,20 @@ module.exports = mush => {
           }
         }
       }
+
+      const enactor = mush.db.id(socket.id);
+      const curRoom = mush.db.id(enactor.location);
+
+      // Check to see if an exit name was enetered.
+      const exit = matchExit(curRoom, string);
+      if (exit && !ran) {
+        // Exit match was made.
+        ran = true;
+        move(socket, exit);
+        mush.exe(socket, "look", []);
+      }
     }
+
     if (!ran && socket.id) mush.broadcast.huh(socket);
   };
 };

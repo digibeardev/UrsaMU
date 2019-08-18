@@ -177,4 +177,26 @@ module.exports = parser => {
     // Tack the last line onto the end! ^_^
     return "%s".repeat(indent) + output + line;
   });
+
+  // iter()
+  parser.funs.set("iter", (args, scope) => {
+    if (args.length < 2) {
+      return SyntaxError("iter requires at least two arguments.");
+    }
+    let output = [];
+    const [
+      list,
+      eval,
+      inputDelim = { value: " " },
+      outputDelim = { value: " " }
+    ] = args;
+
+    workList = list.value.split(inputDelim.value);
+
+    for (const item of workList) {
+      scope["##"] = item;
+      output.push(parser.evaluate(eval, scope));
+    }
+    return output.join(outputDelim.value);
+  });
 };
