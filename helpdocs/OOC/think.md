@@ -1,11 +1,10 @@
-# Think
+# think
 
-COMMAND: think
+COMMAND: think `<message>`
 
-ATTRIBUTE: **Think**
+You can use this command to send a private message to yourself. Pronoun
+substitution is performed. This is essentially equivalent to "@pemit
+me=`<message>`", but with "think", there is no prepended text. One possible
+use: "@adesc me=think --> %n(%#[flags(%#)]) just looked at you."
 
-SYNTAX: think me=blah
-
-Stuff here
-
-Related Topics: 
+Related Topics: @eval
