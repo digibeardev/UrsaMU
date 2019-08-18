@@ -1,0 +1,9 @@
+# @link continued...
+
+Note that in all the above cases that it is the player performing the @link
+command that must pass the LinkLock, not the object being linked.
+Therefore, you should use the '$' lock qualifier if you want to prevent
+specific players from linking to your LINK_OK locations, as simply locking
+against '*`<playername>`' does not lock out their puppets.
+
+Related Topics: @dig, @open, @unlink, DROP-TOS, HOMES, LINKING, OBJECT TYPES.
