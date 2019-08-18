@@ -1,6 +1,6 @@
 # @emit
 
-COMMAND: @emit[/<switches>] <message>
+COMMAND: @emit[/`<switches>`] `<message>`
 
 Sends <message> to everyone in your current location without prefixing it by
 your character name.  You can also send the message to everyone in the room

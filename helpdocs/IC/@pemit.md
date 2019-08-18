@@ -1,9 +1,9 @@
 # @pemit
 
-COMMAND: @pemit[/switches] <what>=<message>
+COMMAND: @pemit[/switches] `<what>`=`<message>`
 
-Emits <message> only to <what>, or to <what>'s contents of the /contents
-switch is given.  <what> must be either in the same location as you or be
+Emits `<message>` only to `<what>`, or to `<what>`'s contents of the /contents
+switch is given.  `<what>` must be either in the same location as you or be
 something you own.  Depending on how this MUX is configured, you can also
 @pemit to distant players if pagelocks allow you to page them, and this
 costs as much as a page.  You cannot @pemit to the contents of something

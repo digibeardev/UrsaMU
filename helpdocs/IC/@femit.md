@@ -1,9 +1,9 @@
 # @femit
 
-COMMAND: @femit[/<switches>] <object>=<message>
+COMMAND: @femit[/`<switches>`] `<object>`=`<message>`
 
-Forces <object> to emit <message>.  This command is similar to the command
-'@force <object> = @emit <message>', except that it will work so long as
+Forces `<object>` to emit `<message>`.  This command is similar to the command
+'@force `<object>` = @emit `<message>`', except that it will work so long as
 you own the object, whereas @force may fail if the object has its INHERIT
 flag set and the object performing the @force does not.
 
