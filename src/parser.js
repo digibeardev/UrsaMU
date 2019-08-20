@@ -1,4 +1,4 @@
-const flags = require("./flags");
+const matchRecursive = require("match-recursive");
 
 /**
  * Create New MUSH Parser()
@@ -24,7 +24,9 @@ class Parser {
    */
   parseExpression(program) {
     let match, expr;
-
+    if (program[0] === "[") {
+      program = matchRecursive(program, "[...]")[0];
+    }
     // This process is super RegEx heavy.  This basically means
     // anything that isn't `(),`
     if ((match = /^[^(),]+/.exec(program))) {
@@ -71,9 +73,13 @@ class Parser {
       if (program[0] === ",") {
         program = program.slice(1);
         // Or it's a ')'
-      } else if (program[0] != ")") {
+      } else if (program[0] !== ")") {
         // Anything else throws an error.
-        throw new SyntaxError("Expected ',' or ')'");
+        if (program) {
+          throw new SyntaxError("Expected ',' or ')'");
+        } else {
+          break;
+        }
       }
     }
 
@@ -157,11 +163,7 @@ class Parser {
    * @param {object} scope The context of the evaluation.
    */
   run(string, scope) {
-    let replaced = string.replace(/\[([^\]]+)\]/g, (...args) => {
-      return this.evaluate(this.parse(args[1]), scope);
-    });
-
-    return this.subs(this.evaluate(this.parse(replaced), scope));
+    return this.subs(this.evaluate(this.parse(string), scope));
   }
 }
 

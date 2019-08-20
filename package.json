@@ -36,6 +36,7 @@
     "clear-module": "^3.2.0",
     "dotenv": "^8.0.0",
     "lodash": "^4.17.14",
+    "match-recursive": "^0.1.1",
     "mu-queue": "github:lcanady/mu-queue",
     "node-fetch": "^2.6.0",
     "sha.js": "^2.4.11",

@@ -21,7 +21,7 @@ class Broadcast {
   send(socket, message, scope = {}) {
     try {
       socket.write(parser.run(message, scope) + "\r\n");
-    } catch {
+    } catch (error) {
       socket.write(parser.subs(message) + "\r\n");
     }
   }
