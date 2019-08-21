@@ -1,6 +1,6 @@
 # Connect
 
-COMMAND: connect \<name> \<password>
+COMMAND: connect \`<name>` \`<password>`
 
 ATTRIBUTE: **Connect**
 

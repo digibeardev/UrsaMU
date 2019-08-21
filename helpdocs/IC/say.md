@@ -1,11 +1,14 @@
 # Say
 
-COMMAND: @say
+COMMAND:  say[/noeval] `<message>`
+          nsay `<message>`
+          "`<message>`
 
-ATTRIBUTE: **Say**
+Says <message> out loud to everyone in your current location (usually
+a room).  If you use say/noeval or nsay, the message is not evaluated.
 
-SYNTAX: @say blah
+Example:
+  > say Where is the movie theater?
+  Player says, "Where is the movie theater?"
 
-blah here
-
-Related Topics:
+Related Topics: page, pose, whisper, :, ;, ".
