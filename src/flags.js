@@ -41,13 +41,18 @@ class Flags {
           restricted: "wizard imortal"
         },
         {
-          name: "admin",
-          combined: "immortal wizard royalty"
+          name: "staff",
+          restricted: "immortal wizard royalty"
         },
         {
           name: "connected",
           restricted: "admin",
           code: "C"
+        },
+        {
+          name: "registered",
+          restricted: "immortal wizard",
+          code: "r"
         }
       ];
       try {
@@ -67,13 +72,12 @@ class Flags {
   add(options) {
     // Filter through the list of flag options for the
     // ones we're interested in.
-    const { name, restricted, combined, code } = options;
+    const { name, restricted, code } = options;
 
     // Push the new flag onto the shack.
     this.flags.push({
       name,
       restricted,
-      combined,
       code
     });
   }

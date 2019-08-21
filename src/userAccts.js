@@ -18,12 +18,11 @@ class UserAccts {
     }
   }
 
-  find(email) {
-    email = email.toLowerCase();
-    return find(this.accounts, { email });
+  find(query) {
+    return find(this.accounts, query);
   }
 
-  insert({ email, password }) {
+  insert({ email, name = "", password }) {
     return this.accounts.push({ email, name, password });
   }
 
