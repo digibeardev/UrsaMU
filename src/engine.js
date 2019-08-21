@@ -12,7 +12,7 @@ const grid = require("./grid");
 const attrs = require("./attributes");
 const useraccts = require("./userAccts");
 const channels = require("./channels");
-const utilities = require("./utilities");
+const { log, sha256 } = require("./utilities");
 const move = require("./movement");
 
 module.exports = class UrsaMu {
@@ -29,7 +29,7 @@ module.exports = class UrsaMu {
     this.cmds = new Map();
     this.txt = new Map();
     this.scope = {};
-    this.log = require("./utilities").log;
+    this.log = log;
     this.db = db;
     this.find = find;
     this.flags = flags;
@@ -37,7 +37,7 @@ module.exports = class UrsaMu {
     this.config = config;
     this.plugins = plugins;
     this.VM = VM;
-    this.sha256 = utilities.sha256;
+    this.sha256 = sha256;
     this.channels = channels;
 
     // Initialize in-game functionality.
