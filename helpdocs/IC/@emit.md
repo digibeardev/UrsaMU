@@ -1,0 +1,23 @@
+# @emit
+
+COMMAND: @emit[/`<switches>`] `<message>`
+
+Sends <message> to everyone in your current location without prefixing it by
+your character name.  You can also send the message to everyone in the room
+that contains the object you are inside with the /room switch.
+
+The following switches are available:
+
+   /here  - Sends the message to everyone in the same location as you.
+   /html  - Sends the message to HTML-flags players.
+   /room  - Sends the message to everyone in the room that contains the
+           object you are in.  Starting from your location, this switch
+           'leaves' objects until it reaches a room, and @emits the message
+           there.
+
+If both switches are specified, the message is sent to both places.  If
+neither is specified, /here is assumed.
+
+Some MUXes may restrict the use of this command.
+
+Related Topics: @femit, @oemit, @pemit, @npemit, @remit, SPOOFING.
