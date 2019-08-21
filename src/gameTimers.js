@@ -11,7 +11,7 @@ module.exports = mush => {
   // Registration reminding timer.
   setInterval(() => {
     for (const socket of mush.queues.sockets) {
-      if (hasFlags(mush.db.id(socket), "!registered")) {
+      if (mush.flags.hasFlags(mush.db.id(socket), "!registered")) {
         mush.broadcast.send(
           socket,
           "Your character isn't registered. " +
