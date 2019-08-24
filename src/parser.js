@@ -7,7 +7,7 @@ class Parser {
   constructor() {
     this.sub = new Map();
     this.funs = new Map();
-    require("./functions/lib/substitutions")(this);
+    require("./substitutions")(this);
     require("./functions")(this);
   }
 

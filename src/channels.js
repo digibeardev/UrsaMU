@@ -60,7 +60,7 @@ class Channels {
     // See if the channel exists, and grab a copy of it's stats:
     const chan = this.get(channel);
     if (chan) {
-      emitter.emit("channel", socket, channel, message);
+      emitter.emit("channel", socket, channel, string);
     }
   }
 }

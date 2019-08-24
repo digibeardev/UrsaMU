@@ -99,6 +99,7 @@ module.exports = class UrsaMu {
     this.emitter.on("connected", socket => {
       const enactor = this.db.id(socket.id);
       const curRoom = this.db.id(enactor.location);
+
       this.broadcast.sendList(
         socket,
         curRoom.contents,

@@ -50,4 +50,12 @@ module.exports = mush => {
       }
     }
   });
+
+  mush.cmds.set("@clist", {
+    pattern: /^@?clist(\/\w+)?\s+?(.*)/i,
+    restriction: "connected",
+    run: (socket, data) => {
+      let [, flag, pattern] = data;
+    }
+  });
 };

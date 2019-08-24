@@ -1,4 +1,4 @@
-const _ = require("lodash");
+const { find } = require("lodash");
 const db = require("./database");
 
 class Attributes {
@@ -7,7 +7,7 @@ class Attributes {
     const target = db.id(id);
 
     // check to see if the attribute already exists!
-    if (_.find(target.attributes, { name })) {
+    if (find(target.attributes, { name })) {
       return false;
     } else {
       target.attributes.push({ name, value, setBy, lock, key });
@@ -17,8 +17,8 @@ class Attributes {
     }
   }
 
-  get(id, attribute) {
-    return _.find(target.attributes, { name: attribute });
+  get(target, attribute) {
+    return find(target.attributes, { name: attribute });
   }
 }
 

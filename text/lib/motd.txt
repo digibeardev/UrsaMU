@@ -1,0 +1,6 @@
+Something we want to relay to all players logging in - like Try out our web
+client, it’s more feature-rich AND accessible. 
+
+If you need any help type ‘Staff’ to see who’s around to help.  You can also
+try ‘newbie <message>’ to get help from our player guides! Finally, if you 
+are super new to MUSH take a look at the following help: <help beginners>.

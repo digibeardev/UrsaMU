@@ -3,11 +3,12 @@ const _ = require("lodash");
 
 module.exports = mush => {
   mush.cmds.set("@account", {
-    pattern: /^@?ac[count]+(\/\w+)?\s+(\w+)(?:\s?=\s?(\w+))?/i,
+    pattern: /^@?ac[count]+(\/\w+)?\s+(.*)?/i,
     restriction: "connected",
     run: (socket, data) => {
-      const [, option, email, password] = data;
-      const enactor = mush.db.od(socket.id);
+      let [, option, action] = data;
+      let [email, password] = action.split("=");
+      const enactor = mush.db.id(socket.id);
       const acct = mush.accounts.find({ email });
 
       // trim and set the email to lowercase
@@ -21,18 +22,41 @@ module.exports = mush => {
           .digest("hex");
       }
 
-      if (!acct && option === "/register" && password) {
-        mush.accounts.push({ email, password });
+      if (
+        !acct &&
+        option === "/register" &&
+        password &&
+        mush.hasFlags(socket, "!registered")
+      ) {
+        mush.accounts.insert({ email, password, id: socket.id });
         mush.accounts.save();
-
+        mush.flags.set(enactor, "registered");
+        mush.db.save();
         mush.broadcast.send(
+          socket,
           `%chDone%cn. Character '%ch${
             enactor.name
-          }%cn' has been linked to account '${email}'.`
+          }%cn' has been linked to account '%ch${email}%cn'.`
         );
-      } else if (acct && option === "/register" && password) {
+      } else if (
+        (acct && option === "/register" && password) ||
+        (acct &&
+          option === "/register" &&
+          password &&
+          mush.flags.hasFlags(enactor, "registered"))
+      ) {
         let index = acct.characters.indexOf(enactor.name);
         if (password === acct.password) {
+          if (index === -1) {
+            acct.characters = [...acct.characters, socket.id];
+            acct.update(email, { characters: acct.characters });
+            acct.save();
+          } else {
+            mush.broadcast.send(
+              socket,
+              "This character is already registered to that email."
+            );
+          }
         } else {
           mush.broadcast.send(socket, "Permission denied.");
         }

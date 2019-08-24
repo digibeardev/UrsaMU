@@ -12,7 +12,7 @@ class UserAccts {
       log.success("Player accounts loaded.");
     } catch (error) {
       log.error(`Unable to load Accounts database.  Error: ${error}`);
-      this.accounts = {};
+      this.accounts = [];
       log.success("Created a new instance of the Accounts database.", 2);
       this.save();
     }
@@ -22,8 +22,8 @@ class UserAccts {
     return find(this.accounts, query);
   }
 
-  insert({ email, name = "", password }) {
-    return this.accounts.push({ email, name, password });
+  insert({ email, name = "", password, id }) {
+    return this.accounts.push({ email, name, password, characters: [id] });
   }
 
   update(email) {

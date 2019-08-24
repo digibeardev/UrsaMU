@@ -29,7 +29,8 @@ class Flags {
       this.flags = [
         {
           name: "immortal",
-          restricted: "immortal"
+          restricted: "immortal",
+          code: "i"
         },
         {
           name: "wizard",
@@ -42,7 +43,13 @@ class Flags {
         },
         {
           name: "staff",
-          restricted: "immortal wizard royalty"
+          restricted: "immortal wizard royalty",
+          code: "w"
+        },
+        {
+          name: "coder",
+          restricted: "immortal wizard",
+          code: "@"
         },
         {
           name: "connected",
