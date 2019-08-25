@@ -25,7 +25,9 @@ module.exports = mush => {
             mush.db.update(enactor.id, { channels: enactor.channels });
             mush.broadcast.send(
               socket,
-              `%chDone.%cn Joined channel '%ch${chan.name}%cn' with alias '%ch${alias}%cn'.`
+              `%chDone.%cn Joined channel '%ch${
+                chan.name
+              }%cn' with alias '%ch${alias}%cn'.`
             );
             mush.emitter.emit(
               "channel",
@@ -38,7 +40,9 @@ module.exports = mush => {
         } else {
           mush.broadcast.send(
             socket,
-            `Alias '%ch${pchan.alias}%cn' is already asigned to channel '%ch${pchan.name}%cn'.`
+            `Alias '%ch${pchan.alias}%cn' is already asigned to channel '%ch${
+              pchan.name
+            }%cn'.`
           );
         }
       } else {
@@ -113,7 +117,9 @@ module.exports = mush => {
         // Send a message letting them know the alias has been removed.
         mush.broadcast.send(
           socket,
-          `%chDone%cn. Alias '%ch${chan.alias}%cn' removed from channel '%ch${chan.name}%cn'.`
+          `%chDone%cn. Alias '%ch${chan.alias}%cn' removed from channel '%ch${
+            chan.name
+          }%cn'.`
         );
         const chanObj = mush.channels.get(chan.name);
         let found = false;
@@ -141,6 +147,48 @@ module.exports = mush => {
         }
       } else {
         mush.broadcast.send(socket, "I can't find that channel.");
+      }
+    }
+  });
+
+  // Command: Comtitle
+  // Usage: comtitle <alias>=<title>
+  // Set a title on a com channel that you have permission to
+  // join.
+  mush.cmds.set("comtitle", {
+    pattern: /^comtitle\s+(.*)\s?=\s?(.*)?/i,
+    restriction: "connected",
+    run: (socket, data) => {
+      const [, alias, title = ""] = data;
+      const enactor = mush.db.id(socket.id);
+      const channel = find(enactor.channels, { alias });
+
+      // Make sure the channel alias actually exists
+      if (channel) {
+        channel.title = title.trim();
+        const index = enactor.channels.indexOf(channel);
+        enactor.channels.splice(index, 1);
+        enactor.channels.push(channel);
+        mush.db.update(enactor.id, { channels: enactor.channels });
+
+        // If the title exists, add it - else remove it from the channel
+        // entry.
+        if (title) {
+          mush.broadcast.send(
+            socket,
+            `%chDone.%cn channel '%ch${channel.name}%cn' title set to '%ch${
+              channel.title
+            }%cn'.`
+          );
+          // Title removed.
+        } else {
+          mush.broadcast.send(
+            socket,
+            `%chDone%cn. title removed from channel '%ch${channel.name}%cn'.`
+          );
+        }
+      } else {
+        mush.broadcast.send(socket, "Unknown alias.");
       }
     }
   });
