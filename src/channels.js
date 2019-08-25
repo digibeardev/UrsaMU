@@ -13,28 +13,34 @@ class Channels {
       );
     } catch (error) {
       log.error("Unable to read channel database.  Error: " + error);
-      log.warning("Creating new Database.");
+      log.warning("Creating new channel database.");
       this.channels = [
         {
           name: "Public",
           see: "",
           join: "",
           talk: "",
-          mod: "immortal wizard royalty"
+          mod: "immortal|wizard|royalty",
+          owner: "",
+          header: ""
         },
         {
           name: "Newbie",
           see: "",
           join: "",
           talk: "",
-          mod: "immortal wizard royalty"
+          mod: "immortal|wizard|royalty",
+          owner: "",
+          header: ""
         },
         {
           name: "Staff",
-          see: "immortal wizard royalty",
-          join: "immortal wizard royalty",
-          talk: "immortal wizard royalty",
-          mod: "immortal wizard"
+          see: "immortal|wizard|royalty",
+          join: "immortal|wizard|royalty",
+          talk: "immortal|wizard|royalty",
+          mod: "immortal|wizard",
+          owner: "",
+          header: ""
         }
       ];
       this.save();
@@ -47,6 +53,7 @@ class Channels {
         resolve(__dirname, "../data/channels.json"),
         JSON.stringify(this.channels)
       );
+      log.success("Channels loaded succesfully");
     } catch (error) {
       log.error(`Unable to save channel database.  Error: ${error}`);
     }

@@ -6,7 +6,7 @@ module.exports = mush => {
   // Join a channel where you have the proper permissions
   // to do so.
   mush.cmds.set("addcom", {
-    pattern: /^addcom\s(\w+)\s?=s?(\w+)/,
+    pattern: /^addcom\s(\w+)\s?=s?(\w+)/i,
     restriction: "connected",
     run: (socket, data) => {
       const [, alias, channel] = data;
@@ -25,9 +25,7 @@ module.exports = mush => {
             mush.db.update(enactor.id, { channels: enactor.channels });
             mush.broadcast.send(
               socket,
-              `%chDone.%cn Joined channel '%ch${
-                chan.name
-              }%cn' with alias '%ch${alias}%cn'.`
+              `%chDone.%cn Joined channel '%ch${chan.name}%cn' with alias '%ch${alias}%cn'.`
             );
             mush.emitter.emit(
               "channel",
@@ -40,9 +38,7 @@ module.exports = mush => {
         } else {
           mush.broadcast.send(
             socket,
-            `Alias '%ch${pchan.alias}%cn' is already asigned to channel '%ch${
-              pchan.name
-            }%cn'.`
+            `Alias '%ch${pchan.alias}%cn' is already asigned to channel '%ch${pchan.name}%cn'.`
           );
         }
       } else {
@@ -52,10 +48,33 @@ module.exports = mush => {
   });
 
   mush.cmds.set("@clist", {
-    pattern: /^@?clist(\/\w+)?\s+?(.*)/i,
+    pattern: /^@?clist\s+?(.*)/i,
     restriction: "connected",
     run: (socket, data) => {
-      let [, flag, pattern] = data;
+      const enactor = mush.db.id(socket.id);
+      let [, pattern] = data;
+      let output = "Channels%r%r";
+      output += "%cuName%cn".padEnd(20);
+      output += "%cuOwner%cn".padEnd(20);
+      output += "%cuHeader%cn".padEnd(20);
+      output += "%cuDescription%cn";
+
+      // build the channel information string.
+      for (const channel of mush.channels.channels) {
+        if (mush.flags.hasFlags(enactor, channel.join) || !channel.join) {
+          output += `%r${channel.name}`.padEnd(16);
+          output += channel.owner
+            ? channel.owner.padEnd(14)
+            : "None".padEnd(14);
+          output += channel.header
+            ? channel.header.padEnd(14)
+            : "------".padEnd(14);
+          output += channel.description
+            ? channel.description.padEnd(16)
+            : "No Description".padEnd(16);
+        }
+      }
+      mush.broadcast.send(socket, output);
     }
   });
 };
