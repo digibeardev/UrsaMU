@@ -27,7 +27,7 @@ class Log {
 
 module.exports.log = new Log();
 
-const sha256 = string => {
+module.exports.sha256 = string => {
   return shajs("sha256")
     .update(string.trim())
     .digest("hex");

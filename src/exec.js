@@ -13,35 +13,79 @@ module.exports = mush => {
   mush.exec = (socket, string, scope) => {
     let ran = false;
 
+    // Timestamp the socket so we can track idle time.
+    socket.timestamp = new Date().getTime() / 1000;
+
     // We only need to search for channels if the socket is actually
     // logged in.
     if (socket.id) {
       const enactor = mush.db.id(socket.id);
       // We need to split the input string, and try and match it to
       // any channel definitions.
-      const [alias, ...rest] = string.split(" ");
+      let [alias, ...rest] = string.split(" ");
       const chan = find(enactor.channels, { alias });
-      if (chan) {
+      if (
+        (chan && chan.status) ||
+        (chan &&
+          rest
+            .join(" ")
+            .toLowerCase()
+            .trim() === "on")
+      ) {
         string = string.replace("\r\n", "\n");
-        if (chan) {
-          let msg = "";
-          if (rest.join(" ")[0] === ":") {
-            msg += `${
-              enactor.moniker ? enactor.moniker : enactor.name
-            } ${rest.join(" ").slice(1)}`;
-          } else if (rest.join(" ")[0] === ";") {
-            msg += `${
-              enactor.moniker ? enactor.moniker : enactor.name
-            }${rest.join(" ").slice(1)}`;
+
+        let msg = "";
+        if (rest.join(" ")[0] === ":") {
+          msg += `${
+            enactor.moniker ? enactor.moniker : enactor.name
+          } ${rest.join(" ").slice(1)}`;
+        } else if (rest.join(" ")[0] === ";") {
+          msg += `${
+            enactor.moniker ? enactor.moniker : enactor.name
+          }${rest.join(" ").slice(1)}`;
+        } else {
+          rest = rest
+            .join(" ")
+            .toLowerCase()
+            .trim();
+          if (rest === "off") {
+            mush.emitter.emit(
+              "channel",
+              mush.channels.get(chan.name),
+              `${enactor.name} has left the channel.`
+            );
+            const index = enactor.channels.indexOf(chan);
+            enactor.channels.splice(index, 1);
+
+            // turn the channel off
+            chan.status = false;
+            enactor.channels.push(chan);
+            return (ran = true);
+          } else if (rest === "on") {
+            const index = enactor.channels.indexOf(chan);
+            enactor.channels.splice(index, 1);
+
+            // turn the channel on
+            chan.status = true;
+            enactor.channels.push(chan);
+            mush.emitter.emit(
+              "channel",
+              mush.channels.get(chan.name),
+              `${enactor.name} has joined the channel.`
+            );
+            return (ran = true);
           } else {
             msg += `${
               enactor.moniker ? enactor.moniker : enactor.name
             } says "${rest.join(" ").trim()}"`;
           }
-          const channel = mush.channels.get(chan.name);
-          mush.emitter.emit("channel", channel, msg.trim());
-          ran = true;
         }
+        const channel = mush.channels.get(chan.name);
+        mush.emitter.emit("channel", channel, msg.trim());
+        ran = true;
+      } else if (chan && !chan.status) {
+        mush.broadcast.send(socket, "You can't talk on that channel.");
+        return (ran = true);
       }
     }
 

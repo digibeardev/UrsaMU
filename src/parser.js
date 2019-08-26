@@ -162,8 +162,20 @@ class Parser {
    * @param {string} string The string to evaluate.
    * @param {object} scope The context of the evaluation.
    */
+
   run(string, scope) {
-    return this.subs(this.evaluate(this.parse(string), scope));
+    const replaced = string.replace(/\[([^\]]+)\]/g, (...args) => {
+      try {
+        return this.subs(this.evaluate(this.parse(args[1]), scope));
+      } catch (error) {
+        return args[0];
+      }
+    });
+    try {
+      return this.subs(this.evaluate(this.parse(replaced), scope));
+    } catch (error) {
+      return this.subs(replaced);
+    }
   }
 }
 

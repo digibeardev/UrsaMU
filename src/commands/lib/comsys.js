@@ -79,7 +79,7 @@ module.exports = mush => {
         }
       });
       for (const channel of channels) {
-        if (mush.flags.hasFlags(enactor, channel.join) || !channel.join) {
+        if (mush.flags.hasFlags(enactor, channel.see) || !channel.see) {
           output += `%r${channel.name}`.padEnd(16);
           output += channel.owner
             ? channel.owner.padEnd(14)
@@ -189,6 +189,103 @@ module.exports = mush => {
         }
       } else {
         mush.broadcast.send(socket, "Unknown alias.");
+      }
+    }
+  });
+
+  mush.cmds.set("@cboot", {
+    pattern: /^@?cboot\s+(\w+)\s?=\s?(.*)/i,
+    restriction: "connected",
+    run: (socket, data) => {
+      const enactor = mush.db.id(socket.id);
+      const target = mush.db.id(data[2]);
+      if (target) {
+        const chan = mush.find(target.channels, { name: data[1] });
+        const channel = mush.channels.get(data[1]);
+        if (
+          channel &&
+          mush.flags.hasFlags(enactor, channel.mod) &&
+          chan.status
+        ) {
+          mush.emitter.emit(
+            "channel",
+            channel,
+            `${enactor.name} boots ${target.name} from the channel.`
+          );
+
+          // Update the channels entry on the target.
+          mush.emitter.emit(
+            "channel",
+            channel,
+            `${target.name} has left the channel.`
+          );
+          let index = target.channels.indexOf(chan);
+          target.channels.splice(index, 1);
+          chan.status = false;
+          target.channels.push(chan);
+          mush.db.update(target.id, { channels: target.channels });
+          mush.db.save();
+        } else {
+          if (!chan.status) {
+            mush.broadcast.send(
+              socket,
+              `${enactor.name} isn't on that channel.`
+            );
+          } else {
+            mush.broadcast.send(socket, "Permission denied.");
+          }
+        }
+      } else {
+        mush.broadcast.send(socket, "I can't find that player.");
+      }
+    }
+  });
+
+  // @ccreate
+  // Use: @ccreate <channel>
+  // Create a new channel and add it to the comsys.
+  mush.cmds.set("@ccreate", {
+    pattern: /^@?ccreate\s+?(\w+)/i,
+    restriction: "connected immortal|wizard|royalty",
+    run: (socket, data) => {
+      enactor = mush.db.id(socket.id);
+      if (mush.channels.get(data[1])) {
+        mush.broadcast.send(socket, "That channel already exists.");
+      } else {
+        mush.channels.channels.push({
+          name: data[1],
+          see: "",
+          join: "",
+          talk: "",
+          mod: "immortal|wizard|royalty",
+          owner: enactor.id,
+          header: ""
+        });
+        mush.channels.save();
+        mush.broadcast.send(
+          socket,
+          `%chDone.%cn Channel '%ch${data[1]}%cn' added.`
+        );
+      }
+    }
+  });
+
+  mush.cmds.set("@cdestroy", {
+    pattern: /^@?cdestroy\s+?(\w+)/i,
+    restriction: "connected immortal|wizard",
+    run: (socket, data) => {
+      const enactor = mush.db.id(socket.id);
+      const channel = mush.channels.get(data[1]);
+      if (channel) {
+        const index = mush.channels.channels.indexOf(channel);
+        mush.channels.channels.splice(index, 1);
+        mush.channels.save();
+        mush.broadcast.send(
+          socket,
+          `%chDone%cn. Channel '%ch${channel.name}%cn' destroyed.`
+        );
+      } else {
+        mush.broadcast.send(socket, "I can't find that channel.");
       }
     }
   });
