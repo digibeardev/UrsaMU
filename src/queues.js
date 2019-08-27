@@ -1,5 +1,3 @@
-const db = require("./database");
-
 class Queue {
   constructor() {
     this.pQueue = [];

@@ -30,21 +30,25 @@ class Flags {
         {
           name: "immortal",
           restricted: "immortal",
-          code: "i"
+          code: "i",
+          lvl: 10
         },
         {
           name: "wizard",
           restricted: "immortal",
-          code: "W"
+          code: "W",
+          lvl: 9
         },
         {
           name: "royalty",
-          restricted: "wizard imortal"
+          restricted: "wizard imortal",
+          lvl: 8
         },
         {
           name: "staff",
           restricted: "immortal wizard royalty",
-          code: "w"
+          code: "w",
+          lvl: 7
         },
         {
           name: "coder",
@@ -60,6 +64,15 @@ class Flags {
           name: "registered",
           restricted: "immortal wizard",
           code: "r"
+        },
+        {
+          name: "ic",
+          restricted: "immortal wizard royalty staff"
+        },
+        {
+          name: "approved",
+          restricted: "immortal wizard royalty staff",
+          code: "a"
         }
       ];
       try {
@@ -241,30 +254,37 @@ class Flags {
     return ret;
   }
 
+  get(flag) {
+    return _.find(this.flags, { name: flag.toLowerCase() });
+  }
+
   /**
    * Can enactor edit target?
    * @param {DBO} enactor The DBO of the enactor,
    * @param {DBO} target  The DBO of the target.
    */
   canEdit(enactor, target) {
+    const enactorLvl = this.flagLvl(enactor);
+    const targetLvl = this.flagLvl(target);
     if (
-      target.id === enactor.id ||
+      enactor.id === target.id ||
       target.owner === enactor.id ||
-      (this.hasFlags(target, "immortal") &&
-        this.hasFlags(enactor, "immortal")) ||
-      (this.hasFlags(target, "wizard") &&
-        this.orFlags(enactor, "immortal wizard")) ||
-      (this.hasFlags(target, "royalty") &&
-        this.orFlags(enactor, "immortal wizard royalty")) ||
-      (this.hasFlags(target, "staff") &&
-        this.orFlags(enactor, "imortal wizard royalty staff")) ||
-      (this.hasFlags(target, "!immortal !wizard !royalty !staff") &&
-        this.orFlags(enactor, "immortal wizard royalty staff"))
+      enactorLvl >= targetLvl
     ) {
       return true;
     } else {
       return false;
     }
+  }
+
+  flagLvl(target) {
+    let lvl = 0;
+    for (const flag of target.flags) {
+      // if it's lower than the previous result, replace it
+      if (this.get(flag).lvl && this.get(flag).lvl > lvl)
+        lvl = this.get(flag).lvl;
+    }
+    return lvl;
   }
 }
 

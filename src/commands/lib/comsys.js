@@ -274,7 +274,6 @@ module.exports = mush => {
     pattern: /^@?cdestroy\s+?(\w+)/i,
     restriction: "connected immortal|wizard",
     run: (socket, data) => {
-      const enactor = mush.db.id(socket.id);
       const channel = mush.channels.get(data[1]);
       if (channel) {
         const index = mush.channels.channels.indexOf(channel);

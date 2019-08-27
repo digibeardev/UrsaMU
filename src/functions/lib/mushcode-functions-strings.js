@@ -163,11 +163,11 @@ module.exports = parser => {
       indent = 0;
     }
     let output = "";
-    let line = "  ";
+    let line = "";
     // Start working with the main list.
     list.split(delim).forEach(item => {
       if (indent + line.length + item.length >= 78) {
-        line += "%r" + " ".repeat(indent) + item.padEnd(width);
+        line += "%r" + item.padEnd(width);
         output += line;
         line = "";
       } else {
