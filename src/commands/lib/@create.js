@@ -1,7 +1,9 @@
+const { find } = require("lodash");
+
 module.exports = mush => {
   mush.cmds.set("@create", {
     pattern: /^@create\s+(.*)/,
-    restriction: "connected",
+    restriction: "connected immortal|wizard|royalty|staff",
     run: (socket, match) => {
       const object = mush.db.insert({
         name: match[1].trim(),
@@ -27,7 +29,21 @@ module.exports = mush => {
       const [, name] = match;
       enactor = mush.db.id(socket.id);
       curRoom = mush.db.id(enactor.location);
-      target = mush.db.find({ name, location: enactor.id })[0];
+      let target;
+
+      // The three possible combinations for target.  A dbref,
+      // a number, or a name.
+      if (name[0] === "#") {
+        target = mush.db.id(parseInt(name.slice(1)));
+      } else if (Number.isInteger(parseInt(name))) {
+        target = mush.db.id(parseInt(name));
+      } else {
+        for (const item of enactor.contents) {
+          if (name.toLowerCase() === mush.db.id(item).name.toLowerCase()) {
+            target = mush.db.id(item);
+          }
+        }
+      }
 
       if (target) {
         if (target.location === enactor.id) {
@@ -41,9 +57,11 @@ module.exports = mush => {
             contents: [...curRoom.contents, target.id]
           });
           mush.db.save();
+          mush.broadcast.send(socket, `You drop %ch${target.name}%cn.`);
           mush.broadcast.sendList(
+            socket,
             curRoom.contents,
-            `${enactor.name} drops ${target.name}.`,
+            `${enactor.name} drops %ch${target.name}%cn.`,
             "connected"
           );
         } else {
@@ -62,8 +80,20 @@ module.exports = mush => {
       const [, name] = data;
       const enactor = mush.db.id(socket.id);
       const curRoom = mush.db.id(enactor.location);
-
-      target = mush.db.find({ name, location: enactor.location })[0];
+      let target;
+      // The three possible combinations for target.  A dbref,
+      // a number, or a name.
+      if (name[0] === "#") {
+        target = mush.db.id(parseInt(name.slice(1)));
+      } else if (Number.isInteger(parseInt(name))) {
+        target = mush.db.id(parseInt(name));
+      } else {
+        for (const item of curRoom.contents) {
+          if (name.toLowerCase() === mush.db.id(item).name.toLowerCase()) {
+            target = mush.db.id(item);
+          }
+        }
+      }
 
       if (target) {
         mush.db.update(target.id, { location: enactor.id });
@@ -73,7 +103,9 @@ module.exports = mush => {
         });
         mush.db.update(curRoom.id, { contents: curRoom.contents });
         mush.db.save();
+        mush.broadcast.send(socket, `You pick up %ch${target.name}%cn.`);
         mush.broadcast.sendList(
+          socket,
           curRoom.contents,
           `${enactor.name} picks up %ch${target.name}%cn.`,
           "connected"
@@ -90,18 +122,34 @@ module.exports = mush => {
     run: (socket, data) => {
       const [, name, reciver] = data;
       const enactor = mush.db.id(socket.id);
-      const target = mush.db.name(reciver);
-      const items = mush.db.find({ location: enactor.id && name })[0];
       const curRoom = mush.db.id(enactor.location);
+      const target = mush.db.name(reciver);
+      let thing;
+      if (name[0] === "#") {
+        thing = mush.db.id(parseInt(name.slice(1)));
+      } else if (Number.isInteger(parseInt(name))) {
+        thing = mush.db.id(parseInt(name));
+      } else {
+        for (const item of enactor.contents) {
+          if (name.toLowerCase() === mush.db.id(item).name.toLowerCase()) {
+            thing = mush.db.id(item);
+          }
+        }
+      }
 
-      mush.db.update(enactor.id, {
-        contents: enactor.contents.splice(enactor.contents.indexOf(items), 1)
-      });
-      mush.db.update(curRoom.id, {
-        contents: curRoom.contents.splice(curRoom.contents.indexOf(items), 1)
-      });
-      mush.db.update(target.id, { contents: [...target.contents, items.id] });
+      enactor.contents.splice(enactor.contents.indexOf(thing.id), 1);
+      mush.db.update(enactor.id, { contents: enactor.contents });
+      mush.db.update(target.id, { contents: [...target.contents, thing.id] });
       mush.db.save();
+      mush.broadcast.send(
+        socket,
+        `You give %ch${thing.name}%cn to ${target.name}`
+      );
+      mush.broadcast.sendList(
+        socket,
+        curRoom.contents,
+        `${enactor.name} gives %ch${thing.name}%cn to ${target.name}`
+      );
     }
   });
 };

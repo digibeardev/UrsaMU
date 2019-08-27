@@ -182,9 +182,7 @@ class Flags {
         results.push(true);
         // ... Or not.
       } else if (/^.+\|.+/g.exec(flag)) {
-        if (this.orFlags(obj, flag.split("|").join(" "))) {
-          results.push(true);
-        }
+        results.push(this.orFlags(obj, flag.split("|").join(" ")));
       } else {
         results.push(false);
       }
@@ -243,7 +241,7 @@ class Flags {
    */
   orFlags(enactor, flags) {
     let ret = false;
-    flags.toLowerCase().split(" ");
+    flags = flags.toLowerCase().split(" ");
 
     for (const flag of flags) {
       if (this.hasFlags(enactor, flag)) {
