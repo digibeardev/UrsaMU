@@ -43,7 +43,6 @@ class UserAccts {
     email.toLowerCase();
     const index = findIndex(this.accounts, { email });
     this.accounts[index] = { ...this.accounts[index], ...updates };
-    console.log(this.accounts[index]);
     return this.accounts[index];
   }
 }
