@@ -26,14 +26,6 @@ class UserAccts {
     return this.accounts.push({ email, name, password, characters: [id] });
   }
 
-  update(email) {
-    email.toLowerCase();
-    const index = findIndex(this.accounts, { email });
-    this.accounts[index] = { ...this.accounts[index], ...updates };
-
-    return this.accounts[index];
-  }
-
   save() {
     try {
       writeFileSync(
@@ -45,6 +37,14 @@ class UserAccts {
     } catch (error) {
       log.error(`Unable to save Accounts database.  Error: ${error}`);
     }
+  }
+
+  update(email, updates = {}) {
+    email.toLowerCase();
+    const index = findIndex(this.accounts, { email });
+    this.accounts[index] = { ...this.accounts[index], ...updates };
+    console.log(this.accounts[index]);
+    return this.accounts[index];
   }
 }
 

@@ -18,7 +18,7 @@ module.exports = mush => {
       } catch (error) {
         mush.broadcast.send(
           socket,
-          `Unable to reload module.  Error: ${error.stack}`
+          `Unable to reload module. ${error.message}`
         );
       }
     }

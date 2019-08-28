@@ -1,5 +1,5 @@
 const shajs = require("sha.js");
-const _ = require("lodash");
+const { find } = require("lodash");
 
 module.exports = mush => {
   mush.cmds.set("@account", {
@@ -9,8 +9,7 @@ module.exports = mush => {
       let [, option, action] = data;
       let [email, password] = action.split("=");
       const enactor = mush.db.id(socket.id);
-      const acct = mush.accounts.find({ email });
-
+      const acct = find(mush.accounts.accounts, { email });
       // trim and set the email to lowercase
       email = email.trim().toLowerCase();
       option.toLowerCase();
@@ -26,7 +25,7 @@ module.exports = mush => {
         !acct &&
         option === "/register" &&
         password &&
-        mush.hasFlags(socket, "!registered")
+        !mush.flags.hasFlags(enactor, "registered")
       ) {
         mush.accounts.insert({ email, password, id: socket.id });
         mush.accounts.save();
@@ -45,12 +44,20 @@ module.exports = mush => {
           password &&
           mush.flags.hasFlags(enactor, "registered"))
       ) {
-        let index = acct.characters.indexOf(enactor.name);
+        let index = acct.characters.indexOf(enactor.id);
         if (password === acct.password) {
           if (index === -1) {
+            mush.flags.set(enactor, "registered");
+            mush.db.save();
             acct.characters = [...acct.characters, socket.id];
-            acct.update(email, { characters: acct.characters });
-            acct.save();
+            mush.accounts.update(email, { characters: acct.characters });
+            mush.accounts.save();
+            mush.broadcast.send(
+              socket,
+              `%chDone%cn. Character '%ch${
+                enactor.name
+              }%cn' has been linked to account '%ch${email}%cn'.`
+            );
           } else {
             mush.broadcast.send(
               socket,
