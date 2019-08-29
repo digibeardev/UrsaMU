@@ -8,18 +8,6 @@ module.exports = mush => {
       // Set a couple of function expressions to help build
       // object descriptions.
 
-      const name = (en, tar, override = false) => {
-        // Make sure the enactor has permission to modify the target.
-        // if so show dbref and flag codes, etc. Extra admin stuff.
-        const objName = mush.flags.canEdit(en, tar)
-          ? `${tar.name}\(#${tar.id}\)`
-          : tar.name;
-
-        return en.location === tar.id && !override
-          ? `[center(%ch%cr<<%cn %ch%0 %cr>>%cn,78,%cr-%cn)]`
-          : objName;
-      };
-
       const description = (en, tar) => {
         return tar.description;
       };
@@ -50,7 +38,7 @@ module.exports = mush => {
             "%cr---%cn[ljust(%ch%cr<<%cn %chCharacters %cr>>%cn,75,%cr-%cn)]" +
             "[ljust(%r%ch%cuName%cn,20)][ljust(%ch%cuIdle%cn,15)]%cn %ch%cuShort-Desc%cn";
           for (const player of players) {
-            output += `%r${name(en, mush.db.id(player))}`.padEnd(21);
+            output += `%r${mush.name(en, mush.db.id(player))}`.padEnd(21);
             output += `${idleTime(player)}`.padEnd(16);
             output += `${
               mush.attrs.get(mush.db.id(player), "short-desc")
@@ -62,13 +50,13 @@ module.exports = mush => {
             output +=
               "%r%cr---%cn[ljust(%ch%cr<<%cn %chObjects %cr>>%cn,75,%cr-%cn)]";
             for (obj of objects) {
-              output += `%r${name(en, mush.db.id(obj))}`;
+              output += `%r${mush.name(en, mush.db.id(obj))}`;
             }
           }
         } else {
           output = tar.type === "player" ? "\nCarrying:" : "\nContents:";
           tar.contents.forEach(
-            item => (output += `%r${name(en, mush.db.id(item))}`)
+            item => (output += `%r${mush.name(en, mush.db.id(item))}`)
           );
         }
 
@@ -128,7 +116,7 @@ module.exports = mush => {
       } else {
         let desc = "";
         // Send the built description to the enactor.
-        desc += name(enactor, target) + "\n";
+        desc += mush.name(enactor, target) + "\n";
         desc += "%r%t" + description(enactor, target) + "%r%r";
         if (target.contents.length > 0) {
           desc += contents(enactor, target);
@@ -143,7 +131,7 @@ module.exports = mush => {
         }
         mush.broadcast.send(
           socket,
-          mush.parser.run(desc, { "%0": name(enactor, target, true) })
+          mush.parser.run(desc, { "%0": mush.name(enactor, target, true) })
         );
       }
     }
