@@ -73,6 +73,10 @@ class Flags {
           name: "approved",
           restricted: "immortal wizard royalty staff",
           code: "a"
+        },
+        {
+          name: "safe",
+          code: "s"
         }
       ];
       try {

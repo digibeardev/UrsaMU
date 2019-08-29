@@ -180,4 +180,24 @@ module.exports = class UrsaMu {
       this.logs.error(`Unable to read plugin: ${plugins}.`);
     }
   }
+
+  /**
+   * Show DBref and flag shorthand if looker has proper
+   * permissions and/or ownership.
+   * @param {DBO} en The enactor
+   * @param {DBO} tar The target
+   * @param {Boolean} override Don't show fancy header when
+   * enactor is inside target.
+   */
+  name(en, tar, override = false) {
+    // Make sure the enactor has permission to modify the target.
+    // if so show dbref and flag codes, etc. Extra admin stuff.
+    const objName = this.flags.canEdit(en, tar)
+      ? `${tar.name}\(#${tar.id}\)`
+      : tar.name;
+
+    return en.location === tar.id && !override
+      ? `[center(%ch%cr<<%cn %ch%0 %cr>>%cn,78,%cr-%cn)]`
+      : objName;
+  }
 };

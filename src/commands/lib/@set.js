@@ -24,16 +24,17 @@ module.exports = mush => {
       if ((match = /^(.*):(.*)/.exec(action))) {
         const [, attribute, value] = match;
         if (mush.flags.canEdit(enactor, target)) {
-          mush.db.update(target.id, {
-            attributes: [...target.attributes, { name: attribute, value }]
+          mush.attrs.set({
+            id: target.id,
+            name: attribute,
+            value,
+            setBy: enactor.id
           });
           mush.broadcast.send(
             socket,
-            `Done. Attribute %ch${attribute
-              .toLowerCase()
-              .trim()}%cn set on %ch${
-              target.moniker ? target.moniker : target.name
-            }%cn.`
+            `Done. Attribute %ch${attribute.trim().toUpperCase()}%cn ${
+              value ? "set on" : "removed from"
+            } ${target.moniker ? target.moniker : "%ch" + target.name + "%cn"}.`
           );
           mush.db.save();
         } else {
@@ -73,7 +74,7 @@ module.exports = mush => {
     pattern: /^&(.*)\s+(.*)\s?=S?(.*)/i,
     restriction: "connected",
     run: (socket, data) => {
-      let [, attribute, target, setting] = data;
+      let [, attribute, target, value = ""] = data;
       const enactor = mush.db.id(socket.id);
 
       if (target.toLowerCase() === "me") {
@@ -89,18 +90,17 @@ module.exports = mush => {
       }
 
       if (mush.flags.canEdit(enactor, target)) {
-        mush.db.update(target.id, {
-          attributes: [
-            ...target.attributes,
-            { name: attribute, value: setting }
-          ]
+        mush.attrs.set({
+          id: target.id,
+          name: attribute,
+          value
         });
       }
       mush.broadcast.send(
         socket,
-        `Done. Attribute '%ch${attribute.toLowerCase()}%cn' set on %ch${
-          target.moniker ? target.moniker : target.name
-        }%cn.`
+        `Done. Attribute '%ch${attribute.trim()}%cn' ${
+          value ? "set on" : "removed from"
+        } ${target.moniker ? target.moniker : "%ch" + target.name + "%cn"}.`
       );
       mush.db.save();
     }

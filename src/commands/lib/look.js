@@ -45,13 +45,13 @@ module.exports = mush => {
         );
         let output = "";
 
-        if (en.location == tar.id) {
+        if (en.location === tar.id) {
           output =
             "%cr---%cn[ljust(%ch%cr<<%cn %chCharacters %cr>>%cn,75,%cr-%cn)]" +
-            "[ljust(%r%ch%cuName%cn,20)][ljust(%ch%cuIdle%cn,20)]%cn %ch%cuShort-Desc%cn";
+            "[ljust(%r%ch%cuName%cn,20)][ljust(%ch%cuIdle%cn,15)]%cn %ch%cuShort-Desc%cn";
           for (const player of players) {
             output += `%r${name(en, mush.db.id(player))}`.padEnd(21);
-            output += `${idleTime(player)}`.padEnd(21);
+            output += `${idleTime(player)}`.padEnd(16);
             output += `${
               mush.attrs.get(mush.db.id(player), "short-desc")
                 ? mush.attrs.get(mush.db.id(player), "short-desc").value
@@ -62,7 +62,7 @@ module.exports = mush => {
             output +=
               "%r%cr---%cn[ljust(%ch%cr<<%cn %chObjects %cr>>%cn,75,%cr-%cn)]";
             for (obj of objects) {
-              output += `%r${mush.db.id(obj).name}`;
+              output += `%r${name(en, mush.db.id(obj))}`;
             }
           }
         } else {
@@ -133,10 +133,14 @@ module.exports = mush => {
         if (target.contents.length > 0) {
           desc += contents(enactor, target);
         }
-        desc += exits(enactor, target);
-        desc += `%r[rjust(%ch%cr<<%cn %ch${
-          mush.flags.hasFlags(target, "ic") ? "IC" : "OOC"
-        } %cr>>%cn,75,%cr-%cn)]%cr---%cn`;
+        if (exits(enactor, target)) {
+          desc += exits(enactor, target);
+        }
+        if (enactor.location === target.id) {
+          desc += `%r[rjust(%ch%cr<<%cn %ch${
+            mush.flags.hasFlags(target, "ic") ? "IC" : "OOC"
+          } %cr>>%cn,75,%cr-%cn)]%cr---%cn`;
+        }
         mush.broadcast.send(
           socket,
           mush.parser.run(desc, { "%0": name(enactor, target, true) })
