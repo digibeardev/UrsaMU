@@ -193,7 +193,7 @@ module.exports = class UrsaMu {
     // Make sure the enactor has permission to modify the target.
     // if so show dbref and flag codes, etc. Extra admin stuff.
     const objName = this.flags.canEdit(en, tar)
-      ? `${tar.name}\(#${tar.id}\)`
+      ? `${tar.name}${this.flags.flagCodes(tar)}`
       : tar.name;
 
     return en.location === tar.id && !override

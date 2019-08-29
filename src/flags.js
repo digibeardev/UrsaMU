@@ -288,6 +288,18 @@ class Flags {
     }
     return lvl;
   }
+
+  flagCodes(target) {
+    if (db.id(target)) {
+      target = db.id(target);
+    }
+    let output = `(#${target.id}${target.type[0].toUpperCase()}`;
+    for (const flag of target.flags) {
+      output += this.get(flag).code;
+    }
+
+    return output + ")";
+  }
 }
 
 // Make a singleton.  We don't need more than one instance
