@@ -19,19 +19,17 @@ module.exports = mush => {
             // if so show dbref and flag codes, etc. Extra admin stuff.
             if (!tar.nameFormat) {
               if (mush.flags.canEdit(en, tar)) {
-                return `${tar.moniker ? tar.moniker : tar.name}(#${tar.id})`;
+                return `${mush.name(en, tar)}`;
                 // To do, add flag and object type codes later.
               } else {
                 return `${tar.moniker ? tar.moniker : tar.name}`;
               }
             } else if (tar.nameFormat && en.location === tar.id) {
               return mush.parser.run(tar.nameFormat, {
-                "%0": mush.flags.canEdit(en, tar)
-                  ? tar.name + `(#${tar.id})`
-                  : tar.name
+                "%0": mush.name(en, tar)
               });
             } else {
-              return tar.moniker ? tar.moniker : tar.name;
+              return mush.name(en, tar);
             }
           };
 
