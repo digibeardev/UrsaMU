@@ -1,21 +1,20 @@
 const shajs = require("sha.js");
+const config = require("../../../Data/config.json");
 
 module.exports = mush => {
-  /**
-   * Create a new player bit
-   * @param {string[]} args THe array of matches from the regular
-   * expression passed to this variable.
-   * @param {Object} args.socket The socket that issued the command.
-   * @param {string} args.name The name of the character to be created.
-   * @param {string} args.password The desired password for the character.
-   */
-  const create = (socket, match) => {
+  const create = async (socket, match) => {
     // Make sure the socket doesn't already have an ID (isn't already logged in)
     if (!socket.id) {
       // Check to see if any player objects have been created yet.  If not, the very
       // first one made is going to have our 'god' flag.
-      const players = mush.db.find({ type: "player" });
-      const room = mush.db.id(mush.config.get("startingRoom"));
+      const players = await mush.db.find(
+        `FOR obj IN objects
+          FILTER obj.type == "player"
+          RETURN obj 
+        `
+      );
+      const playerArray = await players.all();
+      const room = await mush.db.key(config.startingRoom);
 
       // extract the values we want from the args param.
       const [, name = " ", password = " "] = match;
@@ -23,11 +22,18 @@ module.exports = mush => {
       // Make sure it's a unique name!  If the database returns
       // any names (Upper or lowercase!) then it should send the
       // failure message.
-      if (!mush.db.name(name.toLowerCase())) {
+      let names;
+      try {
+        names = await mush.db.get(name.toLowerCase());
+      } catch (error) {
+        mush.log.error(error);
+      }
+
+      if (names.length <= 0) {
         // Create the new entry into the database.
-        const enactor = mush.db.insert({
+        const enactor = await mush.db.insert({
           name,
-          location: mush.config.get("startingRoom"),
+          location: config.startingRoom,
           // Gotta secure them passwords! In the future we might want
           // to use something stronger than SHA256.  Ultimately I'd like
           // people to be able to log in with their google ID or Facebook
@@ -39,17 +45,21 @@ module.exports = mush => {
         });
 
         // Add the new player to the contents of the starting room.
-        mush.db.update(room.id, { contents: [...room.contents, enactor.id] });
+        mush.db.update(room._key, {
+          contents: [...room.contents, enactor._key]
+        });
 
         // The player was able to make it through the signup process!  Now let's
         // give them a boxed new player welcome.
         mush.broadcast.send(socket, mush.txt.get("newconnect.txt") + "\r\n");
-        socket.id = enactor.id;
+        socket._key = enactor._key;
 
         mush.exe(socket, "look", []);
 
         // Add the new player to the contents of the starting room.
-        mush.db.update(room.id, { contents: [...room.contents, enactor.id] });
+        mush.db.update(room._key, {
+          contents: [...room.contents, enactor._key]
+        });
 
         let setFlags;
         // If no players exist, assign the 'god' flag to the first player made
@@ -61,7 +71,8 @@ module.exports = mush => {
         } else {
           setFlags = mush.flags.set(socket, "connected");
         }
-        mush.db.update(socket.id, setFlags);
+        mush.db.update(socket._key, { flags: setFlags });
+        mush.db.update(socket._key, { owner: socket._key });
         mush.db.save();
         mush.emitter.emit("connected", socket);
       } else {
@@ -81,6 +92,6 @@ module.exports = mush => {
   // system.
   mush.cmds.set("create", {
     pattern: /^create\s+(.+)\s+(.+)/i,
-    run: (socket, match, scope) => create(socket, match, scope)
+    run: (socket, match, scope) => create(socket, match)
   });
 };

@@ -32,16 +32,15 @@
   },
   "homepage": "https://github.com/digibeardev/ursamu#readme",
   "dependencies": {
+    "arangojs": "^6.11.1",
+    "bcryptjs": "^2.4.3",
     "chalk": "^2.4.2",
     "clear-module": "^3.2.0",
     "dotenv": "^8.0.0",
     "lodash": "^4.17.15",
-    "match-recursive": "^0.1.1",
     "moment": "^2.24.0",
-    "mu-queue": "github:lcanady/mu-queue",
     "node-fetch": "^2.6.0",
     "sha.js": "^2.4.11",
-    "shortid": "^2.2.14",
     "strip-ansi": "^5.2.0",
     "telnet-stream": "^1.0.4",
     "vm2": "^3.8.3"

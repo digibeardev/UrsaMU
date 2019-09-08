@@ -4,7 +4,7 @@ module.exports = mush => {
   mush.cmds.set("look", {
     pattern: /^[look]+\s+?(.*)?/i,
     restriction: "connected",
-    run: (socket, match) => {
+    run: async (socket, match) => {
       // Set a couple of function expressions to help build
       // object descriptions.
 
@@ -25,11 +25,11 @@ module.exports = mush => {
       const contents = (en, tar) => {
         const players = tar.contents.filter(
           obj =>
-            mush.db.id(obj).type === "player" &&
-            mush.flags.hasFlags(mush.db.id(obj), "connected")
+            mush.db.key(obj).type === "player" &&
+            mush.flags.hasFlags(mush.db.key(obj), "connected")
         );
         const objects = tar.contents.filter(
-          obj => mush.db.id(obj).type === "thing"
+          obj => mush.db.key(obj).type === "thing"
         );
         let output = "";
 
@@ -38,11 +38,11 @@ module.exports = mush => {
             "%cr---%cn[ljust(%ch%cr<<%cn %chCharacters %cr>>%cn,75,%cr-%cn)]" +
             "[ljust(%r%ch%cuName%cn,20)][ljust(%ch%cuIdle%cn,15)]%cn %ch%cuShort-Desc%cn";
           for (const player of players) {
-            output += `%r${mush.name(en, mush.db.id(player))}`.padEnd(21);
+            output += `%r${mush.name(en, mush.db.key(player))}`.padEnd(21);
             output += `${idleTime(player)}`.padEnd(16);
             output += `${
-              mush.attrs.get(mush.db.id(player), "short-desc")
-                ? mush.attrs.get(mush.db.id(player), "short-desc").value
+              mush.attrs.get(mush.db.key(player), "short-desc")
+                ? mush.attrs.get(mush.db.key(player), "short-desc").value
                 : "%ch%cxType %cn&short-desc me=<desc>%ch%cx to set.%cn"
             }`;
           }
@@ -50,13 +50,13 @@ module.exports = mush => {
             output +=
               "%r%cr---%cn[ljust(%ch%cr<<%cn %chObjects %cr>>%cn,75,%cr-%cn)]";
             for (obj of objects) {
-              output += `%r${mush.name(en, mush.db.id(obj))}`;
+              output += `%r${mush.name(en, mush.db.key(obj))}`;
             }
           }
         } else {
           output = tar.type === "player" ? "\nCarrying:" : "\nContents:";
           tar.contents.forEach(
-            item => (output += `%r${mush.name(en, mush.db.id(item))}`)
+            item => (output += `%r${mush.name(en, mush.db.key(item))}`)
           );
         }
 
@@ -82,9 +82,9 @@ module.exports = mush => {
       };
 
       // Figure out enactor and target information.
-      let enactor, target;
-      enactor = mush.db.id(socket.id);
-      target = match[1];
+
+      let enactor = await mush.db.key(socket._key);
+      let target = await mush.db.get(match[1]);
 
       if (!target) {
         target = enactor.location;
@@ -92,8 +92,8 @@ module.exports = mush => {
 
       // if target is a number, it's probably a dbref so we'll
       // just check for it right away.
-      if (Number.isInteger(target)) {
-        target = mush.db.id(target);
+      if (Number.isInteger(parseInt(target))) {
+        target = mush.db.key(target);
         // Else we're dealing with a name, or a special case like 'here'
         // or 'me', or an actual name.
       } else {
@@ -101,9 +101,9 @@ module.exports = mush => {
         if (target.toLowerCase() === "me") {
           target = enactor;
         } else if (target.toLowerCase() == "here") {
-          target = mush.db.id(enactor.location);
-        } else if (mush.db.name(target)) {
-          target = mush.db.name(target);
+          target = mush.db.key(enactor.location);
+        } else if (mush.db.get(target)) {
+          target = mush.db.get(target);
         } else {
           target = false;
         }

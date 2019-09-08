@@ -6,7 +6,7 @@ module.exports = mush => {
     run: (socket, data) => {
       try {
         mush.flags.save();
-        mush.db.save();
+
         mush.config.save();
         // delete the reference in the require cash
         delete require.cache[require.resolve(`./${data[1].trim()}.js`)];

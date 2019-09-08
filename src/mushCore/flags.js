@@ -1,36 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>JSDoc: Source: flags.js</title>
+const { objData, db } = require("./database");
+const { log } = require("../utilities");
+const flagsList = require("./defaults").flags;
 
-    <script src="scripts/prettify/prettify.js"> </script>
-    <script src="scripts/prettify/lang-css.js"> </script>
-    <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
-    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
-</head>
+const flagData = db.collection("flags");
 
-<body>
-
-<div id="main">
-
-    <h1 class="page-title">Source: flags.js</h1>
-
-    
-
-
-
-    
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>const fs = require("fs");
-const _ = require("lodash");
-const db = require("./database");
-const { log } = require("./utilities");
-const config = require("./config");
 /**
  * Class Flags
  * The flags class tracks the different markers set on players
@@ -39,99 +12,62 @@ const config = require("./config");
  *
  */
 class Flags {
-  constructor() {
-    /**
-     * This blob of code basically tries to pull the config file,
-     * but if it comes up empty create a new Map object.
-     */
+  /**
+   * This blob of code basically tries to pull the config file,
+   * but if it comes up empty create a new Map object.
+   */
+  init() {
+    (async () => {
+      let countCursor = await db.query(`RETURN LENGTH(flags)`);
+      let count = await countCursor.next();
+      if (count) {
+        log.success("Game flags loaded.");
 
-    try {
-      this.flags = JSON.parse(
-        fs.readFileSync("./data/flags.json", {
-          encoding: "utf-8"
-        })
-      );
-      log.success("Game flags loaded.");
-    } catch {
-      log.warning("No Flags database found.  Creating new instance.");
-      this.flags = [
-        {
-          name: "immortal",
-          restricted: "immortal",
-          code: "i",
-          lvl: 10
-        },
-        {
-          name: "wizard",
-          restricted: "immortal",
-          code: "W",
-          lvl: 9
-        },
-        {
-          name: "royalty",
-          restricted: "wizard imortal",
-          lvl: 8
-        },
-        {
-          name: "staff",
-          restricted: "immortal wizard royalty",
-          code: "w",
-          lvl: 7
-        },
-        {
-          name: "coder",
-          restricted: "immortal wizard",
-          code: "@"
-        },
-        {
-          name: "connected",
-          restricted: "admin",
-          code: "C"
-        },
-        {
-          name: "registered",
-          restricted: "immortal wizard",
-          code: "r"
-        },
-        {
-          name: "ic",
-          restricted: "immortal wizard royalty staff"
-        },
-        {
-          name: "approved",
-          restricted: "immortal wizard royalty staff",
-          code: "a"
-        },
-        {
-          name: "safe",
-          code: "s"
-        }
-      ];
-      try {
-        this.save();
-      } catch (error) {
-        throw error;
+        // Load extra flags defined in the json file
+        const extras = require("../../Data/flags.json");
+
+        this.dbCheck(extras);
+      } else {
+        throw new Error("No Flags Found!");
       }
-    }
+    })().catch(() => {
+      // default flags list:
+      log.warning("No Flags database found.  Creating new instance.");
+      this.dbCheck(flagsList);
+
+      try {
+        const extras = require("../../Data/flags.json");
+        this.dbCheck(extras);
+      } catch (error) {
+        log.error(error);
+      }
+    });
   }
 
-  /**
-   * Add a new flag to the sytem
-   * @param {string} name
-   * @param {FlagOptions} options Any additional options we want
-   * set with the flag.
-   */
-  add(options) {
-    // Filter through the list of flag options for the
-    // ones we're interested in.
-    const { name, restricted, code } = options;
+  async dbCheck(flags) {
+    try {
+      // Lop through the list of flag objects
+      for (const flag of flags) {
+        let flagCursor = await db.query(`
+          FOR flag IN flags
+            FILTER flag.name == "${flag.name.toLowerCase()}"
+            RETURN flag
+        `);
 
-    // Push the new flag onto the shack.
-    this.flags.push({
-      name,
-      restricted,
-      code
-    });
+        const data = flagCursor.hasNext();
+        if (!data) {
+          flag.lvl = flag.lvl || 0;
+          flag.code = flag.code || "";
+          flag.restricted = flag.restricted || "";
+          let flg = await flagData.save(flag);
+          if (flg) {
+            log.success(`Flag added to the database: ${flag.name}`);
+          }
+        }
+      }
+    } catch (error) {
+      log.info("No user defined flags found.");
+    }
   }
 
   /**
@@ -142,7 +78,7 @@ class Flags {
    * flag or a list of space seperated flags.
    * @return {string[]} Returns a list of flags.
    */
-  cleanFlags(flags) {
+  async cleanFlags(flags) {
     let returnFlags, not;
     // First we need to split the flag string into an array
     returnFlags = flags
@@ -167,11 +103,23 @@ class Flags {
    * Checks if a flag exists or not.
    * @param {string} flag A single flag.
    */
-  exists(flag) {
-    if (flag[0] === "!" || flag[0] === "@") {
+  async exists(flag) {
+    if (flag[0] === "!") {
       flag = flag.slice(1);
     }
-    return _.find(this.flags, { name: flag.toLowerCase() });
+    const results = db.query(`
+      FOR f IN flags
+        FILTER f.name == "${flag.toLowerCase()}"
+        RETURN f
+    `);
+
+    let data = await results.all();
+
+    if (data.length > 0) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /**
@@ -186,7 +134,7 @@ class Flags {
    * @return {boolean} A truthy or falsey response is given
    * depending on if the conditions are met or not.
    */
-  hasFlags(obj = { flags: [] }, flags = " ") {
+  hasFlags(obj, flags = " ") {
     // We need to iterate through the flag collection
     // without hitting the call stack limit.  Right now
     // has flags is a couple layers deep in recursion.
@@ -230,23 +178,12 @@ class Flags {
   }
 
   /**
-   * Save the flag database to file.
-   */
-  save() {
-    try {
-      fs.writeFileSync(`./data/flags.json`, JSON.stringify(this.flags));
-    } catch (err) {
-      throw err;
-    }
-  }
-
-  /**
    * Set and remove flags from a database tracked object.
    * @param  {DBO} obj The database object we're setting the flags on
    * @param {string} flags A space seperated string of flags.  To remove
    * a flag from an object, use the NOT (!) indicator in front of the flag.
    */
-  set(obj, flags) {
+  async set(obj, flags) {
     // First, let's make a Set object to hold our working data.  You can't
     // have repeating values - so it'll filter any repeats for us.
     const flagSet = new Set(obj.flags);
@@ -263,7 +200,13 @@ class Flags {
         flagSet.add(flag);
       }
     });
-    return db.update(obj.id, { flags: [...flagSet] });
+
+    const updated = await objData.update(obj._key, { flags: [...flagSet] });
+    if (updated) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /**
@@ -284,8 +227,12 @@ class Flags {
     return ret;
   }
 
-  get(flag) {
-    return _.find(this.flags, { name: flag.toLowerCase() });
+  async get(flag) {
+    return await db.query(`
+      FOR flag IN flags
+        FILTER flag.name == "${flag.toLowerCase()}"
+        RETURN flag
+    `);
   }
 
   /**
@@ -307,23 +254,23 @@ class Flags {
     }
   }
 
-  flagLvl(target) {
+  async flagLvl(target) {
     let lvl = 0;
     for (const flag of target.flags) {
       // if it's lower than the previous result, replace it
-      if (this.get(flag).lvl &amp;&amp; this.get(flag).lvl > lvl)
-        lvl = this.get(flag).lvl;
+      if ((await this.get(flag).lvl) && (await this.get(flag).lvl) > lvl)
+        lvl = await this.get(flag).lvl;
     }
     return lvl;
   }
 
-  flagCodes(target) {
-    if (db.id(target)) {
-      target = db.id(target);
+  async flagCodes(target) {
+    if (db.key(target)) {
+      target = db.key(target);
     }
-    let output = `(#${target.id}${target.type[0].toUpperCase()}`;
+    let output = `(#${target._key}${target.type[0].toUpperCase()}`;
     for (const flag of target.flags) {
-      output += this.get(flag).code;
+      output += await this.get(flag).code;
     }
 
     return output + ")";
@@ -348,39 +295,3 @@ module.exports = new Flags();
  * for.
  *
  */
-
-/**
- * Database Object
- * @typedef {Object} DBO
- * @property {string} ID - The ID string of the object
- * @property {string} name - The name of the object
- * @property {Date} created - The date the object was created
- * @property {Date} modified - The date the object was last modified
- * @property {Object} _attributes - Private attributes unseeable to
- * most player types.
- * @property {object} attributes - Where public in-game attributes are kept.
- * @property {array} flags - The list of flags the object currently has set.
- */
-</code></pre>
-        </article>
-    </section>
-
-
-
-
-</div>
-
-<nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Attributes.html">Attributes</a></li><li><a href="Broadcast.html">Broadcast</a></li><li><a href="Flags.html">Flags</a></li><li><a href="Log.html">Log</a></li><li><a href="module.exports.html">exports</a></li><li><a href="Parser.html">Parser</a></li></ul><h3><a href="global.html">Global</a></h3>
-</nav>
-
-<br class="clear">
-
-<footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Fri Aug 30 2019 09:30:10 GMT-0700 (Pacific Daylight Time)
-</footer>
-
-<script> prettyPrint(); </script>
-<script src="scripts/linenumber.js"> </script>
-</body>
-</html>

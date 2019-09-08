@@ -1,5 +1,4 @@
 {
   "editor.formatOnSave": true,
-  "editor.tabSize": 2,
-  "javascript.implicitProjectConfig.checkJs": true
+  "editor.tabSize": 2
 }

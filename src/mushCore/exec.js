@@ -10,7 +10,7 @@ module.exports = mush => {
    * @param {Object} scope  The variable scope for the command.
    */
 
-  mush.exec = (socket, string, scope) => {
+  mush.exec = async (socket, string, scope) => {
     let ran = false;
 
     // Timestamp the socket so we can track idle time.
@@ -19,7 +19,7 @@ module.exports = mush => {
     // We only need to search for channels if the socket is actually
     // logged in.
     if (socket.id) {
-      const enactor = mush.db.id(socket.id);
+      const enactor = mush.db.key(socket._key);
       // We need to split the input string, and try and match it to
       // any channel definitions.
       let [alias, ...rest] = string.split(" ");
@@ -95,7 +95,11 @@ module.exports = mush => {
       for (const command of mush.cmds.values()) {
         const { pattern, run, restriction } = command;
         const match = string.match(pattern);
-        const obj = mush.flags.hasFlags(mush.db.id(socket.id), restriction);
+
+        const obj = mush.flags.hasFlags(
+          await mush.db.key(socket._key),
+          restriction
+        );
 
         // If there's a match and the enactor passes the flag restriction of
         // the command or there's no restriction set, try to run the command.
@@ -112,8 +116,8 @@ module.exports = mush => {
         }
       }
 
-      const enactor = mush.db.id(socket.id);
-      const curRoom = mush.db.id(enactor.location);
+      const enactor = mush.db.key(socket._key);
+      const curRoom = mush.db.key(enactor.location);
 
       // Check to see if an exit name was enetered.
       const exit = matchExit(curRoom, string);

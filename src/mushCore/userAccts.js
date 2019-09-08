@@ -1,13 +1,13 @@
 const { readFileSync, writeFileSync } = require("fs");
 const { resolve } = require("path");
-const { log } = require("./utilities");
+const { log } = require("../utilities");
 const { find, findIndex } = require("lodash");
 
 class UserAccts {
   constructor() {
     try {
       this.accounts = JSON.parse(
-        readFileSync(resolve(__dirname, "../data/accounts.json"), "utf-8")
+        readFileSync(resolve(__dirname, "../../data/accounts.json"), "utf-8")
       );
       log.success("Player accounts loaded.");
     } catch (error) {

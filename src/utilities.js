@@ -18,9 +18,17 @@ class Log {
     );
   }
 
+  info(message, space = 0) {
+    console.log(
+      `${"\xa0".repeat(space)}${chalk.blue("\u2139")} INFO: ${message}`
+    );
+  }
+
   error(message, space = 0) {
     console.log(
-      `${"\xa0".repeat(space)}${chalk.red("\u2716")} ERROR: ${message}`
+      `${"\xa0".repeat(space)}${chalk.red("\u2716")} ERROR: ${
+        typeof message === Error ? message.stack : message
+      }`
     );
   }
 }
