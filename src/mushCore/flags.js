@@ -1,3 +1,5 @@
+const fs = require("fs");
+const path = require("path");
 const { objData, db } = require("./database");
 const { log } = require("../utilities");
 const flagsList = require("./defaults").flags;
@@ -18,28 +20,33 @@ class Flags {
    */
   init() {
     (async () => {
-      let countCursor = await db.query(`RETURN LENGTH(flags)`);
-      let count = await countCursor.next();
+      try {
+        let countCursor = await db.query(`RETURN LENGTH(flags)`);
+        let count = await countCursor.next();
+      } catch (error) {
+        log.error(error);
+      }
       if (count) {
         log.success("Game flags loaded.");
 
         // Load extra flags defined in the json file
-        const extras = require("../../Data/flags.json");
-
-        this.dbCheck(extras);
+        const dirent = fs.existsSync("../../Data/flags.json");
+        if (dirent) {
+          const extras = require("../../Data/flags.json");
+          this.dbCheck(extras);
+        }
       } else {
         throw new Error("No Flags Found!");
       }
-    })().catch(() => {
+    })().catch(error => {
       // default flags list:
       log.warning("No Flags database found.  Creating new instance.");
       this.dbCheck(flagsList);
 
-      try {
+      const dirent = fs.existsSync("../../Data/flags.json");
+      if (dirent) {
         const extras = require("../../Data/flags.json");
         this.dbCheck(extras);
-      } catch (error) {
-        log.error(error);
       }
     });
   }
@@ -113,7 +120,11 @@ class Flags {
         RETURN f
     `);
 
-    let data = await results.all();
+    try {
+      let data = await results.all();
+    } catch (error) {
+      log.error(error);
+    }
 
     if (data.length > 0) {
       return true;
@@ -201,9 +212,14 @@ class Flags {
       }
     });
 
-    const updated = await objData.update(obj._key, { flags: [...flagSet] });
+    try {
+      const updated = await objData.update(obj._key, { flags: [...flagSet] });
+    } catch (error) {
+      log.error(error);
+    }
+
     if (updated) {
-      return true;
+      return updated;
     } else {
       return false;
     }
@@ -228,7 +244,7 @@ class Flags {
   }
 
   async get(flag) {
-    return await db.query(`
+    return db.query(`
       FOR flag IN flags
         FILTER flag.name == "${flag.toLowerCase()}"
         RETURN flag
@@ -240,40 +256,63 @@ class Flags {
    * @param {DBO} enactor The DBO of the enactor,
    * @param {DBO} target  The DBO of the target.
    */
-  canEdit(enactor, target) {
-    const enactorLvl = this.flagLvl(enactor);
-    const targetLvl = this.flagLvl(target);
-    if (
-      enactor.id === target.id ||
-      target.owner === enactor.id ||
-      enactorLvl >= targetLvl
-    ) {
-      return true;
-    } else {
-      return false;
+  async canEdit(enactor, target) {
+    try {
+      const enactorLvl = await this.flagLvl(enactor);
+      const targetLvl = await this.flagLvl(target);
+      if (
+        enactor._key === target._key ||
+        target.owner === enactor._key ||
+        enactorLvl >= targetLvl
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      log.error(error);
     }
   }
 
   async flagLvl(target) {
-    let lvl = 0;
-    for (const flag of target.flags) {
-      // if it's lower than the previous result, replace it
-      if ((await this.get(flag).lvl) && (await this.get(flag).lvl) > lvl)
-        lvl = await this.get(flag).lvl;
+    try {
+      let lvl = 0;
+      for (const flag of target.flags) {
+        let flagCursor = await this.get(flag);
+        let flg = await flagCursor.next();
+        // if it's lower than the previous result, replace it
+        if (flg.lvl && flg.lvl > lvl) lvl = await this.get(flag).lvl;
+      }
+      return lvl;
+    } catch (error) {
+      log.error(error);
     }
-    return lvl;
   }
 
   async flagCodes(target) {
-    if (db.key(target)) {
-      target = db.key(target);
-    }
-    let output = `(#${target._key}${target.type[0].toUpperCase()}`;
-    for (const flag of target.flags) {
-      output += await this.get(flag).code;
-    }
+    try {
+      if (target) {
+        let output = `(#${target._key}${target.type[0].toUpperCase()}`;
+        for (const flag of target.flags) {
+          try {
+            const flgCursor = await this.get(flag);
 
-    return output + ")";
+            let flg;
+            if (flgCursor.hasNext()) {
+              flg = await flgCursor.next();
+              output += flg.code;
+            } else {
+              break;
+            }
+          } catch (error) {
+            log.error(error);
+          }
+        }
+        return output + ")";
+      }
+    } catch (error) {
+      log.error(error);
+    }
   }
 }
 

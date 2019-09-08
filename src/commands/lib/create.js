@@ -1,19 +1,18 @@
 const shajs = require("sha.js");
 const config = require("../../../Data/config.json");
-
+const { db } = require("../../mushCore/database");
 module.exports = mush => {
   const create = async (socket, match) => {
     // Make sure the socket doesn't already have an ID (isn't already logged in)
     if (!socket.id) {
       // Check to see if any player objects have been created yet.  If not, the very
       // first one made is going to have our 'god' flag.
-      const players = await mush.db.find(
+      const playerCursor = await mush.db.find(
         `FOR obj IN objects
           FILTER obj.type == "player"
           RETURN obj 
         `
       );
-      const playerArray = await players.all();
       const room = await mush.db.key(config.startingRoom);
 
       // extract the values we want from the args param.
@@ -45,7 +44,7 @@ module.exports = mush => {
         });
 
         // Add the new player to the contents of the starting room.
-        mush.db.update(room._key, {
+        await mush.db.update(room._key, {
           contents: [...room.contents, enactor._key]
         });
 
@@ -56,24 +55,19 @@ module.exports = mush => {
 
         mush.exe(socket, "look", []);
 
-        // Add the new player to the contents of the starting room.
-        mush.db.update(room._key, {
-          contents: [...room.contents, enactor._key]
-        });
-
         let setFlags;
         // If no players exist, assign the 'god' flag to the first player made
         // on the db. This is something that'll be handled through the web portal
         // game setup.
+        let players = await playerCursor.all();
         if (players.length <= 0) {
-          setFlags = mush.flags.set(socket, "immortal connected");
+          setFlags = await mush.flags.set(socket, "immortal connected");
           // Or it's just a regular player bit.  Skip the extra flag.
         } else {
-          setFlags = mush.flags.set(socket, "connected");
+          setFlags = await mush.flags.set(socket, "connected");
         }
-        mush.db.update(socket._key, { flags: setFlags });
         mush.db.update(socket._key, { owner: socket._key });
-        mush.db.save();
+
         mush.emitter.emit("connected", socket);
       } else {
         mush.broadcast.send(

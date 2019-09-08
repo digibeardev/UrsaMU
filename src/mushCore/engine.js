@@ -113,10 +113,12 @@ module.exports = class UrsaMu {
       this.plugin(this.plugins);
     }
 
+    this.emitter.emit("loaded");
+
     // Check for server events!
-    this.emitter.on("connected", socket => {
-      const enactor = this.db.id(socket.id);
-      const curRoom = this.db.id(enactor.location);
+    this.emitter.on("connected", async socket => {
+      const enactor = await this.db.key(socket._key);
+      const curRoom = await this.db.key(enactor.location);
 
       this.broadcast.sendList(
         socket,
@@ -126,9 +128,9 @@ module.exports = class UrsaMu {
       );
     });
 
-    this.emitter.on("disconnected", socket => {
-      const enactor = this.db.id(socket.id);
-      const curRoom = this.db.id(enactor.location);
+    this.emitter.on("disconnected", async socket => {
+      const enactor = await this.db.key(socket._key);
+      const curRoom = await this.db.key(enactor.location);
       this.broadcast.sendList(
         socket,
         curRoom.contents,
@@ -139,17 +141,22 @@ module.exports = class UrsaMu {
 
     this.emitter.on("channel", (chan, msg) => {
       this.queues.sockets.forEach(socket => {
-        const target = this.db.id(socket.id);
+        const target = this.db.key(socket._key);
 
         // loop through each channel, and see if there's a match.
         for (const channel of target.channels) {
           if (channel.name == chan.name && channel.status) {
             let header = "";
-            header += chan.moniker ? chan.moniker : `%ch<${chan.name}>%cn`;
+            header += chan.header ? chan.header : `%ch<${chan.name}>%cn`;
 
             try {
-              this.broadcast.send(socket, `${header} ${channel.title} ${msg}`);
-            } catch {}
+              msg = this.parser.run(msg);
+              this.broadcast.send(socket, `${header} ${channel.title} ${msg}`, {
+                parse: false
+              });
+            } catch (error) {
+              log.error(error);
+            }
           }
         }
       });
@@ -222,14 +229,14 @@ module.exports = class UrsaMu {
    * @param {Boolean} override Don't show fancy header when
    * enactor is inside target.
    */
-  name(en, tar, override = false) {
+  async name(en, tar, override = false) {
     // Make sure the enactor has permission to modify the target.
     // if so show dbref and flag codes, etc. Extra admin stuff.
     const objName = this.flags.canEdit(en, tar)
-      ? `${tar.name}${this.flags.flagCodes(tar)}`
+      ? `${tar.name}${await this.flags.flagCodes(tar)}`
       : tar.name;
 
-    return en.location === tar.id && !override
+    return en.location === tar._key && !override
       ? `[center(%ch%cr<<%cn %ch%0 %cr>>%cn,78,%cr-%cn)]`
       : objName;
   }

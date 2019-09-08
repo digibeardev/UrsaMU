@@ -5,9 +5,9 @@ class Queue {
     this.sockets = new Set();
   }
 
-  idToSocket(id) {
+  keyToSocket(key) {
     for (const socket of this.sockets) {
-      if (socket.id === id) {
+      if (socket._key === key) {
         return socket;
       }
     }

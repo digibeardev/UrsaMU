@@ -1,4 +1,5 @@
 moment = require("moment");
+const { db } = require("../../mushCore/database");
 
 module.exports = mush => {
   mush.cmds.set("look", {
@@ -13,7 +14,7 @@ module.exports = mush => {
       };
 
       const idleTime = player => {
-        const idleEpoch = mush.queues.idToSocket(player).timestamp;
+        const idleEpoch = mush.queues.keyToSocket(player._key).timestamp || 0;
         let d = new Date(0);
         d.setUTCSeconds(idleEpoch);
         const idle = moment(d.toUTCString());
@@ -22,61 +23,74 @@ module.exports = mush => {
       };
 
       // Format contents for display
-      const contents = (en, tar) => {
-        const players = tar.contents.filter(
-          obj =>
-            mush.db.key(obj).type === "player" &&
-            mush.flags.hasFlags(mush.db.key(obj), "connected")
-        );
-        const objects = tar.contents.filter(
-          obj => mush.db.key(obj).type === "thing"
-        );
+      const contents = async (en, tar) => {
+        const playerCursor = await db.query(`
+          FOR obj in objects
+            FILTER obj.type == "player" && obj.location == "${tar._key}"
+            RETURN obj  
+        `);
+
+        const objCursor = await db.query(`
+          FOR obj in objects
+            FILTER obj.type == "thing" && obj.location == "${tar._key}"
+            RETURN obj  
+        `);
+
         let output = "";
 
-        if (en.location === tar.id) {
+        if (en.location === tar._key) {
           output =
             "%cr---%cn[ljust(%ch%cr<<%cn %chCharacters %cr>>%cn,75,%cr-%cn)]" +
-            "[ljust(%r%ch%cuName%cn,20)][ljust(%ch%cuIdle%cn,15)]%cn %ch%cuShort-Desc%cn";
+            "[ljust(%r%ch%cuName%cn,25)][ljust(%ch%cuIdle%cn,15)]%cn %ch%cuShort-Desc%cn";
+          const players = await playerCursor.all();
           for (const player of players) {
-            output += `%r${mush.name(en, mush.db.key(player))}`.padEnd(21);
-            output += `${idleTime(player)}`.padEnd(16);
+            output += `%r${await mush.name(en, player)}`
+              .padEnd(26)
+              .substring(0, 26);
+            output += `${await idleTime(player)}`.padEnd(16);
             output += `${
               mush.attrs.get(mush.db.key(player), "short-desc")
                 ? mush.attrs.get(mush.db.key(player), "short-desc").value
                 : "%ch%cxType %cn&short-desc me=<desc>%ch%cx to set.%cn"
             }`;
           }
-          if (objects.length > 0) {
+          if (objCursor.hasNext()) {
             output +=
               "%r%cr---%cn[ljust(%ch%cr<<%cn %chObjects %cr>>%cn,75,%cr-%cn)]";
-            for (obj of objects) {
-              output += `%r${mush.name(en, mush.db.key(obj))}`;
+            for (obj of objCursor) {
+              output += `%r${await mush.name(en, obj)}`;
             }
           }
         } else {
           output = tar.type === "player" ? "\nCarrying:" : "\nContents:";
           tar.contents.forEach(
-            item => (output += `%r${mush.name(en, mush.db.key(item))}`)
+            async item =>
+              (output += `%r${await mush.name(en, await mush.db.key(item))}`)
           );
         }
 
         return output;
       };
-      let tars;
+
       // Format exits for display.
-      const exits = (en, tar) => {
-        let output = "";
-        if (tar.exits.length > 0) {
+      const exits = async (en, tar) => {
+        const exitCursor = await db.query(`
+          FOR obj IN objects
+            FILTER obj.type == "exit" && obj.location == "${tar._key}"
+            RETURN obj
+        `);
+
+        let tars;
+        const exits = [];
+        if (exitCursor.hasNext()) {
+          for (exit of exitCursor) {
+            exits.push(exit.name.slice(";")[0].trim());
+          }
+          let exitsList = exits.join("|");
+
           tars =
             `%r%cr---%cn[ljust(%ch%cr<<%cn %chExits %cr>>%cn,75,%cr-%cn)]%r` +
-            `[columns(${tar.exits
-              .map(exit =>
-                mush.db
-                  .id(exit)
-                  .name.split(";")[0]
-                  .trim()
-              )
-              .join("|")},26,|)]`;
+            `[columns(${exitsList},26,|)]`;
         }
         return tars;
       };
@@ -86,27 +100,19 @@ module.exports = mush => {
       let enactor = await mush.db.key(socket._key);
       let target = await mush.db.get(match[1]);
 
-      if (!target) {
-        target = enactor.location;
+      if (!match[1]) {
+        target = await mush.db.key(enactor.location);
       }
 
-      // if target is a number, it's probably a dbref so we'll
-      // just check for it right away.
-      if (Number.isInteger(parseInt(target))) {
-        target = mush.db.key(target);
-        // Else we're dealing with a name, or a special case like 'here'
-        // or 'me', or an actual name.
-      } else {
-        // Get the DBO of the target.
-        if (target.toLowerCase() === "me") {
-          target = enactor;
-        } else if (target.toLowerCase() == "here") {
-          target = mush.db.key(enactor.location);
-        } else if (mush.db.get(target)) {
-          target = mush.db.get(target);
-        } else {
-          target = false;
-        }
+      if (typeof match[1] === "string" && match[1].toLowerCase() === "me") {
+        target = enactor;
+      } else if (
+        typeof match[1] === "string" &&
+        match[1].toLowerCase() == "here"
+      ) {
+        target = await mush.db.key(enactor.location);
+      } else if (!match[1]) {
+        target = await mush.db.key(enactor.location);
       }
 
       // If target doesn't have a value at this point, the object probably
@@ -114,25 +120,29 @@ module.exports = mush => {
       if (!target) {
         mush.broadcast.send(socket, "I can't find that here.");
       } else {
-        let desc = "";
-        // Send the built description to the enactor.
-        desc += mush.name(enactor, target) + "\n";
-        desc += "%r%t" + description(enactor, target) + "%r%r";
-        if (target.contents.length > 0) {
-          desc += contents(enactor, target);
-        }
-        if (exits(enactor, target)) {
-          desc += exits(enactor, target);
-        }
-        if (enactor.location === target.id) {
-          desc += `%r[rjust(%ch%cr<<%cn %ch${
-            mush.flags.hasFlags(target, "ic") ? "IC" : "OOC"
-          } %cr>>%cn,75,%cr-%cn)]%cr---%cn`;
-        }
-        mush.broadcast.send(
-          socket,
-          mush.parser.run(desc, { "%0": mush.name(enactor, target, true) })
-        );
+        (async () => {
+          let desc = "";
+          // Send the built description to the enactor.
+          desc += (await mush.name(enactor, target)) + "\n";
+          desc += "%r%t" + (await description(enactor, target)) + "%r%r";
+          if (target.contents.length > 0) {
+            desc += await contents(enactor, target);
+          }
+          // if (exits(enactor, target)) {
+          //   desc += exits(enactor, target);
+          // }
+          // if (enactor.location === target.id) {
+          //   desc += `%r[rjust(%ch%cr<<%cn %ch${
+          //     mush.flags.hasFlags(target, "ic") ? "IC" : "OOC"
+          //   } %cr>>%cn,75,%cr-%cn)]%cr---%cn`;
+          // }
+          mush.broadcast.send(
+            socket,
+            mush.parser.run(desc, {
+              "%0": await mush.name(enactor, target, true)
+            })
+          );
+        })().catch(error => mush.log.error(error));
       }
     }
   });

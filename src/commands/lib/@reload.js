@@ -5,8 +5,6 @@ module.exports = mush => {
     restriction: "connected immortal|wizard|royalty",
     run: (socket, data) => {
       try {
-        mush.flags.save();
-
         mush.config.save();
         // delete the reference in the require cash
         delete require.cache[require.resolve(`./${data[1].trim()}.js`)];

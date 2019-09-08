@@ -71,6 +71,9 @@ class ObjData {
     const today = moment().unix();
     record._key = `${this.newKey()}`;
     record.name = record.name.toLowerCase();
+    record.descriptin = "You see nothing special.";
+    record.alias = "";
+    record.timestamp = 0;
     record.owner = record.owner ? record.owner : record._key;
     record.moniker = "";
     record.created = today;
@@ -129,26 +132,34 @@ class ObjData {
    * get will try to match a single result.  Else it will search by name and alias,
    * returning an array.
    */
-  async get(ref) {
+  async get(ref = "") {
     // It's a id reference.
     if (Number.isInteger(parseInt(ref)) || ref[0] === "#") {
       if (ref[0] === "#") {
         ref = ref.slice(1);
       }
 
-      DBObj.firstExample({ _key: ref });
+      let queryCursor = await db.query(`
+        FOR obj IN objects
+          FILTER obj._key == "${ref}"
+          RETURN obj 
+      `);
+
+      // Return the first match
+      return await queryCursor.next();
+
       // It's probably a name reference.  Return with an array
       // of possible matches
     } else {
       try {
-        const results = await db.query(`
+        let queryCursor = await db.query(`
         FOR obj IN objects
           FILTER obj.name == "${ref.toLowerCase()}" || obj.alias == "${ref.toLowerCase()}"
           RETURN obj
        `);
-        return await results.all();
+        return await queryCursor.all();
       } catch (error) {
-        return 0;
+        log.error(error);
       }
     }
   }

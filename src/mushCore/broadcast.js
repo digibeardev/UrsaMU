@@ -1,5 +1,5 @@
 const parser = require("./parser");
-const db = require("./database");
+const { db, objData } = require("./database");
 const queue = require("./queues");
 const flags = require("./flags");
 
@@ -18,9 +18,14 @@ class Broadcast {
    * @param {String} message The message to be sent over the socket.
    *
    */
-  send(socket, message, scope = {}) {
+  send(socket, message, options = {}) {
+    const { scope = {}, parse = true } = options;
     try {
-      socket.write(parser.run(message, scope) + "\r\n");
+      if (parse) {
+        socket.write(parser.run(message, scope) + "\r\n");
+      } else {
+        socket.write(parser.subs(message) + "\r\n");
+      }
     } catch (error) {
       socket.write(parser.subs(message) + "\r\n");
     }
@@ -33,15 +38,15 @@ class Broadcast {
    * @param {string} [flgs = ""] Any flag restrictions the message has 'connected' for instance.
    */
   sendList(socket, targets, message, flgs = "") {
-    targets.forEach(target => {
+    targets.forEach(async target => {
       if (
-        flags.hasFlags(db.id(target), flgs) &&
-        (queue.idToSocket(target) &&
-          queue.idToSocket(target)._socket.writable &&
+        flags.hasFlags(await objData.key(target), flgs) &&
+        (queue.keyToSocket(target) &&
+          queue.keyToSocket(target)._socket.writable &&
           target !== socket.id)
       ) {
         try {
-          const tSocket = queue.idToSocket(target);
+          const tSocket = queue.keyToSocket(target);
           this.send(tSocket, message);
         } catch (error) {
           throw error;
