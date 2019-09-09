@@ -1,7 +1,7 @@
 const parser = require("./parser");
 const emitter = require("./emitter");
 const broadcast = require("./broadcast");
-const { objData } = require("./database");
+const { db, objData } = require("./database");
 const flags = require("./flags");
 const config = require("./config");
 const queue = require("./queues");
@@ -41,6 +41,11 @@ module.exports = class UrsaMu {
     this.VM = VM;
     this.sha256 = sha256;
     this.channels = channels;
+    this._stack = [];
+    this.query = db;
+
+    // Install base middleware.
+    this.use(require("./middleware/cmds"));
 
     this.init();
   }
@@ -80,7 +85,7 @@ module.exports = class UrsaMu {
     }
 
     this.flags.init();
-    this.channels.init();
+    await this.channels.init();
 
     try {
       require("../commands")(this);
@@ -94,13 +99,6 @@ module.exports = class UrsaMu {
       this.log.success("Text files loaded.");
     } catch (error) {
       this.log.error(`Unable to load text files. Error: ${error}`);
-    }
-
-    try {
-      require("./exec")(this);
-      this.log.success("Command parser loaded.");
-    } catch (error) {
-      this.log.error(error);
     }
 
     require("./gameTimers")(this);
@@ -178,18 +176,11 @@ module.exports = class UrsaMu {
   }
 
   /**
-   * Add a library to be accessable through the game object.
+   * Add a middleware to deal with user input streams.
    * @param  {String|Function} args
    */
-  use(...args) {
-    // If a name and function are given, add it to the game object.
-    if (typeof args[0] === "string" && typeof args[1] === "function") {
-      this[args[0]] = args[1];
-    } else if (typeof args[0] === "function") {
-      this[args[0].name] = args[0];
-    } else if (typeof args[0] !== "function" || typeof args[0] !== "string") {
-      throw new Error("Use requires a function.");
-    }
+  use(middleware) {
+    this._stack.push(middleware);
   }
 
   // Check for plugins
@@ -239,5 +230,49 @@ module.exports = class UrsaMu {
     return en.location === tar._key && !override
       ? `[center(%ch%cr<<%cn %ch%0 %cr>>%cn,78,%cr-%cn)]`
       : objName;
+  }
+
+  handle(socket, data) {
+    let idx = 0;
+
+    // combine the socket and input into an object
+    // for cleaner transport
+    const dataWrapper = {
+      input: data,
+      socket,
+      game: this,
+      ran: false
+    };
+
+    socket.timestamp = new Date().getTime() / 1000;
+
+    // Iterate through each registered piece of middleware.
+    // we'll pass a refrence to the class 'this' so we can
+    // use all of
+    const next = async (err, dataWrapper) => {
+      // if there's an error, bypass the rest of the code and
+      // handle it.
+      if (err !== null) {
+        return setImmediate(() => Promise.reject(err));
+      }
+
+      if (dataWrapper.ran) {
+        return setImmediate(() => Promise.resolve(dataWrapper));
+      }
+
+      if (idx >= this._stack.length && !dataWrapper.ran) {
+        return setImmediate(() => this.broadcast.huh(dataWrapper.socket));
+      }
+
+      const layer = this._stack[idx++];
+      setImmediate(async () => {
+        try {
+          await layer(dataWrapper, next);
+        } catch (error) {
+          next(error);
+        }
+      });
+    };
+    next(null, dataWrapper);
   }
 };

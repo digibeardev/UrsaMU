@@ -71,7 +71,7 @@ class ObjData {
     const today = moment().unix();
     record._key = `${this.newKey()}`;
     record.name = record.name.toLowerCase();
-    record.descriptin = "You see nothing special.";
+    record.description = "You see nothing special.";
     record.alias = "";
     record.timestamp = 0;
     record.owner = record.owner ? record.owner : record._key;

@@ -14,11 +14,15 @@ module.exports = mush => {
         dbRef = await mush.db.get(name);
         dbRef = dbRef[0];
         password = mush.sha256(password);
-        const authenticated = password === dbRef.password ? true : false;
+        let authenticated = false;
+        if (dbRef) {
+          authenticated = password === dbRef.password ? true : false;
+        }
 
         if (authenticated) {
           socket._key = dbRef._key;
           mush.db.update(dbRef._key, { modified: mush.moment().utc() });
+          await mush.flags.set(dbRef, "connected");
           mush.queues.sockets.add(socket);
           mush.broadcast.send(
             socket,
@@ -33,7 +37,7 @@ module.exports = mush => {
               "has a different password."
           );
           socket.attempts += 1;
-          if (attempts === 2) {
+          if (socket.attempts === 2) {
             socket.end();
           }
         }

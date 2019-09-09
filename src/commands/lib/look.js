@@ -14,7 +14,7 @@ module.exports = mush => {
       };
 
       const idleTime = player => {
-        const idleEpoch = mush.queues.keyToSocket(player._key).timestamp || 0;
+        const idleEpoch = mush.queues.keyToSocket(player._key).timestamp;
         let d = new Date(0);
         d.setUTCSeconds(idleEpoch);
         const idle = moment(d.toUTCString());
@@ -33,7 +33,7 @@ module.exports = mush => {
         const objCursor = await db.query(`
           FOR obj in objects
             FILTER obj.type == "thing" && obj.location == "${tar._key}"
-            RETURN obj  
+            RETURN obj
         `);
 
         let output = "";
@@ -49,8 +49,9 @@ module.exports = mush => {
               .substring(0, 26);
             output += `${await idleTime(player)}`.padEnd(16);
             output += `${
-              mush.attrs.get(mush.db.key(player), "short-desc")
-                ? mush.attrs.get(mush.db.key(player), "short-desc").value
+              mush.attrs.get(await mush.db.key(player._key), "short-desc")
+                ? mush.attrs.get(await mush.db.key(player.key), "short-desc")
+                    .value
                 : "%ch%cxType %cn&short-desc me=<desc>%ch%cx to set.%cn"
             }`;
           }
@@ -63,10 +64,12 @@ module.exports = mush => {
           }
         } else {
           output = tar.type === "player" ? "\nCarrying:" : "\nContents:";
-          tar.contents.forEach(
-            async item =>
-              (output += `%r${await mush.name(en, await mush.db.key(item))}`)
-          );
+          tar.contents.forEach(async item => {
+            const tarCursor = await mush.db.key(item._key);
+            const tar = await tarCursor.next()(
+              (output += `%r${await mush.name(en, tar)}`)
+            );
+          });
         }
 
         return output;
@@ -128,14 +131,14 @@ module.exports = mush => {
           if (target.contents.length > 0) {
             desc += await contents(enactor, target);
           }
-          // if (exits(enactor, target)) {
-          //   desc += exits(enactor, target);
-          // }
-          // if (enactor.location === target.id) {
-          //   desc += `%r[rjust(%ch%cr<<%cn %ch${
-          //     mush.flags.hasFlags(target, "ic") ? "IC" : "OOC"
-          //   } %cr>>%cn,75,%cr-%cn)]%cr---%cn`;
-          // }
+          if (await exits(enactor, target)) {
+            desc += await exits(enactor, target);
+          }
+          if (enactor.location === target._key) {
+            desc += `%r[rjust(%ch%cr<<%cn %ch${
+              (await mush.flags.hasFlags(target, "ic")) ? "IC" : "OOC"
+            } %cr>>%cn,75,%cr-%cn)]%cr---%cn`;
+          }
           mush.broadcast.send(
             socket,
             mush.parser.run(desc, {

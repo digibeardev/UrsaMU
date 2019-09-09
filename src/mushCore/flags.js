@@ -23,20 +23,20 @@ class Flags {
       try {
         let countCursor = await db.query(`RETURN LENGTH(flags)`);
         let count = await countCursor.next();
+        if (count) {
+          log.success("Game flags loaded.");
+
+          // Load extra flags defined in the json file
+          const dirent = fs.existsSync("../../Data/flags.json");
+          if (dirent) {
+            const extras = require("../../Data/flags.json");
+            this.dbCheck(extras);
+          }
+        } else {
+          throw new Error("No Flags Found!");
+        }
       } catch (error) {
         log.error(error);
-      }
-      if (count) {
-        log.success("Game flags loaded.");
-
-        // Load extra flags defined in the json file
-        const dirent = fs.existsSync("../../Data/flags.json");
-        if (dirent) {
-          const extras = require("../../Data/flags.json");
-          this.dbCheck(extras);
-        }
-      } else {
-        throw new Error("No Flags Found!");
       }
     })().catch(error => {
       // default flags list:
@@ -214,14 +214,13 @@ class Flags {
 
     try {
       const updated = await objData.update(obj._key, { flags: [...flagSet] });
+      if (updated) {
+        return updated;
+      } else {
+        return false;
+      }
     } catch (error) {
       log.error(error);
-    }
-
-    if (updated) {
-      return updated;
-    } else {
-      return false;
     }
   }
 

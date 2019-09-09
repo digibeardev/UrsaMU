@@ -1,5 +1,5 @@
-const { find } = require("lodash");
-const db = require("./database");
+const { objData } = require("./database");
+
 /**
  * new Attributes()
  */
@@ -25,33 +25,42 @@ class Attributes {
    * });
    *
    */
-  set({ id, name, value, setBy, lock = "", key = "" }) {
-    let target = db.id(id);
+  async set({ key, name, value, setBy }) {
+    let target = await objData.key(key);
 
     // check to see if the attribute already exists!
     // If it does, update, remove the original and re-insert the
     // updated record.
     name = name.toLowerCase();
-    let attr = find(target.attributes, { name });
-    if (attr && value) {
+
+    // try to find the attribute name in the object
+    let found = false;
+    for (attr of target.attributes) {
+      if (attr.name === name) {
+        return (found = true);
+      }
+    }
+
+    // Attribute exists, and value given.
+    if (found && value) {
       const index = target.attributes.indexOf(attr);
       target.attributes[index]["value"] = value;
-      db.update(id, { attributes: target.attributes });
-      db.save();
-      return db.id(id);
+      objData.update(target._key, { attributes: target.attributes });
+      return await objData.key(key);
 
-      // Else if the attribute doesn't exist, set it's initial
-      // value.
+      // if the attribut eexists but there's no value, remove
+      // the attribute.
     } else if (attr && !value) {
       const index = target.attributes.indexOf(attr);
       target.attributes.splice(index, 1);
-      db.update(id, { attributes: target.attributes });
-      db.save();
+      await objData.update(target._key, { attributes: target.attributes });
+
+      // Else if the attribute doesn't exist, set it's initial
+      // value.
     } else {
       target.attributes.push({ name, value, setBy, lock, key });
-      db.update(id, { attributes: target.attributes });
-      db.save();
-      return db.id(id);
+      await objData.update(key, { attributes: target.attributes });
+      return await objData.key(key);
     }
   }
 
@@ -61,8 +70,15 @@ class Attributes {
    * @param {String} attribute The attribute to be read.
    */
   get(target, attribute) {
-    // @ts-ignore
-    return find(target.attributes, { name: attribute });
+    if (target.attributes) {
+      for (const attr of target.attributes) {
+        if (attr.name.toLowerCase() === attribute.toLowerCase()) {
+          return attr.value;
+        }
+      }
+    } else {
+      return false;
+    }
   }
 }
 
