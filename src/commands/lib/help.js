@@ -2,7 +2,7 @@ module.exports = mush => {
   mush.cmds.set("help", {
     pattern: /^\+?help(\s.*)?/i,
     restriction: "connected",
-    run: (socket, data) => {
+    run: async (socket, data) => {
       let helpTxt =
         "%r%cr---%cn[ljust(%ch%cr<<%cn %chHELP %cr>>%cn,75,%cr-%cn)]";
       let help = data.filter(entry => entry !== "\r");
@@ -26,7 +26,9 @@ module.exports = mush => {
           mush.help.values().length
         }%cn entries %ch%cr>%cn,75,%cr-%cn )]%cr---%cn`;
         mush.broadcast.send(socket, helpTxt);
-        if (mush.flags.hasFlags(mush.db.id(socket.id), "admin")) {
+        if (
+          await mush.flags.hasFlags(await mush.db.key(socket._key), "admin")
+        ) {
           mush.broadcast.send(
             socket,
             "Type '%chhelp/admin%cn' for admin help commands."

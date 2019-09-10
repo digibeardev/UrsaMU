@@ -50,9 +50,14 @@ module.exports = mush => {
                 .substring(0, 26);
               output += `${await idleTime(player)}`.padEnd(16);
               output += `${
-                mush.attrs.get(await mush.db.key(player._key), "short-desc")
-                  ? mush.attrs.get(await mush.db.key(player._key), "short-desc")
-                      .value
+                (await mush.attrs.get(
+                  await mush.db.key(player._key),
+                  "short-desc"
+                ))
+                  ? await mush.attrs.get(
+                      await mush.db.key(player._key),
+                      "short-desc"
+                    )
                   : "%ch%cxType %cn&short-desc me=<desc>%ch%cx to set.%cn"
               }`;
             }
