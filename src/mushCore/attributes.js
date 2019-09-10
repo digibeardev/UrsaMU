@@ -35,30 +35,32 @@ class Attributes {
 
     // try to find the attribute name in the object
     let found = false;
-    for (attr of target.attributes) {
-      if (attr.name === name) {
-        return (found = true);
+    if (target.attributes) {
+      for (const attr of target.attributes) {
+        if (attr.name === name) {
+          found = attr;
+        }
       }
     }
 
     // Attribute exists, and value given.
     if (found && value) {
-      const index = target.attributes.indexOf(attr);
+      const index = target.attributes.indexOf(found);
       target.attributes[index]["value"] = value;
       objData.update(target._key, { attributes: target.attributes });
       return await objData.key(key);
 
       // if the attribut eexists but there's no value, remove
       // the attribute.
-    } else if (attr && !value) {
-      const index = target.attributes.indexOf(attr);
+    } else if (found && !value) {
+      const index = target.attributes.indexOf(found);
       target.attributes.splice(index, 1);
       await objData.update(target._key, { attributes: target.attributes });
 
       // Else if the attribute doesn't exist, set it's initial
       // value.
     } else {
-      target.attributes.push({ name, value, setBy, lock, key });
+      target.attributes.push({ name, value, setBy });
       await objData.update(key, { attributes: target.attributes });
       return await objData.key(key);
     }

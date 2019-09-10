@@ -43,7 +43,7 @@ class Broadcast {
         flags.hasFlags(await objData.key(target), flgs) &&
         (queue.keyToSocket(target) &&
           queue.keyToSocket(target)._socket.writable &&
-          target !== socket.id)
+          target !== socket._key)
       ) {
         try {
           const tSocket = queue.keyToSocket(target);

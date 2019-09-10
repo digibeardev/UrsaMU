@@ -33,6 +33,7 @@ module.exports = mush => {
     })();
 
     tSocket.on("data", buffer => {
+      tSocket.timestamp = new Date().getTime() / 1000;
       mush.queues.pQueue.push({ socket: tSocket, data: buffer.toString() });
     });
 

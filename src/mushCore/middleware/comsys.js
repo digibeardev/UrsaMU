@@ -13,9 +13,11 @@ module.exports = async (dataWrapper, next) => {
     let [alias, ...rest] = input.split(" ");
 
     let chan;
-    for (const channel of enactor.channels) {
-      if (channel.alias === alias) {
-        return (chan = channel);
+    if (enactor.channels) {
+      for (const channel of enactor.channels) {
+        if (channel.alias === alias) {
+          return (chan = channel);
+        }
       }
     }
 
@@ -98,5 +100,8 @@ module.exports = async (dataWrapper, next) => {
       dataWrapper.ran = true;
       next(null, dataWrapper);
     }
+  } else {
+    next(null, dataWrapper);
   }
+  next(null, dataWrapper);
 };

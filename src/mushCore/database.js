@@ -73,6 +73,7 @@ class ObjData {
     record.name = record.name.toLowerCase();
     record.description = "You see nothing special.";
     record.alias = "";
+    record.attributes = [];
     record.timestamp = 0;
     record.owner = record.owner ? record.owner : record._key;
     record.moniker = "";

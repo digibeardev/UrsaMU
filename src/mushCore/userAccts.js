@@ -1,49 +1,58 @@
-const { readFileSync, writeFileSync } = require("fs");
-const { resolve } = require("path");
-const { log } = require("../utilities");
-const { find, findIndex } = require("lodash");
+const { db } = require("./database");
+const { log, sha256 } = require("../utilities");
+const acctsDB = db.collection("accounts");
 
 class UserAccts {
-  constructor() {
+  async find(query) {
     try {
-      this.accounts = JSON.parse(
-        readFileSync(resolve(__dirname, "../../data/accounts.json"), "utf-8")
-      );
-      log.success("Player accounts loaded.");
+      const queryCursor = await db.query(`
+      FOR acct IN accounts
+      FILTER acct.username == "${query.toLowerCase()}" || 
+        acct.email == "${query.toLowerCase()}"
+        RETURN acct
+    `);
+
+      if (queryCursor.hasNext()) {
+        return await queryCursor.next();
+      }
     } catch (error) {
-      log.error(`Unable to load Accounts database.  Error: ${error}`);
-      this.accounts = [];
-      log.success("Created a new instance of the Accounts database.", 2);
-      this.save();
+      log.error(error);
     }
   }
 
-  find(query) {
-    return find(this.accounts, query);
-  }
-
-  insert({ email, name = "", password, id }) {
-    return this.accounts.push({ email, name, password, characters: [id] });
-  }
-
-  save() {
+  async insert({ email, username = "", password, key }) {
     try {
-      writeFileSync(
-        resolve(__dirname, "../data/accounts.json"),
-        JSON.stringify(this.accounts)
-      );
+      const results = await acctsDB.save({
+        email,
+        username,
+        password: sha256(password),
+        characters: [key]
+      });
 
-      log.success("User Accounts database saved.");
+      return results;
     } catch (error) {
-      log.error(`Unable to save Accounts database.  Error: ${error}`);
+      log.error(error);
     }
   }
 
-  update(email, updates = {}) {
-    email.toLowerCase();
-    const index = findIndex(this.accounts, { email });
-    this.accounts[index] = { ...this.accounts[index], ...updates };
-    return this.accounts[index];
+  async update(query, updates) {
+    try {
+      const queryCursor = await db.query(`
+      FOR acct IN accounts
+      FILTER acct.username === "${query.toLowerCase()}" || 
+        acct.email == "${query.toLowerCase()}"
+        RETURN acct
+    `);
+
+      let user;
+      if (queryCursor.hasNext()) {
+        user = await queryCursor.next();
+        acctsDB.update(user, update);
+        return user;
+      }
+    } catch (error) {
+      log.error(error);
+    }
   }
 }
 

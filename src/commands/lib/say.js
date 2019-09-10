@@ -2,31 +2,32 @@ module.exports = mush => {
   mush.cmds.set("say", {
     pattern: /^(?:"|say\s+)(.*)/i,
     restricted: "connected",
-    run: (socket, match, scope) => {
-      if (socket.id) {
+    run: async (socket, match, scope) => {
+      if (socket._key) {
         // Get enactor information from socket,
-        const enactor = mush.db.id(socket.id);
+        const enactor = await mush.db.key(socket._key);
+        let curRoom = await mush.db.key(enactor.location);
         try {
-          // Get a list of contents from the enactor's current location.
-          let conList = mush.db.id(enactor.location).contents;
           mush.broadcast.send(
             socket,
             `You say, "` + mush.parser.run(match[1], scope) + `"`
           );
           mush.broadcast.sendList(
             socket,
-            conList,
+            curRoom.contents,
             `${
               enactor.moniker ? enactor.moniker : enactor.name
             } says "${mush.parser.run(match[1], scope)}"`,
             "connected"
           );
         } catch {
-          conList = mush.db.id(enactor.location).contents;
-          mush.broadcast.send(socket, `You say, "` + match[1] + `"`);
+          mush.broadcast.send(
+            socket,
+            mush.parser.subs(`You say, "` + match[1] + `"`)
+          );
           mush.broadcast.sendList(
             socket,
-            conList,
+            curRoom.contents,
             `${enactor.moniker ? enactor.moniker : enactor.name} says "${
               match[1]
             }"`,

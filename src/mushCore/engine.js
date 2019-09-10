@@ -45,6 +45,7 @@ module.exports = class UrsaMu {
     this.query = db;
 
     // Install base middleware.
+
     this.use(require("./middleware/cmds"));
 
     this.init();
@@ -234,7 +235,6 @@ module.exports = class UrsaMu {
 
   handle(socket, data) {
     let idx = 0;
-
     // combine the socket and input into an object
     // for cleaner transport
     const dataWrapper = {
@@ -253,7 +253,9 @@ module.exports = class UrsaMu {
       // if there's an error, bypass the rest of the code and
       // handle it.
       if (err !== null) {
-        return setImmediate(() => Promise.reject(err));
+        return setImmediate(() => {
+          this.log.error(err);
+        });
       }
 
       if (dataWrapper.ran) {
@@ -261,7 +263,9 @@ module.exports = class UrsaMu {
       }
 
       if (idx >= this._stack.length && !dataWrapper.ran) {
-        return setImmediate(() => this.broadcast.huh(dataWrapper.socket));
+        return setImmediate(() => {
+          if (socket._key) this.broadcast.huh(dataWrapper.socket);
+        });
       }
 
       const layer = this._stack[idx++];

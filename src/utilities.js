@@ -27,7 +27,7 @@ class Log {
   error(message, space = 0) {
     console.log(
       `${"\xa0".repeat(space)}${chalk.red("\u2716")} ERROR: ${
-        typeof message === Error ? message.stack : message
+        message.stack ? message.stack : message
       }`
     );
   }

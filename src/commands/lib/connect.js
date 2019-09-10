@@ -9,7 +9,7 @@ module.exports = mush => {
       // pull the name and password from the regex match object.
       let [, name, password] = match;
       let dbRef;
-      if (!socket.id) {
+      if (!socket._key) {
         // if the socket isn't logged in (no ID) then they can use this command/
         dbRef = await mush.db.get(name);
         dbRef = dbRef[0];

@@ -114,22 +114,21 @@ class Flags {
     if (flag[0] === "!") {
       flag = flag.slice(1);
     }
-    const results = db.query(`
+    const flagCursor = await db.query(`
       FOR f IN flags
         FILTER f.name == "${flag.toLowerCase()}"
         RETURN f
     `);
 
     try {
-      let data = await results.all();
+      let data = await flagCursor.all();
+      if (data.length > 0) {
+        return true;
+      } else {
+        return false;
+      }
     } catch (error) {
       log.error(error);
-    }
-
-    if (data.length > 0) {
-      return true;
-    } else {
-      return false;
     }
   }
 
@@ -229,7 +228,7 @@ class Flags {
    * @param {DBO} enactor
    * @param {string} flags
    */
-  orFlags(enactor, flags) {
+  orFlags(enactor, flags = "") {
     let ret = false;
     flags = flags.toLowerCase().split(" ");
 
@@ -280,7 +279,9 @@ class Flags {
         let flagCursor = await this.get(flag);
         let flg = await flagCursor.next();
         // if it's lower than the previous result, replace it
-        if (flg.lvl && flg.lvl > lvl) lvl = await this.get(flag).lvl;
+        if (flg.lvl > lvl) {
+          lvl = flg.lvl;
+        }
       }
       return lvl;
     } catch (error) {

@@ -4,7 +4,7 @@ const { db } = require("../../mushCore/database");
 module.exports = mush => {
   const create = async (socket, match) => {
     // Make sure the socket doesn't already have an ID (isn't already logged in)
-    if (!socket.id) {
+    if (!socket._key) {
       // Check to see if any player objects have been created yet.  If not, the very
       // first one made is going to have our 'god' flag.
       const playerCursor = await mush.db.find(
@@ -52,7 +52,8 @@ module.exports = mush => {
         // give them a boxed new player welcome.
         mush.broadcast.send(socket, mush.txt.get("newconnect.txt") + "\r\n");
         socket._key = enactor._key;
-
+        socket.timestamp = new Date().getTime() / 1000;
+        mush.queues.sockets.add(socket);
         mush.exe(socket, "look", []);
 
         let setFlags;

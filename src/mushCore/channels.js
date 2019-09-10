@@ -1,7 +1,7 @@
 const { db } = require("./database");
 const { log } = require("../utilities");
 const emitter = require("./emitter");
-const channels = require("./defaults").channels;
+const { channels } = require("./defaults");
 
 const chanData = db.collection("channels");
 
@@ -57,9 +57,9 @@ class Channels {
     return chanCursor.next();
   }
 
-  broadcast(socket, channel, string) {
+  async broadcast(socket, channel, string) {
     // See if the channel exists, and grab a copy of it's stats:
-    const chan = this.get(channel);
+    const chan = await this.get(channel);
     if (chan) {
       emitter.emit("channel", socket, channel, string);
     }
