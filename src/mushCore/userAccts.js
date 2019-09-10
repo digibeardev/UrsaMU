@@ -39,7 +39,7 @@ class UserAccts {
     try {
       const queryCursor = await db.query(`
       FOR acct IN accounts
-      FILTER acct.username === "${query.toLowerCase()}" || 
+      FILTER acct.username == "${query.toLowerCase()}" || 
         acct.email == "${query.toLowerCase()}"
         RETURN acct
     `);
@@ -47,7 +47,7 @@ class UserAccts {
       let user;
       if (queryCursor.hasNext()) {
         user = await queryCursor.next();
-        acctsDB.update(user, update);
+        acctsDB.update(user._key, updates);
         return user;
       }
     } catch (error) {

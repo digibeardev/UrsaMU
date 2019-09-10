@@ -22,12 +22,12 @@ class Broadcast {
     const { scope = {}, parse = true } = options;
     try {
       if (parse) {
-        socket.write(parser.run(message, scope) + "\r\n");
+        socket.write(parser.run(message, scope) + "\r\n", "utf-8");
       } else {
-        socket.write(parser.subs(message) + "\r\n");
+        socket.write(parser.subs(message) + "\r\n", "utf-8");
       }
     } catch (error) {
-      socket.write(parser.subs(message) + "\r\n");
+      socket.write(parser.subs(message) + "\r\n", "utf-8");
     }
   }
 

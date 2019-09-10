@@ -1,3 +1,4 @@
+const utf8 = require("utf8");
 const stripAnsi = require("strip-ansi");
 
 module.exports = parser => {
@@ -176,5 +177,14 @@ module.exports = parser => {
     });
     // Tack the last line onto the end! ^_^
     return "%s".repeat(indent) + output + line;
+  });
+
+  parser.funs.set("char", (args, scope) => {
+    if (args.length > 1) {
+      return new SyntaxError("One argument accepted.");
+    }
+
+    const code = args[0];
+    return String.fromCodePoint(parseInt(args[0].value));
   });
 };
