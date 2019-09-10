@@ -44,16 +44,18 @@ module.exports = mush => {
             "[ljust(%r%ch%cuName%cn,25)][ljust(%ch%cuIdle%cn,15)]%cn %ch%cuShort-Desc%cn";
           const players = await playerCursor.all();
           for (const player of players) {
-            output += `%r${await mush.name(en, player)}`
-              .padEnd(26)
-              .substring(0, 26);
-            output += `${await idleTime(player)}`.padEnd(16);
-            output += `${
-              mush.attrs.get(await mush.db.key(player._key), "short-desc")
-                ? mush.attrs.get(await mush.db.key(player.key), "short-desc")
-                    .value
-                : "%ch%cxType %cn&short-desc me=<desc>%ch%cx to set.%cn"
-            }`;
+            if (await mush.flags.hasFlags(player, "connected")) {
+              output += `%r${await mush.name(en, player)}`
+                .padEnd(26)
+                .substring(0, 26);
+              output += `${await idleTime(player)}`.padEnd(16);
+              output += `${
+                mush.attrs.get(await mush.db.key(player._key), "short-desc")
+                  ? mush.attrs.get(await mush.db.key(player._key), "short-desc")
+                      .value
+                  : "%ch%cxType %cn&short-desc me=<desc>%ch%cx to set.%cn"
+              }`;
+            }
           }
           if (objCursor.hasNext()) {
             output +=

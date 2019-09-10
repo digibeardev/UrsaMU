@@ -85,6 +85,21 @@ module.exports = class UrsaMu {
       log.error(error);
     }
 
+    // make sure noone has has a 'connected' flag, if the game
+    // didn't go down smoothly.
+    const playerCursor = await db.query(`
+      FOR obj IN objects
+      FILTER obj.type == "player"
+      RETURN obj
+    `);
+
+    if (playerCursor.hasNext()) {
+      const players = await playerCursor.all();
+      for (const player of players) {
+        this.flags.set(player, "!connected");
+      }
+    }
+
     this.flags.init();
     await this.channels.init();
 

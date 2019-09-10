@@ -24,6 +24,7 @@ module.exports = mush => {
           mush.db.update(dbRef._key, { modified: mush.moment().utc() });
           await mush.flags.set(dbRef, "connected");
           mush.queues.sockets.add(socket);
+          socket.timestamp = new Date().getTime() / 1000;
           mush.broadcast.send(
             socket,
             `%chLogin Successful%cn. Welcome to %chUrsaMU!%cn`
