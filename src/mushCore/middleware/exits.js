@@ -3,7 +3,7 @@ const { log } = require("../../utilities");
 const { objData } = require("../database");
 const emitter = require("../emitter");
 module.exports = async (dataWrapper, next) => {
-  const { input, socket } = dataWrapper;
+  const { input, socket, game } = dataWrapper;
   try {
     const enactor = await objData.key(socket._key);
     const curRoom = await objData.key(enactor.location);
@@ -14,6 +14,7 @@ module.exports = async (dataWrapper, next) => {
       // Exit match was made.
       dataWrapper.ran = true;
       await move(socket, exit);
+      game.exe(socket, "look", []);
       next(null, dataWrapper);
     }
   } catch (error) {

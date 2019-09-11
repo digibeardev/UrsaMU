@@ -1,6 +1,6 @@
 module.exports = async (dataWrapper, next) => {
   // destructure dataWrapper for ease of use.
-  const { input, socket, game } = dataWrapper;
+  let { input, socket, game } = dataWrapper;
 
   const mush = game;
   // We only need to search for channels if the socket is actually
@@ -16,7 +16,7 @@ module.exports = async (dataWrapper, next) => {
     if (enactor.channels) {
       for (const channel of enactor.channels) {
         if (channel.alias === alias) {
-          return (chan = channel);
+          chan = channel;
         }
       }
     }
@@ -85,7 +85,7 @@ module.exports = async (dataWrapper, next) => {
         } else {
           msg += `${
             enactor.moniker ? enactor.moniker : enactor.name
-          } says "${rest.join(" ").trim()}"`;
+          } says "${rest.trim()}"`;
         }
       }
 

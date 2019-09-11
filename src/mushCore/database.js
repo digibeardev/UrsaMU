@@ -82,6 +82,7 @@ class ObjData {
     record.last = today;
     record.flags = [];
     record.contents = [];
+    record.channels = [];
     record.exits = [];
     record.location = record.location;
     record.to = record.to || "";

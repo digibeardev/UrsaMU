@@ -43,7 +43,6 @@ module.exports.move = async (socket, eObj) => {
   objData.update(curRoom._key, { contents: curRoom.contents });
 
   // Add the enactor to the new location
-
   const tempExit = await objData.key(eObj);
   const newRoom = await objData.key(tempExit.to);
   await objData.update(enactor._key, { location: newRoom._key });
@@ -51,6 +50,7 @@ module.exports.move = async (socket, eObj) => {
     contents: [...newRoom.contents, enactor._key]
   });
   emitter.emit("move", { socket, exit, newRoom });
+
   broadcast.sendList(
     socket,
     newRoom.contents,

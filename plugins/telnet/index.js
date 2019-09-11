@@ -1,4 +1,3 @@
-const fs = require("fs");
 const net = require("net");
 const config = require("../../Data/config.json");
 
@@ -34,7 +33,10 @@ module.exports = mush => {
 
     tSocket.on("data", buffer => {
       tSocket.timestamp = new Date().getTime() / 1000;
-      mush.queues.pQueue.push({ socket: tSocket, data: buffer.toString() });
+      mush.queues.pQueue.push({
+        socket: tSocket,
+        data: buffer.toString("utf8")
+      });
     });
 
     tSocket.on("close", tSocket => mush.emitter.emit("close", tSocket));

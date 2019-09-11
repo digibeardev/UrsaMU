@@ -20,7 +20,7 @@ class Channels {
 
           if (!queryCursor.hasNext()) {
             try {
-              channel.name = channel.name.toLowerCase();
+              channel.name = channel.name;
               channel.see = channel.see || "";
               channel.join = channel.join || "";
               channel.talk = channel.talk || "";
@@ -51,7 +51,7 @@ class Channels {
   async get(channel) {
     const chanCursor = await db.query(`
       FOR chan in channels
-        FILTER chan.name == "${channel.toLowerCase()}"
+        FILTER LOWER(chan.name) == "${channel.toLowerCase()}"
         RETURN chan
       `);
     return chanCursor.next();

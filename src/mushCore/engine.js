@@ -14,6 +14,7 @@ const channels = require("./channels");
 const { log, sha256 } = require("../utilities");
 const move = require("./movement");
 const moment = require("moment");
+const capstring = require("capstring");
 /**
  * new engine()
  */
@@ -25,6 +26,7 @@ module.exports = class UrsaMu {
     this.move = move;
     this.accounts = useraccts;
     this.help = help;
+    this.capstr = capstring;
     this.grid = grid;
     this.parser = parser;
     this.broadcast = broadcast;
@@ -45,10 +47,11 @@ module.exports = class UrsaMu {
     this.query = db;
 
     // Install base middleware.
-
+    this.use(require("./middleware/comsys"));
     this.use(require("./middleware/cmds"));
     this.use(require("./middleware/exits"));
 
+    // Start the boot-up
     this.init();
   }
 
@@ -163,18 +166,20 @@ module.exports = class UrsaMu {
     });
 
     this.emitter.on("channel", (chan, msg) => {
-      this.queues.sockets.forEach(socket => {
-        const target = this.db.key(socket._key);
+      this.queues.sockets.forEach(async socket => {
+        const target = await this.db.key(socket._key);
 
         // loop through each channel, and see if there's a match.
         for (const channel of target.channels) {
           if (channel.name == chan.name && channel.status) {
             let header = "";
-            header += chan.header ? chan.header : `%ch<${chan.name}>%cn`;
+            header += chan.header
+              ? chan.header
+              : `%ch<${capstring(chan.name, "title")}>%cn`;
 
             try {
               msg = this.parser.run(msg);
-              this.broadcast.send(socket, `${header} ${channel.title} ${msg}`, {
+              this.broadcast.send(socket, `${header} ${channel.title}${msg}`, {
                 parse: false
               });
             } catch (error) {
