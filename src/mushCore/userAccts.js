@@ -25,7 +25,7 @@ class UserAccts {
       const results = await acctsDB.save({
         email,
         username,
-        password: sha256(password),
+        password: sha256(password.trim()),
         characters: [key]
       });
 

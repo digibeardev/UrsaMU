@@ -93,8 +93,9 @@ module.exports = mush => {
         let tars;
         const exits = [];
         if (exitCursor.hasNext()) {
-          for (exit of exitCursor) {
-            exits.push(exit.name.slice(";")[0].trim());
+          const exitList = await exitCursor.all();
+          for (exit of exitList) {
+            exits.push(exit.name.split(";")[0].trim());
           }
           let exitsList = exits.join("|");
 

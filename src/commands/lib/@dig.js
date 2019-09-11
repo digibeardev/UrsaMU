@@ -5,7 +5,7 @@ module.exports = mush => {
     // Hi!,
     pattern: /^@dig(\/tel[eport]+)?\s+(.*)/i,
     restriction: "connected immortal|wizard|royalty",
-    run: (socket, match) => {
+    run: async (socket, match) => {
       // Deconstruct a whole mess of arguments!
       const [, teleport, args] = match;
       const [name, exits] = args.split("=");
@@ -14,36 +14,43 @@ module.exports = mush => {
         [toExit, fromExit] = exits.split(",");
       }
 
-      const enactor = mush.db.id(socket.id);
-      const curRoom = mush.db.id(enactor.location);
+      const enactor = await mush.db.key(socket._key);
+      const curRoom = await mush.db.key(enactor.location);
 
       // Check to see if the player has permissions to dig new
       // rooms from this location.
-      if (mush.flags.canEdit(enactor, curRoom)) {
+      if (await mush.flags.canEdit(enactor, curRoom)) {
         // Create the new room
-        const room = mush.db.insert({
+        let room = await mush.db.insert({
           name: name.trim(),
           type: "room",
-          owner: socket.id,
+          owner: socket._key,
           exits: []
         });
+
+        room = await mush.db.key(room._key);
+
         mush.broadcast.send(
           socket,
-          `%chDone.%cn Room %ch${room.name.trim()}(#${room.id})%cn dug.`
+          `%chDone.%cn Room %ch${room.name.trim()}(#${room._key})%cn dug.`
         );
 
         // If a 'to' exit is defined, create the db reference and link.
         if (toExit) {
-          toexit = mush.db.insert({
+          toexit = await mush.db.insert({
             name: toExit.trim(),
             type: "exit",
-            owner: enactor.id,
+            owner: enactor._key,
             location: enactor.location,
-            to: room.id,
-            from: curRoom.id
+            to: room._key,
+            from: curRoom._key
           });
 
-          mush.db.update(curRoom.id, { exits: [...curRoom.exits, toexit.id] });
+          toexit = await mush.db.key(toexit._key);
+
+          await mush.db.update(curRoom._key, {
+            exits: [...curRoom.exits, toexit._key]
+          });
           mush.broadcast.send(
             socket,
             `%chDone.%cn Exit %ch${
@@ -53,16 +60,18 @@ module.exports = mush => {
         }
 
         if (fromExit) {
-          fromexit = mush.db.insert({
+          fromexit = await mush.db.insert({
             name: fromExit.trim(),
             type: "exit",
-            owner: enactor.id,
-            location: room.id,
-            to: curRoom.id,
-            from: room.id
+            owner: enactor._key,
+            location: room._key,
+            to: curRoom._key,
+            from: room._key
           });
 
-          mush.db.update(room.id, { exits: [...room.exits, fromexit.id] });
+          fromexit = await mush.db.key(fromexit._key);
+
+          mush.db.update(room._key, { exits: [...room.exits, fromexit._key] });
           mush.broadcast.send(
             socket,
             `%chDone.%cn Exit %ch${
@@ -70,7 +79,6 @@ module.exports = mush => {
             }%cn opened to room %ch${curRoom.name}%cn.`
           );
         }
-        mush.db.save();
       } else {
         mush.broadcast.send(socket, "Permission denied.");
       }

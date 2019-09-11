@@ -58,6 +58,8 @@ module.exports = mush => {
               "This character is already registered."
             );
           }
+        } else {
+          mush.broadcast.send(socket, "This character is already registered.");
         }
       } catch (error) {
         mush.log.error(error);
@@ -66,7 +68,7 @@ module.exports = mush => {
   });
 
   /**
-   * register is a shorter command than
+   * register is a shortcut for `@account`.
    */
   mush.cmds.set("@register", {
     pattern: /^@?re[gister]+\s+(.*)\s?=\s?(.*)/i,

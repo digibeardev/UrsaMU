@@ -47,6 +47,7 @@ module.exports = class UrsaMu {
     // Install base middleware.
 
     this.use(require("./middleware/cmds"));
+    this.use(require("./middleware/exits"));
 
     this.init();
   }
@@ -130,16 +131,24 @@ module.exports = class UrsaMu {
     this.emitter.emit("loaded");
 
     // Check for server events!
-    this.emitter.on("connected", async socket => {
-      const enactor = await this.db.key(socket._key);
-      const curRoom = await this.db.key(enactor.location);
+    this.emitter.on("move", ({ socket, exit, room }) => {
+      this.exe(socket, "look", []);
+    });
 
-      this.broadcast.sendList(
-        socket,
-        curRoom.contents,
-        `${enactor.name} has connected.`,
-        "connected"
-      );
+    this.emitter.on("connected", async socket => {
+      try {
+        const enactor = await this.db.key(socket._key);
+        const curRoom = await this.db.key(enactor.location);
+
+        this.broadcast.sendList(
+          socket,
+          curRoom.contents,
+          `${enactor.name} has connected.`,
+          "connected"
+        );
+      } catch (error) {
+        this.log.error(error);
+      }
     });
 
     this.emitter.on("disconnected", async socket => {

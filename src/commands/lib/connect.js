@@ -29,7 +29,7 @@ module.exports = mush => {
             socket,
             `%chLogin Successful%cn. Welcome to %chUrsaMU!%cn`
           );
-          mush.exe(socket, "look", [, dbRef.location]);
+          mush.exe(socket, "look", []);
           mush.emitter.emit("connected", socket);
         } else {
           mush.broadcast.send(

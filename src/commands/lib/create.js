@@ -23,7 +23,7 @@ module.exports = mush => {
       // failure message.
       let names;
       try {
-        names = await mush.db.get(name.toLowerCase());
+        names = await mush.db.get(name);
       } catch (error) {
         mush.log.error(error);
       }

@@ -70,7 +70,7 @@ class ObjData {
     // the database.
     const today = moment().unix();
     record._key = `${this.newKey()}`;
-    record.name = record.name.toLowerCase();
+    record.name = record.name;
     record.description = "You see nothing special.";
     record.alias = "";
     record.attributes = [];
@@ -83,9 +83,9 @@ class ObjData {
     record.flags = [];
     record.contents = [];
     record.exits = [];
-    record.location = config.startingRoom || "";
-    record.to = "";
-    record.from = "";
+    record.location = record.location;
+    record.to = record.to || "";
+    record.from = record.from || "";
     return DBObj.save(record);
   }
   /**
@@ -155,7 +155,8 @@ class ObjData {
       try {
         let queryCursor = await db.query(`
         FOR obj IN objects
-          FILTER obj.name == "${ref.toLowerCase()}" || obj.alias == "${ref.toLowerCase()}"
+          FILTER LOWER(obj.name) == "${ref.toLowerCase()}" 
+            || LOWER(obj.alias) == "${ref.toLowerCase()}"
           RETURN obj
        `);
         return await queryCursor.all();

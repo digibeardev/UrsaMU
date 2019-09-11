@@ -1,8 +1,9 @@
-const db = require("./database");
+const { objData } = require("./database");
 const broadcast = require("./broadcast");
 const parser = require("./parser");
-
-module.exports.matchExit = (obj, string) => {
+const { log } = require("../utilities");
+const emitter = require("./emitter");
+module.exports.matchExit = async (obj, string) => {
   // Utility function to format my exits into regular expressions.
   const format = name => {
     const subs = name.replace(/;/g, "|^").replace(/^\r\n/i, "");
@@ -12,39 +13,48 @@ module.exports.matchExit = (obj, string) => {
   if (obj)
     // Loop through the different exits in the room, and return
     // the first to match.
-    for (const exit of obj.exits) {
-      // Check to see if the exit matches the input string If so
-      // return the object for the exit.
-      if (string.match(format(parser.stripSubs(db.id(exit).name)))) {
-        return exit;
+    try {
+      for (const exit of obj.exits) {
+        // Check to see if the exit matches the input string If so
+        // return the object for the exit.
+        const ex = await objData.key(exit);
+        if (string.match(format(parser.stripSubs(ex.name)))) {
+          return exit;
+        }
       }
+    } catch (error) {
+      log.error(error);
     }
 };
 
-module.exports.move = (socket, eObj) => {
-  const enactor = db.id(socket.id);
+module.exports.move = async (socket, eObj) => {
+  const enactor = await objData.key(socket._key);
   // Update the enactor's current location.
-  const curRoom = db.id(enactor.location);
+  const curRoom = await objData.key(enactor.location);
 
   // Remove the enactor from the current room's contents list.
   broadcast.sendList(
     socket,
     curRoom.contents,
-    `${enactor.name} has left.`,
+    `${enactor.moniker ? enactor.moniker : enactor.name} has left.`,
     "connected"
   );
-  curRoom.contents.splice(curRoom.contents.indexOf(enactor.id), 1);
-  db.update(curRoom.id, { contents: curRoom.contents });
+  curRoom.contents.splice(curRoom.contents.indexOf(enactor._key), 1);
+  objData.update(curRoom._key, { contents: curRoom.contents });
 
   // Add the enactor to the new location
-  const newRoom = db.id(db.id(eObj).to);
-  db.update(enactor.id, { location: newRoom.id });
-  db.update(newRoom.id, { contents: [...newRoom.contents, enactor.id] });
+
+  const tempExit = await objData.key(eObj);
+  const newRoom = await objData.key(tempExit.to);
+  await objData.update(enactor._key, { location: newRoom._key });
+  await objData.update(newRoom._key, {
+    contents: [...newRoom.contents, enactor._key]
+  });
+  emitter.emit("move", { socket, exit, newRoom });
   broadcast.sendList(
     socket,
     newRoom.contents,
-    `${enactor.name} has arrived.`,
+    `${enactor.moniker ? enactor.moniker : enactor.name} has arrived.`,
     "connected"
   );
-  db.save();
 };
