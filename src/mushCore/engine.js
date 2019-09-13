@@ -14,6 +14,8 @@ const channels = require("./channels");
 const { log, sha256 } = require("../utilities");
 const move = require("./movement");
 const moment = require("moment");
+const fs = require("fs");
+const path = require("path");
 const capstring = require("capstring");
 /**
  * new engine()
@@ -108,7 +110,7 @@ module.exports = class UrsaMu {
     await this.channels.init();
 
     try {
-      require("../commands")(this);
+      require("./commands")(this);
       this.log.success("Commands loaded.");
     } catch (error) {
       this.log.error(`Unable to load commands. Error: ${error}`);
@@ -307,5 +309,60 @@ module.exports = class UrsaMu {
       });
     };
     next(null, dataWrapper);
+  }
+
+  restart(en) {
+    this.broadcast.sendAll(
+      `%chGAME>>%cn Restart by ${
+        en.moniker ? en.moniker : en.name
+      }. Please Wait...`
+    );
+
+    this.config.save();
+    delete require.cache[require.resolve(`./commands`)];
+    delete require.cache[require.resolve(`../../text`)];
+    delete require.cache[require.resolve(`./parser`)];
+
+    // Delete references to individual functions and commands
+    let dir = fs.readdirSync(path.resolve(__dirname, "./functions/lib/"));
+    dir.forEach(file => {
+      delete require.cache[
+        require.resolve(path.resolve(__dirname, "./functions/lib/", file))
+      ];
+    });
+
+    dir = fs.readdirSync(path.resolve(__dirname, "./commands/lib/"));
+    dir.forEach(file => {
+      delete require.cache[
+        require.resolve(path.resolve(__dirname, "./commands/lib/", file))
+      ];
+    });
+
+    this.cmds = new Map();
+    this.txt = new Map();
+    this.parser = {};
+
+    try {
+      this.parser = require("./parser");
+      this.log.success("Parser loaded.");
+    } catch (error) {
+      this.log.error(`Unable to load parser. Error: ${error}`);
+    }
+
+    try {
+      require("./commands")(this);
+      this.log.success("Commands loaded.");
+    } catch (error) {
+      this.log.error(`Unable to load commands. Error: ${error}`);
+    }
+
+    try {
+      require("../../text")(this);
+      this.log.success("Text files loaded.");
+    } catch (error) {
+      this.log.error(`Unable to load text files. Error: ${error}`);
+    }
+
+    this.broadcast.sendAll("%chGAME>>%cn Restart complete.");
   }
 };

@@ -1,5 +1,4 @@
 const net = require("net");
-const config = require("../../Data/config.json");
 
 // I chose this library, because it handles the technical part
 // of working with telnet protocol bytes.  Interesting stuff
@@ -10,6 +9,7 @@ module.exports = mush => {
   // Create a TCP server
   const server = net.createServer(socket => {
     const tSocket = new TelnetSocket(socket);
+    tSocket.setEncoding("utf8");
     tSocket.type = "telnet";
 
     (async () => {
@@ -43,7 +43,8 @@ module.exports = mush => {
   });
 
   mush.log.success(
-    `Starting Telnet server on port ${config.connections.telnet || 3000}`
+    `Starting Telnet server on port ${mush.config.get("connections.telnet") ||
+      3000}`
   );
-  server.listen(config.connections.telnet || 3000);
+  server.listen(mush.config.get("connections.telnet") || 3000);
 };

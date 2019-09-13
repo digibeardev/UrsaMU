@@ -55,6 +55,12 @@ class Broadcast {
     });
   }
 
+  sendAll(message) {
+    for (const socket of queue.sockets) {
+      this.send(socket, message);
+    }
+  }
+
   /**
    * Send an error message to a socket
    * @param {*} socket - The socket the message is being sent to.

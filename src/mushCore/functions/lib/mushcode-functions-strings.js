@@ -178,4 +178,36 @@ module.exports = parser => {
     // Tack the last line onto the end! ^_^
     return "%s".repeat(indent) + output + line;
   });
+
+  parser.funs.set("cat", (args, scope) => {
+    let output = "";
+    for (const arg of args) {
+      output += parser.evaluate(arg, scope);
+    }
+    return output;
+  });
+
+  parser.funs.set("before", (args, scope) => {
+    if (args.length !== 2)
+      throw new SyntaxError("Before requires 2 arguments.");
+
+    const str = parser.evaluate(args[0], scope);
+    const split = parser.evaluate(args[1], scope);
+
+    return str.split(split.trim())[0];
+  });
+
+  parser.funs.set("after", (args, scope) => {
+    if (args.length !== 2)
+      throw new SyntaxError("Before requires 2 arguments.");
+
+    const str = parser.evaluate(args[0], scope);
+    const split = parser.evaluate(args[1], scope);
+
+    return str.split(split.trim())[1];
+  });
+
+  parser.funs.set("char", (args, scope) => {
+    return String.fromCodePoint(parseInt(parser.evaluate(args[0], scope)));
+  });
 };

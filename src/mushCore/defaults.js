@@ -81,3 +81,18 @@ module.exports.channels = [
     header: ""
   }
 ];
+
+module.exports.config = {
+  name: "UrsaMU",
+  connections: {
+    telnet: 2000,
+    ws: 3000
+  },
+  database: {
+    url: "http://127.0.0.1:8529/",
+    username: "root",
+    password: "",
+    database: "ursamu"
+  },
+  startingRoom: "1"
+};

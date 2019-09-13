@@ -6,7 +6,7 @@ class Parser {
     this.sub = new Map();
     this.funs = new Map();
     require("./substitutions")(this);
-    require("../functions")(this);
+    require("./functions")(this);
   }
 
   /**
@@ -27,7 +27,7 @@ class Parser {
     if ((match = /^[^(),]+/.exec(program))) {
       // We hit one of those special characters.  Everything
       // before it becomes a 'word' object.
-      expr = { type: "word", value: match[0].trim() };
+      expr = { type: "word", value: match[0] };
     } else {
       // If the character is something else throw an error.
       // Room for degubbing here later!

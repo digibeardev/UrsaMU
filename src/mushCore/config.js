@@ -1,6 +1,8 @@
 const fs = require("fs");
+const { resolve } = require("path");
 const { log } = require("../utilities");
-
+const { config } = require("./defaults");
+const { get, set } = require("lodash");
 class Config {
   constructor() {
     try {
@@ -8,42 +10,28 @@ class Config {
       log.success("Configuration file loaded.");
     } catch {
       log.warning("No config file found. Creating one.");
-      this.config = {
-        name: "UrsaMU",
-        connections: {
-          telnet: 2000,
-          ws: 3000
-        },
-        database: {
-          url: "http://127.0.0.1:8529/",
-          username: "root",
-          password: "",
-          database: "ursamu"
-        },
-        startingRoom: "1"
-      };
+      this.config = config;
       this.save();
       log.success("Configuration file made.", 2);
     }
   }
 
-  get(name) {
-    return this.config[name];
+  get(path) {
+    return get(this.config, path);
   }
 
-  set(settings) {
-    this.config = { ...this.config, ...settings };
-    return this.config;
+  set(path, setting) {
+    return set(this.config, path, setting);
   }
 
   save() {
     try {
       fs.writeFileSync(
-        "./data/config.json",
+        resolve(__dirname, "../../Data/config.json"),
         JSON.stringify(this.config, {}, 2)
       );
-    } catch {
-      log.error("Unable to save configuration file.");
+    } catch (error) {
+      log.error(error);
     }
   }
 }

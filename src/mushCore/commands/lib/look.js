@@ -1,5 +1,5 @@
 moment = require("moment");
-const { db } = require("../../mushCore/database");
+const { db } = require("../../database");
 
 module.exports = mush => {
   mush.cmds.set("look", {

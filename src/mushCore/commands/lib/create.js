@@ -1,6 +1,6 @@
 const shajs = require("sha.js");
-const config = require("../../../Data/config.json");
-const { db } = require("../../mushCore/database");
+const config = require("../../config");
+const { db } = require("../../database");
 module.exports = mush => {
   const create = async (socket, match) => {
     // Make sure the socket doesn't already have an ID (isn't already logged in)
@@ -13,7 +13,7 @@ module.exports = mush => {
           RETURN obj 
         `
       );
-      const room = await mush.db.key(config.startingRoom);
+      const room = await mush.db.key(config.get("startingRoom"));
 
       // extract the values we want from the args param.
       const [, name = " ", password = " "] = match;
@@ -32,7 +32,7 @@ module.exports = mush => {
         // Create the new entry into the database.
         const enactor = await mush.db.insert({
           name,
-          location: config.startingRoom,
+          location: config.get("startingRoom"),
           // Gotta secure them passwords! In the future we might want
           // to use something stronger than SHA256.  Ultimately I'd like
           // people to be able to log in with their google ID or Facebook

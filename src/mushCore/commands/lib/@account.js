@@ -1,5 +1,4 @@
-const acctsDB = require("../../mushCore/userAccts");
-const { db } = require("../../mushCore/database");
+const acctsDB = require("../../userAccts");
 
 module.exports = mush => {
   mush.cmds.set("@account", {

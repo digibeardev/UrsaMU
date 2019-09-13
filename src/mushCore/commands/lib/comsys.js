@@ -1,5 +1,5 @@
-const { chanData } = require("../../mushCore/channels");
-const { db } = require("../../mushCore/database");
+const { chanData } = require("../../channels");
+const { db } = require("../../database");
 const capstring = require("capstring");
 
 module.exports = mush => {
