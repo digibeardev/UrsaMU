@@ -322,6 +322,7 @@ module.exports = class UrsaMu {
     delete require.cache[require.resolve(`./commands`)];
     delete require.cache[require.resolve(`../../text`)];
     delete require.cache[require.resolve(`./parser`)];
+    delete require.cache[require.resolve(`./flags`)];
 
     // Delete references to individual functions and commands
     let dir = fs.readdirSync(path.resolve(__dirname, "./functions/lib/"));
@@ -347,6 +348,13 @@ module.exports = class UrsaMu {
       this.log.success("Parser loaded.");
     } catch (error) {
       this.log.error(`Unable to load parser. Error: ${error}`);
+    }
+
+    try {
+      this.flags = require("./flags");
+      this.log.success("Flags loaded.");
+    } catch (error) {
+      this.log.error(`Unable to load flags. Error: ${error}`);
     }
 
     try {

@@ -8,9 +8,9 @@ module.exports = mush => {
 
       try {
         const enactor = await mush.db.key(socket._key);
-        if (target === "me") {
+        if (target.trim() === "me") {
           target = enactor;
-        } else if (target === "here") {
+        } else if (target.trim() === "here") {
           target = await mush.db.key(enactor.location);
         } else {
           target = await mush.db.get(target);
@@ -48,13 +48,19 @@ module.exports = mush => {
           // and check to see if they have permission to set the flag.
           for (const flg of action.split(" ").filter(Boolean)) {
             flag = await mush.flags.exists(flg);
-
-            // If the enactor passes any restrictions on who can
-            // set what flag, add true to the stack else false...
-            if (await mush.flags.orFlags(enactor, flag.restricted)) {
-              results.push("true");
+            if (flag) {
+              // If the enactor passes any restrictions on who can
+              // set what flag, add true to the stack else false...
+              if (await mush.flags.orFlags(enactor, flag.restricted)) {
+                results.push("true");
+              } else {
+                results.push("false");
+              }
+              // The flag doesn't exist.  Send a message letting the
+              // enactor know.
             } else {
               results.push("false");
+              mush.broadcast.send(socket, `Flag '%ch${flg}%cn' doesn't exist.`);
             }
           }
 
@@ -62,8 +68,25 @@ module.exports = mush => {
           // enactor passed all of the flags locks, else if a false
           // is present the whole thing fails.
           if (results.indexOf("false") === -1) {
-            await mush.flags.set(target, action.toLowerCase());
-            mush.broadcast.send(socket, `Flag(s) set.`);
+            const flags = action
+              .toLowerCase()
+              .split(" ")
+              .filter(Boolean);
+            for (const flag of flags) {
+              let tempFlag;
+              await mush.flags.set(target, flag);
+              if (flag[0] === "!") {
+                tempFlag = flag.slice(1);
+              } else {
+                tempFlag = flag;
+              }
+              mush.broadcast.send(
+                socket,
+                `%chDone%cn Flag '%ch${tempFlag}%cn' ${
+                  flag[0] === "!" ? "removed." : "set."
+                }`
+              );
+            }
           } else {
             mush.broadcast.send(socket, "Permission denied.");
           }

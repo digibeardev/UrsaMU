@@ -116,19 +116,21 @@ class Flags {
     }
     const flagCursor = await db.query(`
       FOR f IN flags
-        FILTER f.name == "${flag.toLowerCase()}"
+        FILTER LOWER(f.name) == "${flag.toLowerCase()}"
         RETURN f
     `);
 
-    try {
-      let data = await flagCursor.all();
-      if (data.length > 0) {
-        return true;
-      } else {
-        return false;
+    if (flagCursor.hasNext()) {
+      try {
+        let data = await flagCursor.next();
+        if (data) {
+          return data;
+        } else {
+          return false;
+        }
+      } catch (error) {
+        log.error(error);
       }
-    } catch (error) {
-      log.error(error);
     }
   }
 
@@ -212,7 +214,10 @@ class Flags {
     });
 
     try {
-      const updated = await objData.update(obj._key, { flags: [...flagSet] });
+      obj.flags = [...flagSet];
+      const updated = await objData.update(obj._key, {
+        flags: obj.flags
+      });
       if (updated) {
         return updated;
       } else {
