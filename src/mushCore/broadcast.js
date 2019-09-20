@@ -2,7 +2,7 @@ const parser = require("./parser");
 const { db, objData } = require("./database");
 const queue = require("./queues");
 const flags = require("./flags");
-
+const { log } = require("../utilities");
 /**
  * new Broadcast()
  */
@@ -37,22 +37,22 @@ class Broadcast {
    * @param {String} message The message to be sent.
    * @param {string} [flgs = ""] Any flag restrictions the message has 'connected' for instance.
    */
-  sendList(socket, targets, message, flgs = "") {
-    targets.forEach(async target => {
-      if (
-        flags.hasFlags(await objData.key(target), flgs) &&
-        (queue.keyToSocket(target) &&
-          queue.keyToSocket(target)._socket.writable &&
-          target !== socket._key)
-      ) {
-        try {
+  async sendList(socket, targets, message, flgs = "") {
+    try {
+      for (const target of targets) {
+        if (
+          flags.hasFlags(await objData.key(target), flgs) &&
+          (queue.keyToSocket(target) &&
+            queue.keyToSocket(target)._socket.writable &&
+            target !== socket._key)
+        ) {
           const tSocket = queue.keyToSocket(target);
           this.send(tSocket, message);
-        } catch (error) {
-          throw error;
         }
       }
-    });
+    } catch (error) {
+      log.error(error);
+    }
   }
 
   sendAll(message) {

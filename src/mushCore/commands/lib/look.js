@@ -24,81 +24,81 @@ module.exports = mush => {
 
       // Format contents for display
       const contents = async (en, tar) => {
-        const playerCursor = await db.query(`
+        try {
+          const playerCursor = await db.query(`
           FOR obj in objects
             FILTER obj.type == "player" && obj.location == "${tar._key}"
             RETURN obj  
         `);
 
-        const objCursor = await db.query(`
+          const objCursor = await db.query(`
           FOR obj in objects
             FILTER obj.type == "thing" && obj.location == "${tar._key}"
             RETURN obj
         `);
 
-        let output = "";
+          let output = "";
 
-        if (en.location === tar._key) {
-          output =
-            "%cr---%cn[ljust(%ch%cr<<%cn %chCharacters %cr>>%cn,75,%cr-%cn)]" +
-            "[ljust(%r%ch%cuName%cn,25)][ljust(%ch%cuIdle%cn,15)]%cn %ch%cuShort-Desc%cn";
-          const players = await playerCursor.all();
-          for (const player of players) {
-            if (await mush.flags.hasFlags(player, "connected")) {
-              output += `%r${await mush.name(en, player)}`
-                .padEnd(26)
-                .substring(0, 26);
-              output += `${await idleTime(player)}`.padEnd(16);
-              output += `${
-                (await mush.attrs.get(
-                  await mush.db.key(player._key),
-                  "short-desc"
-                ))
-                  ? await mush.attrs.get(
-                      await mush.db.key(player._key),
-                      "short-desc"
-                    )
-                  : "%ch%cxType %cn&short-desc me=<desc>%ch%cx to set.%cn"
-              }`;
+          if (en.location === tar._key) {
+            output =
+              "%r%cr---%cn[ljust(%ch%cr<<%cn %chCharacters %cr>>%cn,75,%cr-%cn)]" +
+              "[ljust(%r%ch%cuName%cn,25)][ljust(%ch%cuIdle%cn,15)]%cn %ch%cuShort-Desc%cn";
+            const players = await playerCursor.all();
+            for (const player of players) {
+              if (await mush.flags.hasFlags(player, "connected")) {
+                output += `%r${await mush.name(en, player)}`
+                  .padEnd(26)
+                  .substring(0, 26);
+                output += `${await idleTime(player)}`.padEnd(16);
+                output += `${
+                  (await mush.attrs.get(
+                    await mush.db.key(player._key),
+                    "short-desc"
+                  ))
+                    ? await mush.attrs.get(
+                        await mush.db.key(player._key),
+                        "short-desc"
+                      )
+                    : "%ch%cxType %cn&short-desc me=<desc>%ch%cx to set.%cn"
+                }`;
+              }
+            }
+            if (objCursor.hasNext()) {
+              const objects = await objCursor.all();
+              output +=
+                "%r%cr---%cn[ljust(%ch%cr<<%cn %chObjects %cr>>%cn,75,%cr-%cn)]";
+              for (obj of objects) {
+                output += `%r${await mush.name(en, obj)}`;
+              }
+            }
+          } else {
+            output = tar.type === "player" ? "\nCarrying:" : "\nContents:";
+            for (const item of tar.contents) {
+              const itm = await mush.db.key(item);
+              output += `%r${await mush.name(en, itm)}`;
             }
           }
-          if (objCursor.hasNext()) {
-            output +=
-              "%r%cr---%cn[ljust(%ch%cr<<%cn %chObjects %cr>>%cn,75,%cr-%cn)]";
-            for (obj of objCursor) {
-              output += `%r${await mush.name(en, obj)}`;
-            }
-          }
-        } else {
-          output = tar.type === "player" ? "\nCarrying:" : "\nContents:";
-          tar.contents.forEach(async item => {
-            const tarCursor = await mush.db.key(item._key);
-            const tar = await tarCursor.next()(
-              (output += `%r${await mush.name(en, tar)}`)
-            );
-          });
+
+          return output;
+        } catch (error) {
+          mush.log.error(error);
         }
-
-        return output;
       };
 
       // Format exits for display.
       const exits = async (en, tar) => {
-        const exitCursor = await db.query(`
-          FOR obj IN objects
-            FILTER obj.type == "exit" && obj.location == "${tar._key}"
-            RETURN obj
-        `);
-
         let tars;
         const exits = [];
-        if (exitCursor.hasNext()) {
-          const exitList = await exitCursor.all();
-          for (exit of exitList) {
+
+        for (let exit of tar.exits) {
+          exit = await mush.db.key(exit);
+          if (exit.type == "exit") {
             exits.push(exit.name.split(";")[0].trim());
           }
-          let exitsList = exits.join("|");
+        }
+        const exitsList = exits.join("|");
 
+        if (exits.length > 0) {
           tars =
             `%r%cr---%cn[ljust(%ch%cr<<%cn %chExits %cr>>%cn,75,%cr-%cn)]%r` +
             `[columns(${exitsList},26,|)]`;
@@ -107,7 +107,7 @@ module.exports = mush => {
       };
 
       // Figure out enactor and target information.
-
+      // TODO Fix looking at other objects.
       let enactor = await mush.db.key(socket._key);
       let target = await mush.db.get(match[1]);
 
@@ -135,7 +135,8 @@ module.exports = mush => {
           let desc = "";
           // Send the built description to the enactor.
           desc += (await mush.name(enactor, target)) + "\n";
-          desc += "%r%t" + (await description(enactor, target)) + "%r%r";
+          desc += "%r" + (await description(enactor, target)) + "%r";
+
           if (target.contents.length > 0) {
             desc += await contents(enactor, target);
           }

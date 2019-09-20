@@ -17,6 +17,7 @@ const moment = require("moment");
 const fs = require("fs");
 const path = require("path");
 const capstring = require("capstring");
+
 /**
  * new engine()
  */
@@ -154,6 +155,18 @@ module.exports = class UrsaMu {
       } catch (error) {
         this.log.error(error);
       }
+    });
+
+    this.emitter.on("close", async socket => {
+      for (const sock of this.queues.sockets) {
+        if (sock._key === socket._key) {
+          this.queues.sockets.delete(socket);
+          socket.timestamp = 0;
+        }
+      }
+      const target = await this.db.key(socket._key);
+      target.flags = target.flags.splice(target.flags.indexOf("connected"), 1);
+      await this.db.update(target._key, target.flags);
     });
 
     this.emitter.on("disconnected", async socket => {
@@ -323,6 +336,7 @@ module.exports = class UrsaMu {
     delete require.cache[require.resolve(`../../text`)];
     delete require.cache[require.resolve(`./parser`)];
     delete require.cache[require.resolve(`./flags`)];
+    delete require.cache[require.resolve(`./broadcast`)];
 
     // Delete references to individual functions and commands
     let dir = fs.readdirSync(path.resolve(__dirname, "./functions/lib/"));
@@ -369,6 +383,13 @@ module.exports = class UrsaMu {
       this.log.success("Text files loaded.");
     } catch (error) {
       this.log.error(`Unable to load text files. Error: ${error}`);
+    }
+
+    try {
+      this.broadcast = require("./broadcast");
+      this.log.success("broadcast system loaded.");
+    } catch (error) {
+      this.log.error(`Unable to load broadcast system. Error: ${error}`);
     }
 
     this.broadcast.sendAll("%chGAME>>%cn Restart complete.");

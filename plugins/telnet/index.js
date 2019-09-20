@@ -40,11 +40,13 @@ module.exports = mush => {
     });
 
     tSocket.on("close", tSocket => mush.emitter.emit("close", tSocket));
+    tSocket.on("exit", tSocket => mush.emitter.emit("close", tSocket));
   });
 
-  mush.log.success(
-    `Starting Telnet server on port ${mush.config.get("connections.telnet") ||
-      3000}`
-  );
-  server.listen(mush.config.get("connections.telnet") || 3000);
+  server.listen(mush.config.get("connections.telnet") || 3000, () => {
+    mush.log.success(
+      `Starting Telnet server on port ${mush.config.get("connections.telnet") ||
+        3000}`
+    );
+  });
 };
