@@ -101,7 +101,6 @@ module.exports = mush => {
           }
         }
         // send an event about the action.
-        mush.emitter.emit(singular, { target, obj, enactor });
       } else {
         if (singular === "give") {
           mush.broadcast.send(socket, `${err[0]}`);

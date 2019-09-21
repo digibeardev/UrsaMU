@@ -22,6 +22,7 @@ module.exports = async (dataWrapper, next) => {
       try {
         run(socket, match, mush.scope);
         dataWrapper.ran = true;
+        mush.emitter.emit("command", match);
         next(null, dataWrapper);
       } catch (error) {
         next(error);

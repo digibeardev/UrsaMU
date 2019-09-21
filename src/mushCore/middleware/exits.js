@@ -15,6 +15,7 @@ module.exports = async (dataWrapper, next) => {
       dataWrapper.ran = true;
       await move(socket, exit);
       game.exe(socket, "look", []);
+      game.emitter.emit("move", enactor, exit);
       next(null, dataWrapper);
     }
   } catch (error) {

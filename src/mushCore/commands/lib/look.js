@@ -110,6 +110,7 @@ module.exports = mush => {
       // TODO Fix looking at other objects.
       let enactor = await mush.db.key(socket._key);
       let target = await mush.db.get(match[1]);
+      let curRoom = await mush.db.key(enactor.location);
 
       if (!match[1]) {
         target = await mush.db.key(enactor.location);
@@ -124,11 +125,16 @@ module.exports = mush => {
         target = await mush.db.key(enactor.location);
       } else if (!match[1]) {
         target = await mush.db.key(enactor.location);
+      } else if (
+        (target[0] && target[0].location === enactor._key) ||
+        (target[0] && target[0].location === curRoom._key)
+      ) {
+        target = target[0];
       }
 
       // If target doesn't have a value at this point, the object probably
       // doesn't exist.
-      if (!target) {
+      if (!target || target.length <= 0) {
         mush.broadcast.send(socket, "I can't find that here.");
       } else {
         (async () => {
