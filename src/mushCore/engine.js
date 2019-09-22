@@ -137,7 +137,7 @@ module.exports = class UrsaMu {
     this.emitter.emit("loaded");
 
     // Check for server events!
-    this.emitter.on("move", ({ socket, exit, room }) => {
+    this.emitter.on("move", ({ socket }) => {
       this.exe(socket, "look", []);
     });
 

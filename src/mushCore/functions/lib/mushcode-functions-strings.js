@@ -206,8 +206,4 @@ module.exports = parser => {
 
     return str.split(split.trim())[1];
   });
-
-  parser.funs.set("char", (args, scope) => {
-    return String.fromCodePoint(parseInt(parser.evaluate(args[0], scope)));
-  });
 };

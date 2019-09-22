@@ -107,7 +107,6 @@ module.exports = mush => {
       };
 
       // Figure out enactor and target information.
-      // TODO Fix looking at other objects.
       let enactor = await mush.db.key(socket._key);
       let target = await mush.db.get(match[1]);
       let curRoom = await mush.db.key(enactor.location);

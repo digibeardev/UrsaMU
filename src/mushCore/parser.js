@@ -29,13 +29,11 @@ class Parser {
       // before it becomes a 'word' object.
       expr = { type: "word", value: match[0] };
     } else {
-      // If the character is something else throw an error.
-      // Room for degubbing here later!
-      throw new SyntaxError(`Unexpected Syntax: ${program}`);
+      expr = { type: "word", value: " " };
     }
     // Now we test the rest of the string to see if it's a
     // function or a variable.
-    return this.parseApply(expr, program.slice(match[0].length));
+    return this.parseApply(expr, program.slice(match ? match[0].length : 0));
   }
 
   /**
@@ -159,7 +157,7 @@ class Parser {
    */
 
   run(string, scope) {
-    const replaced = string.replace(/\[([^\]]+)\]/g, (...args) => {
+    const replaced = string.trim().replace(/\[([^\]]+)\]/g, (...args) => {
       try {
         return this.subs(this.evaluate(this.parse(args[1]), scope));
       } catch (error) {
