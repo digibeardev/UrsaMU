@@ -39,6 +39,7 @@
     "clear-module": "^3.2.0",
     "dotenv": "^8.0.0",
     "lodash": "^4.17.15",
+    "micromatch": "^4.0.2",
     "moment": "^2.24.0",
     "node-fetch": "^2.6.0",
     "sha.js": "^2.4.11",

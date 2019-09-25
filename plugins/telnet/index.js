@@ -39,8 +39,8 @@ module.exports = mush => {
       });
     });
 
-    tSocket.on("close", tSocket => mush.emitter.emit("close", tSocket));
-    tSocket.on("exit", tSocket => mush.emitter.emit("close", tSocket));
+    tSocket.on("close", error => mush.emitter.emit("close", error));
+    tSocket.on("exit", error => mush.emitter.emit("close", error));
   });
 
   server.listen(mush.config.get("connections.telnet") || 3000, () => {

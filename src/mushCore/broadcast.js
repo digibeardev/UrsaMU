@@ -104,7 +104,7 @@ class Broadcast {
         );
       }
     } else {
-      this.send();
+      this.send(enSocket, "No one to message.");
     }
   }
 

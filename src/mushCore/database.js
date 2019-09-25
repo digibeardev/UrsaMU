@@ -1,11 +1,15 @@
 const { log } = require("../utilities");
-const config = require("../../Data/config.json");
+const config = require("./config");
 const { Database } = require("arangojs");
 const moment = require("moment");
 
-const db = new Database(config.database.url);
-db.useDatabase(config.database.database);
-db.useBasicAuth(config.database.username, config.database.password);
+const db = new Database(config.get("database.url"));
+
+db.useDatabase(config.get("database.database"));
+db.useBasicAuth(
+  config.get("database.username"),
+  config.get("database.password")
+);
 const DBObj = db.collection("objects");
 
 class ObjData {
@@ -84,6 +88,7 @@ class ObjData {
     record.contents = [];
     record.channels = [];
     record.exits = [];
+    record.locks = {};
     record.location = record.location;
     record.to = record.to || "";
     record.from = record.from || "";

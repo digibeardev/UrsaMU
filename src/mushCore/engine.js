@@ -17,6 +17,7 @@ const moment = require("moment");
 const fs = require("fs");
 const path = require("path");
 const capstring = require("capstring");
+const lock = require("./lock");
 
 /**
  * new engine()
@@ -25,6 +26,7 @@ module.exports = class UrsaMu {
   constructor(options = {}) {
     const { plugins } = options;
     this.attrs = attrs;
+    this.lock = lock;
     this.moment = moment;
     this.move = move;
     this.accounts = useraccts;
@@ -145,7 +147,7 @@ module.exports = class UrsaMu {
       try {
         const enactor = await this.db.key(socket._key);
         const curRoom = await this.db.key(enactor.location);
-
+        this.flags.set(enactor, "connected");
         this.broadcast.sendList(
           socket,
           curRoom.contents,
@@ -157,20 +159,21 @@ module.exports = class UrsaMu {
       }
     });
 
-    this.emitter.on("close", async socket => {
-      for (const sock of this.queues.sockets) {
-        if (sock._key === socket._key) {
-          this.queues.sockets.delete(socket);
-          socket.timestamp = 0;
+    this.emitter.on("close", async error => {
+      if (error) {
+        for (const sock of this.queues.sockets) {
+          if (!sock._socket.writable) {
+            const target = await this.db.key(sock._key);
+            this.flags.set(target, "!connected");
+            this.queues.sockets.delete(sock);
+          }
         }
       }
-      const target = await this.db.key(socket._key);
-      target.flags = target.flags.splice(target.flags.indexOf("connected"), 1);
-      await this.db.update(target._key, target.flags);
     });
 
     this.emitter.on("disconnected", async socket => {
       const enactor = await this.db.key(socket._key);
+      this.flags.set(enactor, "!connected");
       const curRoom = await this.db.key(enactor.location);
       this.broadcast.sendList(
         socket,
