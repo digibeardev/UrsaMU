@@ -22,4 +22,22 @@ module.exports = parser => {
       return "";
     }
   });
+
+  parser.funs.set("iter", (args, scope) => {
+    const list = parser.evaluate(args[0], scope);
+    const idelim = args[2] ? parser.evaluate(args[2], scope) : " ";
+    const odelim = args[3] ? parser.evaluate(args[3], scope) : " ";
+
+    let output = "";
+    for (const item of list.split(idelim)) {
+      scope["##"] = item;
+      scope["@#"] = list
+        .split(idelim)
+        .indexOf(item)
+        .toString();
+
+      output += parser.evaluate(args[1], scope) + odelim;
+    }
+    return output;
+  });
 };

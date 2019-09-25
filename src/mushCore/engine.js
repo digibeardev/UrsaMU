@@ -17,7 +17,7 @@ const moment = require("moment");
 const fs = require("fs");
 const path = require("path");
 const capstring = require("capstring");
-const lock = require("./lock");
+const locks = require("./locks");
 
 /**
  * new engine()
@@ -26,7 +26,7 @@ module.exports = class UrsaMu {
   constructor(options = {}) {
     const { plugins } = options;
     this.attrs = attrs;
-    this.lock = lock;
+    this.locks = locks;
     this.moment = moment;
     this.move = move;
     this.accounts = useraccts;
@@ -340,6 +340,7 @@ module.exports = class UrsaMu {
     delete require.cache[require.resolve(`./parser`)];
     delete require.cache[require.resolve(`./flags`)];
     delete require.cache[require.resolve(`./broadcast`)];
+    delete require.cache[require.resolve(`./locks`)];
 
     // Delete references to individual functions and commands
     let dir = fs.readdirSync(path.resolve(__dirname, "./functions/lib/"));
@@ -393,6 +394,13 @@ module.exports = class UrsaMu {
       this.log.success("broadcast system loaded.");
     } catch (error) {
       this.log.error(`Unable to load broadcast system. Error: ${error}`);
+    }
+
+    try {
+      this.locks = require("./locks");
+      this.log.success("Locks loaded.");
+    } catch (error) {
+      this.log.error(`Unable to load locks. Error: ${error}`);
     }
 
     this.broadcast.sendAll("%chGAME>>%cn Restart complete.");

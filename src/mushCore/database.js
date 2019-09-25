@@ -88,7 +88,7 @@ class ObjData {
     record.contents = [];
     record.channels = [];
     record.exits = [];
-    record.locks = {};
+    record.locks = [];
     record.location = record.location;
     record.to = record.to || "";
     record.from = record.from || "";

@@ -1,7 +1,6 @@
 const { objData } = require("./database");
-const { canEdit } = require("./flags");
-const { keyToSocket } = require("./queues");
-const { send } = require("./broadcast");
+const flags = require("./flags");
+const queues = require("./queues");
 const attrs = require("./attributes");
 const micromatch = require("micromatch");
 
@@ -39,45 +38,56 @@ class Locks {
     return this.locks.values();
   }
 
-  async lock({ enactor, target, lock = "default", key }) {
-    const socket = keyToSocket(enactor._key);
+  async lock({ en, tar, lock = "default", key }) {
+    let err;
 
     if (this.locks.has(lock)) {
-      if (await canEdit(enactor, target)) {
+      if (await flags.canEdit(en, tar)) {
         // Has permission to edit the object.
-        target.locks[lock] = key;
-        return await objData.update(target._key, { locks: target.locks });
+        tar.locks.push({ lock, key });
+        await objData.update(tar._key, { locks: tar.locks });
+        tar = await objData.key(tar._key);
       } else {
-        if (socket) {
-          send(socket, "Permission denied.");
-        }
+        err = "Permission denied.";
       }
     } else {
-      send(socket, "I don't recognize that lock.");
+      err = "I don't recognize that lock.";
     }
+
+    return { err, tar };
   }
 
-  async unlock({ enactor, target, lock }) {
-    const socket = keyToSocket(enactor._key);
+  async unlock({ en, tar, lock }) {
+    let err, found;
     if (this.locks.has(lock.toLowerCase())) {
-      if (await canEdit(enactor, target)) {
+      if (await flags.canEdit(en, tar)) {
         // Has permission to edit
-        delete target.locks[lock];
-        return await objData.update(target._key, { locks: target.locks });
+        for (const loc of tar.locks) {
+          if (loc.lock === lock) {
+            found = loc;
+          }
+        }
+
+        tar.locks.splice(tar.locks.indexOf(found), 1);
+        await objData.update(tar._key, { locks: tar.locks });
+        tar = await objData.key(tar._key);
       } else {
-        send(socket, "Permission denied.");
+        err = "Permission denied.";
       }
     } else {
-      if (socket) {
-        send(socket, "I don't understand that lock.");
-      }
+      err = "I don't understand that lock.";
     }
+    return { err, tar };
   }
 
   async check(en, tar, lock = "default") {
-    const socket = keyToSocket(en._key);
-    if (canEdit(en, tar)) {
-      const key = tar.locks[lock];
+    let key;
+    if (flags.canEdit(en, tar)) {
+      for (const loc of tar.locks) {
+        if (loc.lock === lock) {
+          key = loc.key;
+        }
+      }
 
       // Get the key
       let keyValue, match, type;

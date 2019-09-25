@@ -43,4 +43,14 @@ module.exports = parser => {
       throw new SyntaxError("abs expects an interger");
     }
   });
+
+  parser.funs.set("mul", (args, scope) => {
+    if (args.length < 2 || args.length > 2) {
+      throw new SyntaxError("mul requires 2 arguments");
+    }
+
+    const num1 = parseInt(parser.evaluate(args[0], scope));
+    const num2 = parseInt(parser.evaluate(args[1], scope));
+    return (num1 * num2).toString();
+  });
 };

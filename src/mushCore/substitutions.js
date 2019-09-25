@@ -1,5 +1,5 @@
 module.exports = parser => {
-  parser.sub.set(/%s/g, "\xa0");
+  parser.sub.set(/%b/g, " ");
   parser.sub.set(/%r/g, "\n");
   parser.sub.set(/%t/g, "\t");
 

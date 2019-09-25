@@ -27,7 +27,7 @@ class Parser {
     if ((match = /^[^(),]+/.exec(program))) {
       // We hit one of those special characters.  Everything
       // before it becomes a 'word' object.
-      expr = { type: "word", value: match[0] };
+      expr = { type: "word", value: match[0].trim() };
     } else {
       expr = { type: "word", value: " " };
     }
@@ -100,11 +100,12 @@ class Parser {
       } else {
         // scope variables may be imbedded in longer strings, we'll have
         // to use regular expressions to make sure they're changed.
+        let output = "";
         for (const key in scope) {
-          expr.value = expr.value.replace(key, scope[key]);
+          output = expr.value.replace(key, scope[key]);
         }
 
-        return expr.value;
+        return output ? output : expr.value;
       }
 
       // If the expression type is 'apply', check to see if a function
