@@ -1,4 +1,4 @@
-const { log } = require("../utilities");
+const { log } = require("../../utilities");
 const { readdirSync, readFileSync } = require("fs");
 const { resolve } = require("path");
 class Help {
@@ -35,7 +35,7 @@ class Help {
         }
       );
 
-    walkDir(resolve(__dirname, "../../helpdocs"));
+    walkDir(resolve(__dirname, "../../../helpdocs"));
   }
 
   get(help) {

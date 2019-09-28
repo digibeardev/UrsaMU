@@ -1,7 +1,7 @@
-const { objData } = require("./database");
+const { objData } = require("../database");
 const broadcast = require("./broadcast");
 const parser = require("./parser");
-const { log } = require("../utilities");
+const { log } = require("../../utilities");
 const emitter = require("./emitter");
 module.exports.matchExit = async (obj, string) => {
   // Utility function to format my exits into regular expressions.

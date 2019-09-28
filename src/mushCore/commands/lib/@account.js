@@ -1,4 +1,4 @@
-const acctsDB = require("../../userAccts");
+const acctsDB = require("../../api/userAccts");
 
 module.exports = mush => {
   mush.cmds.set("@account", {

@@ -1,7 +1,7 @@
-const { matchExit, move } = require("../movement");
+const { matchExit, move } = require("../api/movement");
 const { log } = require("../../utilities");
 const { objData } = require("../database");
-const emitter = require("../emitter");
+const emitter = require("../api/emitter");
 module.exports = async (dataWrapper, next) => {
   const { input, socket, game } = dataWrapper;
   try {

@@ -1,12 +1,12 @@
 const fs = require("fs");
 const { resolve } = require("path");
-const { log } = require("../utilities");
+const { log } = require("../../utilities");
 const { config } = require("./defaults");
 const { get, set } = require("lodash");
 class Config {
   constructor() {
     try {
-      this.config = require("../../Data/config.json");
+      this.config = require("../../../Data/config.json");
       log.success("Configuration file loaded.");
     } catch {
       log.warning("No config file found. Creating one.");
@@ -27,7 +27,7 @@ class Config {
   save() {
     try {
       fs.writeFileSync(
-        resolve(__dirname, "../../Data/config.json"),
+        resolve(__dirname, "../../../Data/config.json"),
         JSON.stringify(this.config, {}, 2)
       );
     } catch (error) {

@@ -1,5 +1,5 @@
 const { log } = require("../utilities");
-const config = require("./config");
+const config = require("./api/config");
 const { Database } = require("arangojs");
 const moment = require("moment");
 

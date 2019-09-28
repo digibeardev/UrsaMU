@@ -1,4 +1,4 @@
-const { chanData } = require("../../channels");
+const { chanData } = require("../../api/channels");
 const { db } = require("../../database");
 const capstring = require("capstring");
 

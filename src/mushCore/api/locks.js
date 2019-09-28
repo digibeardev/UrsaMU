@@ -1,7 +1,7 @@
-const { objData } = require("./database");
+const { objData } = require("../database");
 const flags = require("./flags");
 const queues = require("./queues");
-const attrs = require("./attributes");
+const attrs = require("./attrs");
 const micromatch = require("micromatch");
 
 class Locks {

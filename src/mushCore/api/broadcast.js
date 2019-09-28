@@ -1,8 +1,8 @@
 const parser = require("./parser");
-const { db, objData } = require("./database");
+const { db, objData } = require("../database");
 const queue = require("./queues");
 const flags = require("./flags");
-const { log } = require("../utilities");
+const { log } = require("../../utilities");
 const { difference } = require("lodash");
 /**
  * new Broadcast()

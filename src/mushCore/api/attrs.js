@@ -1,4 +1,4 @@
-const { objData } = require("./database");
+const { objData } = require("../database");
 
 /**
  * new Attributes()

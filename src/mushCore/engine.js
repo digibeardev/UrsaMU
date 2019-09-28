@@ -1,24 +1,10 @@
-const parser = require("./parser");
-const emitter = require("./emitter");
-const broadcast = require("./broadcast");
 const { db, objData } = require("./database");
-const flags = require("./flags");
-const config = require("./config");
-const queue = require("./queues");
 const { VM } = require("vm2");
-const help = require("./helpsys");
-const grid = require("./grid");
-const attrs = require("./attributes");
-const useraccts = require("./userAccts");
-const channels = require("./channels");
 const { log, sha256 } = require("../utilities");
-const move = require("./movement");
 const moment = require("moment");
 const fs = require("fs");
 const path = require("path");
 const capstring = require("capstring");
-const locks = require("./locks");
-const stats = require("./stats");
 
 /**
  * new engine()
@@ -26,40 +12,51 @@ const stats = require("./stats");
 module.exports = class UrsaMu {
   constructor(options = {}) {
     const { plugins } = options;
-    this.attrs = attrs;
-    this.locks = locks;
-    this.stats = stats;
     this.moment = moment;
-    this.move = move;
-    this.accounts = useraccts;
-    this.help = help;
-    this.capstr = capstring;
-    this.grid = grid;
-    this.parser = parser;
-    this.broadcast = broadcast;
-    this.emitter = emitter;
+    this.capstring = capstring;
     this.cmds = new Map();
     this.txt = new Map();
+    this.api = new Map();
+    this.systems = new Map();
     this.scope = {};
     this.log = log;
     this.db = objData;
-    this.flags = flags;
-    this.queues = queue;
-    this.config = config;
     this.plugins = plugins;
     this.VM = VM;
     this.sha256 = sha256;
-    this.channels = channels;
     this._stack = [];
     this.query = db;
 
-    // Install base middleware.
-    this.use(require("./middleware/comsys"));
-    this.use(require("./middleware/cmds"));
-    this.use(require("./middleware/exits"));
-
     // Start the boot-up
     this.init();
+  }
+
+  loadSystems(paths) {
+    paths.forEach(path => {
+      try {
+        require(path)(this);
+        const parts = path.split("/");
+        this.systems.set(parts.pop(), path);
+        this.log.success(`System: '${path}' loaded.`);
+      } catch (error) {
+        this.log.error(`Unable to load '${path}' Error: ${error.stack}`);
+      }
+    });
+  }
+
+  loadApi() {
+    const dir = fs.readdirSync(path.resolve(__dirname, "./api/"));
+    dir.forEach(file => {
+      try {
+        const mod = require(path.resolve(__dirname, "./api/", file));
+        const parts = file.split(".");
+        this[parts[0]] = mod;
+        this.api.set(parts[0], { mod, file });
+        log.success(`API loaded: ${parts[0]}`);
+      } catch (error) {
+        log.error(error);
+      }
+    });
   }
 
   /**
@@ -67,6 +64,15 @@ module.exports = class UrsaMu {
    * the MUSH
    */
   async init() {
+    this.loadApi();
+    this.middleware();
+    this.loadSystems([
+      "./commands",
+      "../../text",
+      "./systems/gameTimers",
+      "./systems/events"
+    ]);
+
     // If there isn't a grid set, UrsaMU will generate a starting
     // room and update the config settings to start all new players
     // there.  This starting room can be changed maually later.
@@ -111,111 +117,12 @@ module.exports = class UrsaMu {
       }
     }
 
-    this.flags.init();
-    await this.channels.init();
-
-    try {
-      require("./commands")(this);
-      this.log.success("Commands loaded.");
-    } catch (error) {
-      this.log.error(`Unable to load commands. Error: ${error}`);
-    }
-
-    try {
-      require("./stats");
-      this.log.success("Stats loaded.");
-    } catch (error) {
-      this.log.error(error);
-    }
-
-    try {
-      require("../../text")(this);
-      this.log.success("Text files loaded.");
-    } catch (error) {
-      this.log.error(`Unable to load text files. Error: ${error}`);
-    }
-
-    require("./gameTimers")(this);
-
-    // Remove the connected flag from player objects incase the database didn't
-    // shutdown cleanly.
-
     // Run plugins if present.
     if (this.plugins) {
       this.plugin(this.plugins);
     }
 
     this.emitter.emit("loaded");
-
-    // Check for server events!
-    this.emitter.on("move", ({ socket }) => {
-      this.exe(socket, "look", []);
-    });
-
-    this.emitter.on("connected", async socket => {
-      try {
-        const enactor = await this.db.key(socket._key);
-        const curRoom = await this.db.key(enactor.location);
-        this.flags.set(enactor, "connected");
-        this.broadcast.sendList(
-          socket,
-          curRoom.contents,
-          `${enactor.name} has connected.`,
-          "connected"
-        );
-      } catch (error) {
-        this.log.error(error);
-      }
-    });
-
-    this.emitter.on("close", async error => {
-      if (error) {
-        for (const sock of this.queues.sockets) {
-          if (!sock._socket.writable) {
-            const target = await this.db.key(sock._key);
-            this.flags.set(target, "!connected");
-            this.queues.sockets.delete(sock);
-          }
-        }
-      }
-    });
-
-    this.emitter.on("disconnected", async socket => {
-      const enactor = await this.db.key(socket._key);
-      this.flags.set(enactor, "!connected");
-      const curRoom = await this.db.key(enactor.location);
-      this.broadcast.sendList(
-        socket,
-        curRoom.contents,
-        `${enactor.name} has disconnected.`,
-        "connected"
-      );
-    });
-
-    this.emitter.on("channel", (chan, msg) => {
-      this.queues.sockets.forEach(async socket => {
-        const target = await this.db.key(socket._key);
-
-        // loop through each channel, and see if there's a match.
-        for (const channel of target.channels) {
-          if (channel.name == chan.name && channel.status) {
-            let header = "";
-            header += chan.header
-              ? chan.header
-              : `%ch<${capstring(chan.name, "title")}>%cn`;
-
-            try {
-              msg = this.parser.run(msg);
-              this.broadcast.send(socket, `${header} ${channel.title}${msg}`, {
-                parse: false
-              });
-            } catch (error) {
-              log.error(error);
-            }
-          }
-        }
-      });
-    });
   }
 
   /**
@@ -236,8 +143,18 @@ module.exports = class UrsaMu {
    * Add a middleware to deal with user input streams.
    * @param  {String|Function} args
    */
-  use(middleware) {
-    this._stack.push(middleware);
+  middleware() {
+    const dir = fs.readdirSync(path.resolve(__dirname, "./middleware/"));
+    dir.forEach(file => {
+      try {
+        const mod = require(path.resolve(__dirname, "./middleware/", file));
+        const parts = file.split(".");
+        this._stack.push(mod);
+        log.success(`Middleware loaded: ${parts[0]}`);
+      } catch (error) {
+        log.error(error);
+      }
+    });
   }
 
   // Check for plugins
@@ -372,7 +289,7 @@ module.exports = class UrsaMu {
     this.parser = {};
 
     try {
-      this.parser = require("./parser");
+      this.parser = require("./api/parser");
       this.log.success("Parser loaded.");
     } catch (error) {
       this.log.error(`Unable to load parser. Error: ${error}`);
@@ -386,7 +303,7 @@ module.exports = class UrsaMu {
     }
 
     try {
-      this.flags = require("./flags");
+      this.flags = require("./api/flags");
       this.log.success("Flags loaded.");
     } catch (error) {
       this.log.error(`Unable to load flags. Error: ${error}`);
@@ -407,14 +324,14 @@ module.exports = class UrsaMu {
     }
 
     try {
-      this.broadcast = require("./broadcast");
+      this.broadcast = require("./api/broadcast");
       this.log.success("broadcast system loaded.");
     } catch (error) {
       this.log.error(`Unable to load broadcast system. Error: ${error}`);
     }
 
     try {
-      this.locks = require("./locks");
+      this.locks = require("./api/locks");
       this.log.success("Locks loaded.");
     } catch (error) {
       this.log.error(`Unable to load locks. Error: ${error}`);

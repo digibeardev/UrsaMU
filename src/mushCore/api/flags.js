@@ -1,7 +1,6 @@
 const fs = require("fs");
-const path = require("path");
-const { objData, db } = require("./database");
-const { log } = require("../utilities");
+const { objData, db } = require("../database");
+const { log } = require("../../utilities");
 const flagsList = require("./defaults").flags;
 
 const flagData = db.collection("flags");

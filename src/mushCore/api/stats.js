@@ -1,7 +1,6 @@
 const { get, set, defaults, has } = require("lodash");
-const queues = require("./queues");
-const { objData, db } = require("./database");
-const { log } = require("../utilities");
+const { objData, db } = require("../database");
+const { log } = require("../../utilities");
 const shortid = require("shortid");
 
 class Stats {

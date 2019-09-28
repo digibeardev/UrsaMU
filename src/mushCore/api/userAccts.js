@@ -1,5 +1,5 @@
-const { db } = require("./database");
-const { log, sha256 } = require("../utilities");
+const { db } = require("../database");
+const { log, sha256 } = require("../../utilities");
 const acctsDB = db.collection("accounts");
 
 class UserAccts {

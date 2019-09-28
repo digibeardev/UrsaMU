@@ -1,5 +1,5 @@
 const shajs = require("sha.js");
-const config = require("../../config");
+const config = require("../../api/config");
 const { db } = require("../../database");
 module.exports = mush => {
   const create = async (socket, match) => {

@@ -1,5 +1,5 @@
-const { db } = require("./database");
-const { log } = require("../utilities");
+const { db } = require("../database");
+const { log } = require("../../utilities");
 const emitter = require("./emitter");
 const { channels } = require("./defaults");
 
