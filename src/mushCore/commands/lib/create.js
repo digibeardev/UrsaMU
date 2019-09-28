@@ -52,6 +52,8 @@ module.exports = mush => {
         // give them a boxed new player welcome.
         mush.broadcast.send(socket, mush.txt.get("newconnect.txt") + "\r\n");
         socket._key = enactor._key;
+        socket.stats = {};
+        socket.name = enactor.name;
         socket.timestamp = new Date().getTime() / 1000;
         mush.queues.sockets.add(socket);
         mush.exe(socket, "look", []);
@@ -87,6 +89,6 @@ module.exports = mush => {
   // system.
   mush.cmds.set("create", {
     pattern: /^create\s+(.+)\s+(.+)/i,
-    run: (socket, match, scope) => create(socket, match)
+    run: (socket, match) => create(socket, match)
   });
 };

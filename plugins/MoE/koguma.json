@@ -1,0 +1,6 @@
+{
+  "Name": "Memories of Eternity Stat System",
+  "Authors": ["Kumakun, Seamus"],
+  "entryPoint": "./index.js",
+  "collections": ["stats"]
+}

@@ -18,6 +18,7 @@ const fs = require("fs");
 const path = require("path");
 const capstring = require("capstring");
 const locks = require("./locks");
+const stats = require("./stats");
 
 /**
  * new engine()
@@ -27,6 +28,7 @@ module.exports = class UrsaMu {
     const { plugins } = options;
     this.attrs = attrs;
     this.locks = locks;
+    this.stats = stats;
     this.moment = moment;
     this.move = move;
     this.accounts = useraccts;
@@ -117,6 +119,13 @@ module.exports = class UrsaMu {
       this.log.success("Commands loaded.");
     } catch (error) {
       this.log.error(`Unable to load commands. Error: ${error}`);
+    }
+
+    try {
+      require("./stats");
+      this.log.success("Stats loaded.");
+    } catch (error) {
+      this.log.error(error);
     }
 
     try {
@@ -341,6 +350,7 @@ module.exports = class UrsaMu {
     delete require.cache[require.resolve(`./flags`)];
     delete require.cache[require.resolve(`./broadcast`)];
     delete require.cache[require.resolve(`./locks`)];
+    delete require.cache[require.resolve(`./stats`)];
 
     // Delete references to individual functions and commands
     let dir = fs.readdirSync(path.resolve(__dirname, "./functions/lib/"));
@@ -366,6 +376,13 @@ module.exports = class UrsaMu {
       this.log.success("Parser loaded.");
     } catch (error) {
       this.log.error(`Unable to load parser. Error: ${error}`);
+    }
+
+    try {
+      this.stats = require("./stats");
+      this.log.success("Stats loaded.");
+    } catch (error) {
+      console.log(error);
     }
 
     try {

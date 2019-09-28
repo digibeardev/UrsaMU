@@ -149,30 +149,24 @@ module.exports = parser => {
     if (args.length < 2) {
       return SyntaxError("columns expects 2 arguments");
     }
-    let indent, delim;
     const list = parser.evaluate(args[0], scope);
-    const width = parseInt(parser.evaluate(args[1], scope));
-    if (args[2]) {
-      delim = parser.evaluate(args[2], scope);
-    } else {
-      delim = " ";
-    }
-
-    if (args[3]) {
-      indent = parseInt(parser.evaluate(args[3], scope));
-    } else {
-      indent = 0;
-    }
+    const cols = parseInt(parser.evaluate(args[1], scope)) || 1;
+    const delim = args[2] ? parser.evaluate(args[2], scope) : " ";
+    const indent = args[3] ? parseInt(parser.evaluate(args[3], scope)) : 0;
     let output = "";
     let line = "";
+    let count = 0;
+    let width = Math.floor(78 / cols);
+
     // Start working with the main list.
     list.split(delim).forEach(item => {
-      if (indent + line.length + item.length >= 78) {
-        line += "%r" + item.padEnd(width);
-        output += line;
-        line = "";
+      if (count === cols) {
+        output += line + "%r";
+        line = item.padEnd(width);
+        count = 1;
       } else {
         line += item.padEnd(width);
+        count++;
       }
     });
     // Tack the last line onto the end! ^_^

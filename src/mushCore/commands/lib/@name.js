@@ -10,6 +10,7 @@ module.exports = mush => {
       // Look for the target.
       const curRoom = await mush.db.key(enactor.location);
       if (target.toLowerCase() === "me") {
+        socket.name = name;
         target = enactor;
       } else if (target.toLowerCase() === "here") {
         target = curRoom;

@@ -86,6 +86,7 @@ class ObjData {
     record.last = today;
     record.flags = [];
     record.contents = [];
+    record.stats = {};
     record.channels = [];
     record.exits = [];
     record.locks = [];
