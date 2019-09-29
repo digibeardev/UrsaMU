@@ -6,6 +6,10 @@ const { channels } = require("./defaults");
 const chanData = db.collection("channels");
 
 class Channels {
+  constructor() {
+    this.init();
+  }
+
   async init() {
     try {
       const chanCursor = await db.query(`RETURN LENGTH(channels)`);

@@ -13,6 +13,10 @@ const flagData = db.collection("flags");
  *
  */
 class Flags {
+  constructor() {
+    this.init();
+  }
+
   /**
    * This blob of code basically tries to pull the config file,
    * but if it comes up empty create a new Map object.
@@ -22,6 +26,7 @@ class Flags {
       try {
         let countCursor = await db.query(`RETURN LENGTH(flags)`);
         let count = await countCursor.next();
+
         if (count) {
           log.success("Game flags loaded.");
 
@@ -32,7 +37,14 @@ class Flags {
             this.dbCheck(extras);
           }
         } else {
-          throw new Error("No Flags Found!");
+          log.warning("No Flags database found.  Creating new instance.");
+          this.dbCheck(flagsList);
+
+          const dirent = fs.existsSync("../../Data/flags.json");
+          if (dirent) {
+            const extras = require("../../Data/flags.json");
+            this.dbCheck(extras);
+          }
         }
       } catch (error) {
         log.error(error);
