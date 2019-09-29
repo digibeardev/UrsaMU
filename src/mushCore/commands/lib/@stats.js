@@ -26,7 +26,7 @@ module.exports = mush => {
         const statObj = await mush.stats.get(target, stat);
         // Do we have a target object?
         if (target._key) {
-          if (statObj) {
+          if (statObj || statObj === 0) {
             const { err, stats } = await mush.stats.set(target, stat, val);
             if (err) mush.log.error(err);
             if (stats) {

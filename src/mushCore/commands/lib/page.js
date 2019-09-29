@@ -19,6 +19,12 @@ module.exports = mush => {
 
         // Save the target list for future pages.
         socket.page = list;
+        // Iterate through the list and make sure everyone has
+        // a copy of the list.
+        for (const sock of list) {
+          list.splice(list.indexOf(sock), 1);
+          mush.queues.sockets.get(sock).page = list;
+        }
       } else if (socket.page.length > 0) {
         // Use stored list instead
         for (const tar of socket.page) {
