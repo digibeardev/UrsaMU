@@ -9,7 +9,6 @@ module.exports = mush => {
   // Create a TCP server
   const server = net.createServer(socket => {
     const tSocket = new TelnetSocket(socket);
-    tSocket.setEncoding("utf8");
     tSocket.type = "telnet";
 
     (async () => {
