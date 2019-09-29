@@ -5,6 +5,7 @@ const moment = require("moment");
 const fs = require("fs");
 const path = require("path");
 const capstring = require("capstring");
+const queues = require("./systems/queues");
 
 /**
  * new engine()
@@ -13,6 +14,7 @@ module.exports = class UrsaMu {
   constructor(options = {}) {
     const { plugins } = options;
     this.moment = moment;
+    this.queues = queues;
     this.capstring = capstring;
     this.cmds = new Map();
     this.txt = new Map();
@@ -261,61 +263,21 @@ module.exports = class UrsaMu {
     );
 
     this.config.save();
-    delete require.cache[require.resolve(`./commands`)];
+
+    // Clear API
+    this.api.forEach((v, k) => {
+      try {
+        const { file } = v;
+        delete require.cache[require.resolve(`./api/${file}`)];
+        this[k] = require(path.resolve(__dirname, "./api/", file));
+        log.success(`API Loaded: ${file}`);
+      } catch (error) {
+        console.log(`API: Failed to load. Error: ${error.stack}`);
+      }
+    });
+
+    // Clear text
     delete require.cache[require.resolve(`../../text`)];
-    delete require.cache[require.resolve(`./parser`)];
-    delete require.cache[require.resolve(`./flags`)];
-    delete require.cache[require.resolve(`./broadcast`)];
-    delete require.cache[require.resolve(`./locks`)];
-    delete require.cache[require.resolve(`./stats`)];
-
-    // Delete references to individual functions and commands
-    let dir = fs.readdirSync(path.resolve(__dirname, "./functions/lib/"));
-    dir.forEach(file => {
-      delete require.cache[
-        require.resolve(path.resolve(__dirname, "./functions/lib/", file))
-      ];
-    });
-
-    dir = fs.readdirSync(path.resolve(__dirname, "./commands/lib/"));
-    dir.forEach(file => {
-      delete require.cache[
-        require.resolve(path.resolve(__dirname, "./commands/lib/", file))
-      ];
-    });
-
-    this.cmds = new Map();
-    this.txt = new Map();
-    this.parser = {};
-
-    try {
-      this.parser = require("./api/parser");
-      this.log.success("Parser loaded.");
-    } catch (error) {
-      this.log.error(`Unable to load parser. Error: ${error}`);
-    }
-
-    try {
-      this.stats = require("./stats");
-      this.log.success("Stats loaded.");
-    } catch (error) {
-      console.log(error);
-    }
-
-    try {
-      this.flags = require("./api/flags");
-      this.log.success("Flags loaded.");
-    } catch (error) {
-      this.log.error(`Unable to load flags. Error: ${error}`);
-    }
-
-    try {
-      require("./commands")(this);
-      this.log.success("Commands loaded.");
-    } catch (error) {
-      this.log.error(`Unable to load commands. Error: ${error}`);
-    }
-
     try {
       require("../../text")(this);
       this.log.success("Text files loaded.");
@@ -323,18 +285,33 @@ module.exports = class UrsaMu {
       this.log.error(`Unable to load text files. Error: ${error}`);
     }
 
-    try {
-      this.broadcast = require("./api/broadcast");
-      this.log.success("broadcast system loaded.");
-    } catch (error) {
-      this.log.error(`Unable to load broadcast system. Error: ${error}`);
-    }
+    this.cmds = new Map();
+    this.txt = new Map();
 
+    // Delete references to individual functions and commands
+    // Clear functions
+    let dir = fs.readdirSync(path.resolve(__dirname, "./functions/lib/"));
+    dir.forEach(file => {
+      delete require.cache[
+        require.resolve(path.resolve(__dirname, "./functions/lib/", file))
+      ];
+    });
+
+    // Clear Commands
+    delete require.cache[require.resolve(`./commands`)];
+    dir = fs.readdirSync(path.resolve(__dirname, "./commands/lib/"));
+    dir.forEach(file => {
+      delete require.cache[
+        require.resolve(path.resolve(__dirname, "./commands/lib/", file))
+      ];
+    });
+
+    // Load commands
     try {
-      this.locks = require("./api/locks");
-      this.log.success("Locks loaded.");
+      require("./commands")(this);
+      this.log.success("Commands loaded.");
     } catch (error) {
-      this.log.error(`Unable to load locks. Error: ${error}`);
+      this.log.error(`Unable to load commands. Error: ${error}`);
     }
 
     this.broadcast.sendAll("%chGAME>>%cn Restart complete.");

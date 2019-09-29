@@ -1,6 +1,6 @@
 const parser = require("./parser");
 const { db, objData } = require("../database");
-const queue = require("./queues");
+const queue = require("../systems/queues");
 const flags = require("./flags");
 const { log } = require("../../utilities");
 const { difference } = require("lodash");
