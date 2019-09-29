@@ -155,7 +155,7 @@ module.exports = mush => {
           }
           mush.broadcast.send(
             socket,
-            mush.parser.run(desc, {
+            await mush.parser.run(socket._key, desc, {
               "%0": await mush.name(enactor, target, true)
             })
           );

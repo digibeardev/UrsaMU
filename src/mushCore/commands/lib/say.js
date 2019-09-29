@@ -10,14 +10,14 @@ module.exports = mush => {
         try {
           mush.broadcast.send(
             socket,
-            `You say, "` + mush.parser.run(match[1], scope) + `"`
+            `You say, "` + mush.parser.run(socket._key, match[1], scope) + `"`
           );
           mush.broadcast.sendList(
             socket,
             curRoom.contents,
             `${
               enactor.moniker ? enactor.moniker : enactor.name
-            } says "${mush.parser.run(match[1], scope)}"`,
+            } says "${mush.parser.run(socket._key, match[1], scope)}"`,
             "connected"
           );
         } catch {

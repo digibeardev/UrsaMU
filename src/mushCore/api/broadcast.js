@@ -19,11 +19,11 @@ class Broadcast {
    * @param {String} message The message to be sent over the socket.
    *
    */
-  send(socket, message, options = {}) {
+  async send(socket, message, options = {}) {
     const { scope = {}, parse = true } = options;
     try {
       if (parse) {
-        socket.write(parser.run(message, scope) + "\r\n");
+        socket.write((await parser.run(socket._key, message, scope)) + "\r\n");
       } else {
         socket.write(parser.subs(message) + "\r\n");
       }
@@ -48,7 +48,7 @@ class Broadcast {
             target !== socket._key)
         ) {
           const tSocket = queue.keyToSocket(target);
-          this.send(tSocket, message);
+          await this.send(tSocket, message);
         }
       }
     } catch (error) {
@@ -85,7 +85,7 @@ class Broadcast {
     // One recipient
     if (sockets.length === 1) {
       const target = await objData.key(sockets[0]._key);
-      this.send(sockets[0], `From afar, ${message}`);
+      await this.send(sockets[0], `From afar, ${message}`);
       if (enSocket) {
         this.send(
           enSocket,
@@ -96,7 +96,7 @@ class Broadcast {
       // Multiple recipients
     } else if (sockets.length > 1) {
       for (const socket of sockets) {
-        this.send(
+        await this.send(
           socket,
           `Long distance to ([itemize(${list.map(el =>
             el.moniker ? el.moniker : el.name
@@ -104,7 +104,7 @@ class Broadcast {
         );
       }
     } else {
-      this.send(enSocket, "No one to message.");
+      await this.send(enSocket, "No one to message.");
     }
   }
 

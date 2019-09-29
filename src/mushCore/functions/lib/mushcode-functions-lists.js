@@ -1,9 +1,9 @@
 module.exports = parser => {
-  parser.funs.set("itemize", (args, scope) => {
-    let list = parser.evaluate(args[0], scope);
-    const delim = args[1] ? parser.evaluate(args[1], scope) : " ";
-    const conj = args[2] ? parser.evaluate(args[2], scope) : "and";
-    const punc = args[3] ? parser.evaluate(args[3], scope) : ",";
+  parser.funs.set("itemize", async (en, args) => {
+    let list = await args[0];
+    const delim = (await args[1]) ? args[1] : " ";
+    const conj = (await args[2]) ? args[2] : "and";
+    const punc = (await args[3]) ? args[3] : ",";
 
     list = list.split(delim);
 
@@ -23,10 +23,10 @@ module.exports = parser => {
     }
   });
 
-  parser.funs.set("iter", (args, scope) => {
-    const list = parser.evaluate(args[0], scope);
-    const idelim = args[2] ? parser.evaluate(args[2], scope) : " ";
-    const odelim = args[3] ? parser.evaluate(args[3], scope) : " ";
+  parser.funs.set("iter", (en, args, scope) => {
+    const list = args[0];
+    const idelim = args[2] ? args[2] : " ";
+    const odelim = args[3] ? args[3] : " ";
 
     let output = "";
     for (const item of list.split(idelim)) {
@@ -36,7 +36,7 @@ module.exports = parser => {
         .indexOf(item)
         .toString();
 
-      output += parser.evaluate(args[1], scope) + odelim;
+      output += args[1] + odelim;
     }
     return output;
   });

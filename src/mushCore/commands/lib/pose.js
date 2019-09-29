@@ -12,7 +12,7 @@ module.exports = mush => {
           socket,
           `${
             enactor.moniker ? enactor.moniker : enactor.name
-          } ${mush.parser.run(match[1], scope)}`
+          } ${mush.parser.run(socket._key, match[1], scope)}`
         );
 
         // send a message to the rest of the room's 'connected' contents.
@@ -21,7 +21,7 @@ module.exports = mush => {
           conList,
           `${
             enactor.moniker ? enactor.moniker : enactor.name
-          } ${mush.parser.run(match[1], scope)}`,
+          } ${mush.parser.run(socket._key, match[1], scope)}`,
           "connected"
         );
       } catch {
@@ -42,6 +42,7 @@ module.exports = mush => {
         mush.broadcast.send(
           socket,
           `${enactor.moniker ? enactor.moniker : enactor.name}${mush.parser.run(
+            socket._key,
             match[1],
             scope
           )}`
@@ -51,6 +52,7 @@ module.exports = mush => {
           socket,
           conList,
           `${enactor.moniker ? enactor.moniker : enactor.name}${mush.parser.run(
+            socket._key,
             match[1],
             scope
           )}`,

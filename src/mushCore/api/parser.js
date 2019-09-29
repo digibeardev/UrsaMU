@@ -1,8 +1,15 @@
+const stringReplace = require("string-replace-async");
+const { objData } = require("../database");
+const flags = require("./flags");
+const { log } = require("../../utilities");
 /**
  * Create New MUSH Parser()
  */
 class Parser {
   constructor() {
+    this.db = objData;
+    this.flags = flags;
+    this.log = log;
     this.sub = new Map();
     this.funs = new Map();
     require("../systems/substitutions")(this);
@@ -89,7 +96,7 @@ class Parser {
     return expr;
   }
 
-  evaluate(expr, scope) {
+  async evaluate(en, expr, scope) {
     // If the expression is a word, check to see if it has defined
     // meaning, else just return the value of the word.
     if (expr.type === "word") {
@@ -113,8 +120,14 @@ class Parser {
     } else if (expr.type === "apply") {
       let { operator, args } = expr;
 
+      // Recursively go through the args and resolve.
+      for (const arg of args) {
+        const index = args.indexOf(arg);
+        args[index] = await this.evaluate(en, arg, scope);
+      }
+
       if (operator.type === "word" && this.funs.has(operator.value)) {
-        return this.funs.get(operator.value)(args, scope);
+        return await this.funs.get(operator.value)(en, args, scope);
       } else {
         throw SyntaxError("Not a defined function");
       }
@@ -157,16 +170,21 @@ class Parser {
    * @param {object} scope The context of the evaluation.
    */
 
-  run(string, scope) {
-    const replaced = string.trim().replace(/\[([^\]]+)\]/g, (...args) => {
-      try {
-        return this.subs(this.evaluate(this.parse(args[1]), scope));
-      } catch (error) {
-        return args[0];
+  async run(en, string, scope) {
+    const replaced = await stringReplace(
+      string,
+      /\[([^\]]+)\]/g,
+      async (...args) => {
+        try {
+          return this.subs(await this.evaluate(en, this.parse(args[1]), scope));
+        } catch (error) {
+          return args[0];
+        }
       }
-    });
+    );
+
     try {
-      return this.subs(this.evaluate(this.parse(replaced), scope));
+      return this.subs(await this.evaluate(en, this.parse(replaced), scope));
     } catch (error) {
       return this.subs(replaced);
     }

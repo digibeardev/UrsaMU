@@ -1,6 +1,6 @@
 # @alias
 
-COMMAND:   @alias `<player>` = `<name>`
+COMMAND:   @alias <player> = <name>`
 ATTRIBUTE: Alias
 
 Provides an alternate name by which the player is known.  The alternate

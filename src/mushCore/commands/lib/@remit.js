@@ -4,7 +4,7 @@ module.exports = mush => {
     restriction: "connected",
     run: async (socket, data) => {
       const room = await mush.db.key(data[1]);
-      const message = mush.parser.run(data[2], mush.scope);
+      const message = mush.parser.run(socket._key, data[2], mush.scope);
       if (room) {
         mush.broadcast.send(
           socket,

@@ -7,7 +7,7 @@ module.exports = mush => {
       throw new SyntaxError("Set expects 2 arguments");
     }
 
-    let value = mush.parser.run(args[1], scope);
+    let value = mush.parser.run(socket._key, args[1], scope);
     scope[args[0].value] = value;
     return value;
   });

@@ -5,7 +5,7 @@ module.exports = mush => {
     run: async (socket, data) => {
       const enactor = await mush.db.key(socket._key);
       const curRoom = await mush.db.key(enactor.location);
-      const message = mush.parser.run(data[1], mush.scope);
+      const message = mush.parser.run(socket._key, data[1], mush.scope);
       mush.broadcast.send(socket, message);
       mush.broadcast.sendList(socket, curRoom.contents, message, "connected");
     }

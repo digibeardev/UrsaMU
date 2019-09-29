@@ -46,7 +46,7 @@ module.exports = mush => {
     );
   });
 
-  mush.emitter.on("channel", (chan, msg) => {
+  mush.emitter.on("channel", (socket, chan, msg) => {
     mush.queues.sockets.forEach(async socket => {
       const target = await mush.db.key(socket._key);
 
@@ -59,7 +59,7 @@ module.exports = mush => {
             : `%ch<${capstring(chan.name, "title")}>%cn`;
 
           try {
-            msg = mush.parser.run(msg);
+            msg = mush.parser.run(socket._key, msg);
             mush.broadcast.send(socket, `${header} ${channel.title}${msg}`, {
               parse: false
             });
