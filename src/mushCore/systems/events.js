@@ -1,3 +1,5 @@
+const capstring = require("capstring");
+
 module.exports = mush => {
   // Check for server events!
   mush.emitter.on("move", ({ socket }) => {
