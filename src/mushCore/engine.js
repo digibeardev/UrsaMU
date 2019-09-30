@@ -20,6 +20,7 @@ module.exports = class UrsaMu {
     this.txt = new Map();
     this.api = new Map();
     this.systems = new Map();
+    this.koguma = new Map();
     this.scope = {};
     this.log = log;
     this.db = objData;
@@ -158,6 +159,8 @@ module.exports = class UrsaMu {
       }
     });
   }
+
+  load(koguma) {}
 
   // Check for plugins
   plugin(plugins) {
