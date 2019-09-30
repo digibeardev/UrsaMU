@@ -67,8 +67,9 @@ class ObjData {
 
   /**
    * Insert a new record into the database
-   * @param {DBO} record A new instance of a database tracked object.
+   * @param {DBRef} record A new instance of a database tracked object.
    */
+
   insert(record) {
     // Generate a dbref for the object before we insert it into
     // the database.
@@ -77,8 +78,8 @@ class ObjData {
     record.name = record.name;
     record.description = "You see nothing special.";
     record.alias = "";
+    record.type = record.type ? record.type : "thing";
     record.attributes = [];
-    record.timestamp = 0;
     record.owner = record.owner ? record.owner : record._key;
     record.moniker = "";
     record.created = today;
@@ -97,7 +98,7 @@ class ObjData {
   }
   /**
    * Update a database record
-   * @param {Number} key The id of the object to execute the updates
+   * @param {Key} key The id of the object to execute the updates
    * @param {Object} updates An object with key/value pair updates to
    * be applied to the object.
    */
@@ -136,7 +137,7 @@ class ObjData {
 
   /**
    * Get a database object either by Key or name.
-   * @param {String|Number} ref Ref can be either a name, or an key.  If an key is provided
+   * @param {Key} ref Ref can be either a name, or an key.  If an key is provided
    * get will try to match a single result.  Else it will search by name and alias,
    * returning an array.
    */
@@ -181,6 +182,39 @@ class ObjData {
     return db.query(query);
   }
 }
+
+/**
+ * @typedef {Object} DBRef
+ * @property {Key} _key - The Object identifier
+ * @property {String} name - The name of the DBRef
+ * @property {String} type - The 'type' of object.  Player,
+ * Room, Exit or Thing.
+ * @property {Strubg} description - The description displayed
+ * when someone 'looks' at the object.
+ * @property {String} [alias] - A short name the object can be referenced
+ * by. Alias is for players only and will be ignored on other
+ * types of bkects
+ * @property {Attribute[]} [attributes] - A collection of attributes
+ * @property {Key} owner
+ * @property {String} [moniker] - Alternate color scheme for a player name
+ * @property {Number} created - Unix seconds created
+ * @property {Number} modified - Unix seconds modified
+ * @property {Number} last - Last time object issued a command.
+ * @property {String[]} [flags] - An array of flags representing the object
+ * @property {Key[]} [contents] -dbrefs of the objects inside an object.
+ * @property {Channel[]} [channels] - Collection of channels the object
+ * has joined.
+ * @property {Key[]} [exits] - List of exit dbrefs.
+ * @property {Lock[]} [locks] - A collection of locks on an object.
+ * @property {Key} [location] - dbref where the object resides
+ * @property {Key} [to] - WHere an exit leads too.
+ * @property {Key} [from] - Where an exit leads  from.
+ */
+
+/**
+ * @typedef {String} Key - The string representation of the
+ * database object number.
+ */
 
 module.exports.db = db;
 module.exports.objData = new ObjData();

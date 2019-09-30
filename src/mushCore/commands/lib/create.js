@@ -55,7 +55,7 @@ module.exports = mush => {
         socket.stats = {};
         socket.name = enactor.name;
         socket.timestamp = new Date().getTime() / 1000;
-        mush.queues.sockets.add(socket);
+        mush.queues.sockets.set(enactor._key, socket);
         mush.exe(socket, "look", []);
 
         let setFlags;

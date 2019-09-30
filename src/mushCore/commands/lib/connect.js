@@ -21,13 +21,9 @@ module.exports = mush => {
 
         if (authenticated) {
           socket._key = dbRef._key;
-          socket.name = dbRef.name;
-          socket.moniker = dbRef.moniker;
-          socket.alias = dbRef.alias;
-          socket.stats = dbRef.stats;
           mush.db.update(dbRef._key, { modified: mush.moment().utc() });
           await mush.flags.set(dbRef, "connected");
-          mush.queues.sockets.add(socket);
+          mush.queues.sockets.set(dbRef._key, socket);
           socket.timestamp = new Date().getTime() / 1000;
           mush.broadcast.send(
             socket,

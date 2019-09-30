@@ -109,9 +109,9 @@ class Broadcast {
   }
 
   sendAll(message) {
-    for (const socket of queue.sockets) {
-      this.send(socket, message);
-    }
+    queue.sockets.forEach(v => {
+      this.send(v, message);
+    });
   }
 
   /**

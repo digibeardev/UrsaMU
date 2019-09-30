@@ -24,13 +24,13 @@ module.exports = mush => {
 
   mush.emitter.on("close", async error => {
     if (error) {
-      for (const sock of mush.queues.sockets) {
-        if (!sock._socket.writable) {
-          const target = await mush.db.key(sock._key);
+      mush.queues.sockets.forEach(async (v, k) => {
+        if (!v._socket.writable) {
+          const target = await mush.db.key(k);
           mush.flags.set(target, "!connected");
-          mush.queues.sockets.delete(sock);
+          mush.queues.socket.delete(k);
         }
-      }
+      });
     }
   });
 

@@ -5,6 +5,7 @@ module.exports = mush => {
     run: async (socket, data) => {
       // Build the target list
       const list = [];
+      let rList;
       const enactor = await mush.db.key(socket._key);
 
       if (data[2]) {
@@ -16,14 +17,17 @@ module.exports = mush => {
             list.push(target);
           }
         }
-
+        rList = new Array(...list);
+        rList.push(enactor);
         // Save the target list for future pages.
         socket.page = list;
         // Iterate through the list and make sure everyone has
-        // a copy of the list.
+        // a copy of the list
         for (const sock of list) {
-          list.splice(list.indexOf(sock), 1);
-          mush.queues.sockets.get(sock).page = list;
+          rList.splice(rList.indexOf(sock), 1);
+          const update = mush.queues.keyToSocket(sock._key);
+          update.page = rList;
+          mush.queues.sockets.set(sock._key, update);
         }
       } else if (socket.page.length > 0) {
         // Use stored list instead
@@ -58,7 +62,7 @@ module.exports = mush => {
 
       mush.broadcast.sendGroup({
         enactor,
-        targets: list,
+        targets: socket.page,
         message,
         flags: "connected",
         ignore
