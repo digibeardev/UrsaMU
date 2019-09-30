@@ -128,7 +128,7 @@ module.exports = class UrsaMu {
       "./systems/gameTimers",
       "./systems/events"
     ]);
-    require("./systems/telnet")(this);
+    setTimeout(() => require("./systems/telnet")(this), 3000);
     setTimeout(() => this.loadKogumas(), 3000);
 
     // If there isn't a grid set, UrsaMU will generate a starting
