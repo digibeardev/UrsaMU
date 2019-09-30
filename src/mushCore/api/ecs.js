@@ -1,4 +1,4 @@
-const { objData: db } = require("../database");
+const { objData: db, db: dbObj } = require("../database");
 
 class ECS {
   constructor() {
@@ -74,7 +74,32 @@ class ECS {
     }
   }
 
-  filter(system, filter) {}
+  filter(system, filter) {
+    if (!this.filters.has(filter.toLowerCase())) {
+      this.filters.set(system.toLowerCase(), filter);
+    } else {
+      throw new Error(`System '${system.toLowerCase()}' already has a filter.`);
+    }
+  }
+
+  async trigger(system) {
+    const objCursor = await dbObj.query(`
+          FOR obj IN objects
+            RETURN obj
+    `);
+    const results = await objCursor.all();
+    system = system.toLowerCase();
+    if (this.systems.has(system)) {
+      if (this.filters.has(system)) {
+        const filter = this.filters.get(system)(results);
+        this.systems.get(system)(filter);
+      } else {
+        this.systems.get(system)(results);
+      }
+    } else {
+      throw new Error("System not found.");
+    }
+  }
 }
 
 module.exports = new ECS();

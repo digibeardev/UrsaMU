@@ -176,7 +176,9 @@ class Parser {
       /\[([^\]]+)\]/g,
       async (...args) => {
         try {
-          return this.subs(await this.evaluate(en, this.parse(args[1]), scope));
+          return await this.subs(
+            await this.evaluate(en, this.parse(args[1]), scope)
+          );
         } catch (error) {
           return args[0];
         }

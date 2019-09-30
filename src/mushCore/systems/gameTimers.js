@@ -10,15 +10,15 @@ module.exports = mush => {
 
   // Registration reminding timer.
   setInterval(async () => {
-    for (const socket of mush.queues.sockets) {
-      if (mush.flags.hasFlags(await mush.db.key(socket._key), "!registered")) {
+    mush.queues.sockets.forEach(async v => {
+      if (mush.flags.hasFlags(await mush.db.key(v._key), "!registered")) {
         mush.broadcast.send(
-          socket,
+          v,
           "Your character isn't registered. " +
-            "Please take a moment to register!%r See '%ch+help @accounts%cn'" +
+            "Please take a moment to register!%rSee '%ch+help @accounts%cn'" +
             " For more information."
         );
       }
-    }
+    });
   }, 1800000);
 };

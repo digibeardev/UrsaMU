@@ -139,7 +139,7 @@ module.exports = parser => {
   });
 
   // Columns
-  parser.funs.set("columns", (en, args, scope) => {
+  parser.funs.set("columns", async (en, args, scope) => {
     if (args.length < 2) {
       return SyntaxError("columns expects 2 arguments");
     }
@@ -152,17 +152,20 @@ module.exports = parser => {
     let count = 0;
     let width = Math.floor(78 / cols);
 
-    // Start working with the main list.
-    list.split(delim).forEach(item => {
+    for (let item of list.split(delim)) {
+      const length = width - parser.stripAnsi(parser.subs(item)).length;
       if (count === cols) {
         output += line + "%r";
-        line = item.padEnd(width);
+        item = item + repeatString(delim, length);
+        line = item;
         count = 1;
       } else {
-        line += item.padEnd(width);
+        item = item + repeatString(delim, length);
+        line += item;
         count++;
       }
-    });
+    }
+
     // Tack the last line onto the end! ^_^
     return "%s".repeat(indent) + output + line;
   });

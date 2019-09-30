@@ -34,6 +34,59 @@ module.exports = class UrsaMu {
     this.init();
   }
 
+  /**
+   * Add a middleware to deal with user input streams.
+   * @param  {String|Function} args
+   */
+  middleware() {
+    const dir = fs.readdirSync(path.resolve(__dirname, "./middleware/"));
+    dir.forEach(file => {
+      try {
+        const mod = require(path.resolve(__dirname, "./middleware/", file));
+        const parts = file.split(".");
+        this._stack.push(mod);
+        log.success(`Middleware loaded: ${parts[0]}`);
+      } catch (error) {
+        log.error(error);
+      }
+    });
+  }
+
+  loadKoguma(folder) {
+    // Check for a json file
+    try {
+      const config = require(path.resolve(
+        "./kogumas/" + folder + "/package.json"
+      ));
+      // Require main file or (defailt index.js)
+      if (config) {
+        const file = config.main ? config.main : "index.js";
+        const parts = folder.split("/");
+        // Register koguma.
+        this.koguma.set(
+          parts.pop(),
+          require(path.resolve("./kogumas/" + folder + "/" + file))(this)
+        );
+        log.success(`Koguma: ${folder} (v${config.version}) loaded.`);
+      }
+    } catch (error) {
+      log.error(error);
+    }
+  }
+
+  // Check for plugins
+  loadKogumas() {
+    // Helper function to list directories.
+    const getDirectories = source =>
+      fs
+        .readdirSync(source, { withFileTypes: true })
+        .filter(dirent => dirent.isDirectory())
+        .map(dirent => dirent.name);
+
+    const kogumas = getDirectories(path.resolve(__dirname, "../../kogumas/"));
+    kogumas.forEach(koguma => this.loadKoguma(koguma));
+  }
+
   loadSystems(paths) {
     paths.forEach(path => {
       try {
@@ -75,6 +128,8 @@ module.exports = class UrsaMu {
       "./systems/gameTimers",
       "./systems/events"
     ]);
+    require("./systems/telnet")(this);
+    setTimeout(() => this.loadKogumas(), 3000);
 
     // If there isn't a grid set, UrsaMU will generate a starting
     // room and update the config settings to start all new players
@@ -120,11 +175,6 @@ module.exports = class UrsaMu {
       }
     }
 
-    // Run plugins if present.
-    if (this.plugins) {
-      this.plugin(this.plugins);
-    }
-
     this.emitter.emit("loaded");
   }
 
@@ -139,55 +189,6 @@ module.exports = class UrsaMu {
       return this.cmds.get(command).run(socket, args, this.scope);
     } catch (error) {
       throw error;
-    }
-  }
-
-  /**
-   * Add a middleware to deal with user input streams.
-   * @param  {String|Function} args
-   */
-  middleware() {
-    const dir = fs.readdirSync(path.resolve(__dirname, "./middleware/"));
-    dir.forEach(file => {
-      try {
-        const mod = require(path.resolve(__dirname, "./middleware/", file));
-        const parts = file.split(".");
-        this._stack.push(mod);
-        log.success(`Middleware loaded: ${parts[0]}`);
-      } catch (error) {
-        log.error(error);
-      }
-    });
-  }
-
-  load(koguma) {}
-
-  // Check for plugins
-  plugin(plugins) {
-    // if plugins is an array, process the array.
-    if (Array.isArray(plugins)) {
-      plugins.forEach(plugin => {
-        try {
-          require(`../../plugins/${plugin}`)(this);
-          this.log.success(`Plugin installed: ${plugin}.`);
-        } catch (error) {
-          this.log.error(`Could not import plugin: ${plugin}`);
-          this.log.error(`${error.stack}`);
-        }
-      });
-
-      // If it's a string, process the string.
-    } else if (typeof plugins === "string") {
-      try {
-        require("../../plugins/" + plugins)(this);
-      } catch (error) {
-        this.log.error(`Could not import plugin: ${plugins}`);
-        this.log.error(`${error.stack}`);
-      }
-
-      // Else it's not a format the plugin system can read.
-    } else {
-      this.logs.error(`Unable to read plugin: ${plugins}.`);
     }
   }
 
@@ -317,6 +318,7 @@ module.exports = class UrsaMu {
       this.log.error(`Unable to load commands. Error: ${error}`);
     }
 
+    this.koguma.forEach(koguma => koguma.restart());
     this.broadcast.sendAll("%chGAME>>%cn Restart complete.");
   }
 };

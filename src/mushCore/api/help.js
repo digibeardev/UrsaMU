@@ -6,14 +6,15 @@ class Help {
     this.help = new Map();
     this.categories = [];
     this.refresh();
-    log.success("Help system loaded.");
   }
 
   refresh() {
     let category;
-    const walkDir = source =>
-      readdirSync(resolve(__dirname, source), { withFileTypes: true }).forEach(
-        dirent => {
+    const walkDir = source => {
+      console.log(resolve(source));
+      try {
+        const dirents = readdirSync(resolve(source), { withFileTypes: true });
+        dirents.forEach(dirent => {
           // if it's a file, add it to the help system.
           if (dirent.isFile()) {
             // get the file name, without the extension.
@@ -32,12 +33,15 @@ class Help {
             this.categories.push(dirent.name);
             walkDir(resolve(source, dirent.name));
           }
-        }
-      );
-
-    walkDir(resolve(__dirname, "../../../helpdocs"));
+        });
+      } catch (error) {
+        log.error(error);
+      }
+    };
+    console.log(resolve(__dirname, "../../../helpdocs/"));
+    walkDir(resolve(__dirname, "../../../helpdocs/"));
   }
-
+  helpdocs;
   get(help) {
     return this.help.get(help);
   }

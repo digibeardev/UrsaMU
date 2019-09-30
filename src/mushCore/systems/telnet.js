@@ -48,4 +48,10 @@ module.exports = mush => {
         3000}`
     );
   });
+
+  return {
+    restart() {
+      return;
+    }
+  };
 };
