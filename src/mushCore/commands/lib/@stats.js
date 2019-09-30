@@ -113,32 +113,34 @@ module.exports = mush => {
     run: async (socket, data) => {
       let output = "";
       let stat = await mush.stats.stats.get(data[1]);
-      if (stat) {
+      let statCopy = new Object({ ...stat });
+      if (statCopy) {
         output += `[ljust(%chName%cn,sub(39,${data[1].length}),.)]%ch${
           data[1]
         }%cn%r`;
-        output += `[ljust(%chKey%cn,sub(39,${stat._key.length}),.)]%ch${stat._key}%cn%r`;
-        output += `[ljust(%chModel%cn,sub(39,${stat.model.length}),.)]%ch${stat.model}%cn%r`;
+        output += `[ljust(%chKey%cn,sub(39,${statCopy._key.length}),.)]%ch${statCopy._key}%cn%r`;
+        output += `[ljust(%chModel%cn,sub(39,${statCopy.model.length}),.)]%ch${statCopy.model}%cn%r`;
         if (stat.example) {
-          output += `[ljust(%chExample%cn,sub(39,${stat.example.length}),.)]%ch${stat.example}%cn%r`;
+          output += `[ljust(%chExample%cn,sub(39,${statCopy.example.length}),.)]%ch${statCopy.example}%cn%r`;
         }
-        if (stat.description) {
-          output += `%r%ch${stat.description}%cn%r`;
+        if (statCopy.description) {
+          output += `%r%ch${statCopy.description}%cn%r`;
         }
 
-        delete stat.model;
-        delete stat.description;
-        delete stat.example;
-        delete stat._id;
-        delete stat._rev;
-        delete stat.name;
-        delete stat._key;
-        delete stat.value;
+        delete statCopy.model;
+        delete statCopy.description;
+        delete statCopy.example;
+        delete statCopy._id;
+        delete statCopy._rev;
+        delete statCopy.name;
+        delete statCopy._key;
+        delete statCopy.value;
+
         output += "%r%ch%cuDefaults%cn";
-        for (const prop in stat) {
+        for (const prop in statCopy) {
           output += `%r[ljust(${prop},sub(39,${
-            stat[prop].toString().length
-          }),.)]%ch${stat[prop]}%cn`;
+            statCopy[prop].toString().length
+          }),.)]%ch${statCopy[prop]}%cn`;
         }
         mush.broadcast.send(socket, output);
       } else {
