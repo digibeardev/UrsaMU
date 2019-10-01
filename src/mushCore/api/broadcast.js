@@ -109,7 +109,9 @@ class Broadcast {
       if (enSocket) {
         this.send(
           enSocket,
-          `To ${target.moniker ? target.moniker : target.name}, ${message}`
+          `To ${target.moniker ? target.moniker : target.name}${
+            target.alias ? "(" + target.alias + ")" : ""
+          }, ${message}`
         );
       }
 
@@ -120,7 +122,7 @@ class Broadcast {
           socket,
           `Long distance to ([itemize(${list.map(el =>
             el.moniker ? el.moniker : el.name
-          )})]) ${message}`
+          )}${el.alias ? "(" + el.alias + ")" : ""}]) ${message}`
         );
       }
     } else {

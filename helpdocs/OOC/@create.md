@@ -1,10 +1,7 @@
 # create
 
-COMMAND: @create `<name>` [=`<cost>`]
+COMMAND: `@create <name>`
 
-Creates a thing with the specified name.  Creation costs either <cost>
-or 10 coins, whichever is greater. The value of a thing is proportional
-to its cost, specifically, value=(cost/5)-1.  The value may not be greater
-than 100, values that would be greater than 100 are rounded down to 100.
+Creates a thing with the specified name. 
 
-Related Topics: @destroy, OBJECT TYPES
+Related Topics: [@destroy](@destroy.md), [OBJECT TYPES](@types.md)

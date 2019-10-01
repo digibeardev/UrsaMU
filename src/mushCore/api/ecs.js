@@ -30,7 +30,7 @@ class ECS {
    * Add a component to an entity.
    * @param {DBRef} tar The database object to add the
    * component to.
-   * @param {String} comp The name of the component to add
+   * @param {Component} comp The name of the component to add
    */
   async add(tar, comp) {
     if (!tar._key) {
@@ -57,7 +57,15 @@ class ECS {
     }
   }
 
-  remove(tar, comp) {}
+  remove(tar, comp) {
+    if (this.components.has(comp)) {
+      delete tar.components[comp];
+      db.update(tar._key, { components: tar.components });
+      return tar;
+    } else {
+      throw new Error("Not a valid component");
+    }
+  }
 
   /**
    * Define a new Component system.
@@ -74,6 +82,12 @@ class ECS {
     }
   }
 
+  /**
+   * Filter dbrefs for a component system
+   * @param {String} system The system to apply the filter to.
+   * @param {function(DBRef[])} filter A function to filter out database
+   * objects for a system.
+   */
   filter(system, filter) {
     if (!this.filters.has(filter.toLowerCase())) {
       this.filters.set(system.toLowerCase(), filter);
@@ -82,6 +96,10 @@ class ECS {
     }
   }
 
+  /**
+   * Run a component system.
+   * @param {function(DBRef[])} system The system to invoke
+   */
   async trigger(system) {
     const objCursor = await dbObj.query(`
           FOR obj IN objects
@@ -123,6 +141,7 @@ module.exports = new ECS();
  * @property {String} [alias] - A short name the object can be referenced
  * by. Alias is for players only and will be ignored on other
  * types of bkects
+ * @property {Component[]} [components] - component system data container.
  * @property {Attribute[]} [attributes] - A collection of attributes
  * @property {Key} owner
  * @property {String} [moniker] - Alternate color scheme for a player name

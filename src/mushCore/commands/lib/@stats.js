@@ -95,26 +95,18 @@ module.exports = mush => {
     pattern: /^@?stats/i,
     restriction: "connected immortal|wizard|Royalty",
     run: async socket => {
-      let list = [];
-      let statQuery = await mush.query.query(`
-        FOR stat IN stats
-        RETURN stat`);
-
-      statQuery = await statQuery.all();
-      let output =
-        "%cr---%cn[ljust(%ch%cr<<%cn %ch@Stats List %cr>>%Cn,75,%cr-%cn)]";
+      let stats = await getStats();
+      let output = "[lheader(@stats List)]%r%r";
       for (const cat of mush.stats.models.keys()) {
-        output += `%r%r%ch%cu${cat.toUpperCase()}(${statQuery.length})%cn`;
-        for (const stat of statQuery) {
-          if (stat.model === cat) {
-            list.push(stat.name);
-          }
-        }
-
+        let list = stats.filter(stat =>
+          stat.model === cat ? stat.name : false
+        );
+        list = list.map(stat => stat.name);
+        output += `%ch%cu${cat.toUpperCase()}(${list.length})%cn`;
         output += `%r[columns(${list.sort().join(" ")},4)]%r%r`;
       }
       output += `Type '%ch@stat/info <stat>%cn' for more information.%r`;
-      output += `[repeat(%cr-%cn,78)]`;
+      output += `[footer()]`;
       mush.broadcast.send(socket, output);
     }
   });
@@ -153,6 +145,7 @@ module.exports = mush => {
         delete statCopy.name;
         delete statCopy._key;
         delete statCopy.value;
+        delete statCopy.ignore;
 
         output += "%r%ch%cuDefaults%cn";
         for (const prop in statCopy) {
@@ -220,6 +213,52 @@ module.exports = mush => {
       } else {
         mush.broadcast.send(socket, "That's not a good stat.");
       }
+    }
+  });
+
+  mush.cmds.set("@stat/remove", {
+    pattern: /^@?stat\/remove\s+(.*)/,
+    restriction: "connected immortal|wizard",
+    run: async (socket, data) => {
+      // Delete the local reference
+      // delete the database reference
+      const name = mush.capstring(data[1].trim(), "title");
+      stats = await getStats();
+      for (const st of stats) {
+        if (st.name === name) {
+          stat = st;
+        }
+      }
+
+      if (stat) {
+        try {
+          mush.stats.Stats.remove(stat._key);
+          await mush.broadcast.send(
+            socket,
+            `%chDone.%cn Stat '%ch${stat.name}%cn' removed.`
+          );
+          mush.stats.stats.delete(name);
+        } catch (error) {
+          mush.log.error(error);
+        }
+      } else {
+        mush.broadcast.send(socket, "That's not a valid stat.");
+      }
+    }
+  });
+
+  mush.cmds.set("@stat/models", {
+    pattern: /^@?stat\/models/,
+    restriction: "connected immortal|wizard|royalty",
+    run: socket => {
+      output = "[lheader(@stat/Models)]%r%r";
+      const list = [];
+      for (const model of mush.stats.models.keys()) {
+        list.push(mush.capstring(model, "title"));
+      }
+      output += `[columns(${list.join(" ")},4)]%r%r`;
+      output += "[footer()]";
+      mush.broadcast.send(socket, output);
     }
   });
 };

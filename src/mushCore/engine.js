@@ -281,6 +281,7 @@ module.exports = class UrsaMu {
     });
 
     // Clear text
+    this.txt = new Map();
     delete require.cache[require.resolve(`../../text`)];
     try {
       require("../../text")(this);
@@ -290,7 +291,6 @@ module.exports = class UrsaMu {
     }
 
     this.cmds = new Map();
-    this.txt = new Map();
 
     // Delete references to individual functions and commands
     // Clear functions

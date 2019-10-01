@@ -178,6 +178,7 @@ class Parser {
       /\[([^\]]+)\]/g,
       async (...args) => {
         try {
+          args[1].replace(/%[(]/g, "\u250D").replace(/%[)]/g, "\u2511");
           return await this.subs(
             await this.evaluate(en, this.parse(args[1]), scope)
           );
