@@ -28,6 +28,7 @@ class Parser {
    * to the mushcode parser.
    */
   parseExpression(program) {
+    program = program.replace(/%[(]/g, "\u250D").replace(/%[)]/g, "\u2511");
     let match, expr;
     // This process is super RegEx heavy.  This basically means
     // anything that isn't `(),`
@@ -171,6 +172,7 @@ class Parser {
    */
 
   async run(en, string, scope) {
+    string = string.replace(/%[\[]/g, "&3").replace(/%[\]]/g, "&4");
     const replaced = await stringReplace(
       string,
       /\[([^\]]+)\]/g,

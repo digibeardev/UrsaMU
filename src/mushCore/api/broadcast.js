@@ -23,12 +23,32 @@ class Broadcast {
     const { scope = {}, parse = true } = options;
     try {
       if (parse) {
-        socket.write((await parser.run(socket._key, message, scope)) + "\r\n");
+        socket.write(
+          (await parser.run(socket._key, message, scope))
+            .replace("\u250D", "(")
+            .replace("\u2511", ")")
+            .replace(/&3/g, "[")
+            .replace(/&4/g, "]") + "\r\n"
+        );
       } else {
-        socket.write(parser.subs(message) + "\r\n");
+        socket.write(
+          parser
+            .subs(message)
+            .replace("\u250D", "(")
+            .replace("\u2511", ")")
+            .replace(/&3/g, "[")
+            .replace(/&4/g, "]") + "\r\n"
+        );
       }
     } catch (error) {
-      socket.write(parser.subs(message) + "\r\n");
+      socket.write(
+        parser
+          .subs(message)
+          .replace("\u250D", "(")
+          .replace("\u2511", ")")
+          .replace(/&3/g, "[")
+          .replace(/&4/g, "]") + "\r\n"
+      );
     }
   }
 

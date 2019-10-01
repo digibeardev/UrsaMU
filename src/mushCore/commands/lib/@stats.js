@@ -1,6 +1,13 @@
 const { get, set } = require("lodash");
 
 module.exports = mush => {
+  const getStats = async () => {
+    let statQuery = await mush.query.query(`
+        FOR stat IN stats
+        RETURN stat`);
+    return await statQuery.all();
+  };
+
   mush.cmds.set("@stat/set", {
     pattern: /^@?stat\/set\s(.*)\/(.*)\s?=\s?(.*)/i,
     restriction: "connected immortal|wizard",
@@ -88,21 +95,26 @@ module.exports = mush => {
     pattern: /^@?stats/i,
     restriction: "connected immortal|wizard|Royalty",
     run: async socket => {
-      let list = "";
+      let list = [];
+      let statQuery = await mush.query.query(`
+        FOR stat IN stats
+        RETURN stat`);
+
+      statQuery = await statQuery.all();
       let output =
         "%cr---%cn[ljust(%ch%cr<<%cn %ch@Stats List %cr>>%Cn,75,%cr-%cn)]";
       for (const cat of mush.stats.models.keys()) {
-        keys = Array.from(mush.stats.stats.keys());
-        output += `%r%r%ch%cu${cat.toUpperCase()}(${keys.length})%cn`;
-        for (const key of keys) {
-          if (mush.stats.stats.get(key).model === cat) {
-            list += " " + key;
+        output += `%r%r%ch%cu${cat.toUpperCase()}(${statQuery.length})%cn`;
+        for (const stat of statQuery) {
+          if (stat.model === cat) {
+            list.push(stat.name);
           }
         }
-        output += `%r[columns(${list.trim()},4)]%r%r`;
-        output += `Type '%ch@stat/info <stat>%cn' for more information.%r`;
-        output += `[repeat(%cr-%cn,78)]`;
+
+        output += `%r[columns(${list.sort().join(" ")},4)]%r%r`;
       }
+      output += `Type '%ch@stat/info <stat>%cn' for more information.%r`;
+      output += `[repeat(%cr-%cn,78)]`;
       mush.broadcast.send(socket, output);
     }
   });
@@ -112,19 +124,25 @@ module.exports = mush => {
     restriction: "connected immortal|wizard|royalty",
     run: async (socket, data) => {
       let output = "";
-      let stat = await mush.stats.stats.get(data[1]);
+      const name = mush.capstring(data[1].trim(), "title");
+      let statQuery = await mush.query.query(`
+        FOR stat IN stats
+        RETURN stat`);
+      statQuery = await statQuery.all();
+      const stat = statQuery.filter(stat =>
+        stat.name === name ? stat : false
+      )[0];
       let statCopy = new Object({ ...stat });
       if (statCopy) {
-        output += `[ljust(%chName%cn,sub(39,${data[1].length}),.)]%ch${
-          data[1]
-        }%cn%r`;
-        output += `[ljust(%chKey%cn,sub(39,${statCopy._key.length}),.)]%ch${statCopy._key}%cn%r`;
-        output += `[ljust(%chModel%cn,sub(39,${statCopy.model.length}),.)]%ch${statCopy.model}%cn%r`;
+        output += `%cr---%cn[ljust(%ch%cr<<%cn %ch@stat/info ${statCopy.name}%(#${statCopy._key}%) %cr>>%cn,75,%cr-%cn)]%r`;
+        if (statCopy.description) {
+          output += `%r%ch${statCopy.description}%cn%r%r`;
+        }
+        output += `[ljust(%chModel%cn,sub(39,${
+          statCopy.model.length
+        }),.)]%ch${mush.capstring(statCopy.model, "title")}%cn%r`;
         if (stat.example) {
           output += `[ljust(%chExample%cn,sub(39,${statCopy.example.length}),.)]%ch${statCopy.example}%cn%r`;
-        }
-        if (statCopy.description) {
-          output += `%r%ch${statCopy.description}%cn%r`;
         }
 
         delete statCopy.model;
@@ -140,11 +158,67 @@ module.exports = mush => {
         for (const prop in statCopy) {
           output += `%r[ljust(${prop},sub(39,${
             statCopy[prop].toString().length
-          }),.)]%ch${statCopy[prop]}%cn`;
+          }),.)]%ch${mush.capstring(statCopy[prop].toString(), "title")}%cn`;
         }
+        output += `%r%r[repeat(%cr-%cn,78)]`;
         mush.broadcast.send(socket, output);
       } else {
         mush.broadcast.send(socket, "I can't find that stat.");
+      }
+    }
+  });
+
+  mush.cmds.set("@stat/add", {
+    pattern: /^@?stat\/add (.*)\s?=\s?(.*)/i,
+    restriction: "connected immortal|wizard",
+    run: async (socket, data) => {
+      const name = mush.capstring(data[2].trim(), "title");
+      const model = data[1].trim().toLowerCase();
+      // Make sure an existing model is being called.
+      if (mush.stats.models.has(model)) {
+        // Make sure the stat doesn't already exist.
+        if (!mush.stats.stats.has(name)) {
+          const { added } = await mush.stats.add([{ name, model }]);
+          if (added.length > 0) {
+            mush.broadcast.send(
+              socket,
+              `%chDone>>%cn. ${mush.capstring(
+                model,
+                "title"
+              )} '%ch${name}%cn' has been added.`
+            );
+            mush.exe(socket, "@stat/info", [, `${name}`]);
+          } else {
+            mush.broadcast.send(socket, "There was an error saving your stat.");
+          }
+        } else {
+          mush.broadcast.send(socket, "That stat already exists.");
+        }
+      } else {
+        mush.broadcast.send(socket, "That's not a good model.");
+      }
+    }
+  });
+
+  mush.cmds.set("@stat/update", {
+    pattern: /@?stat\/update\s+(.*)\s?=\s?(.*)/i,
+    restriction: "connected immortal|wizard|royalty",
+    run: async (socket, data) => {
+      const path = data[1].trim();
+      const parts = path.split(".");
+      const { error: err, results: res } = await mush.stats.update(
+        path,
+        data[2].trim()
+      );
+      if (err) mush.broadcast.error(err);
+      if (res) {
+        mush.broadcast.send(
+          socket,
+          `%chDone.%cn Stat '%ch${path}%cn' updated to '%ch${data[2].trim()}%cn'.`
+        );
+        mush.exe(socket, "@stat/info", [null, parts[0]]);
+      } else {
+        mush.broadcast.send(socket, "That's not a good stat.");
       }
     }
   });

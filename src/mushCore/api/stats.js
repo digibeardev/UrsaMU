@@ -2,6 +2,7 @@ const { get, set, defaults, has } = require("lodash");
 const { objData, db } = require("../database");
 const { log } = require("../../utilities");
 const shortid = require("shortid");
+const capstring = require("capstring");
 
 class Stats {
   constructor() {
@@ -83,6 +84,29 @@ class Stats {
       }
     }
     return { added, updated, failed };
+  }
+
+  async update(path, value) {
+    try {
+      const parts = path.split(".");
+      const name = capstring(parts[0], "title");
+      const sub = parts[1].trim();
+      // Get a copy of the stat object
+      let error;
+      let statQuery = await db.query(`
+        FOR stat IN stats
+        FILTER stat.name == "${name}"
+        RETURN stat`);
+      let stat = await statQuery.next();
+      let results = await this.Stats.update(stat._key, { [sub]: value });
+      results = await this.Stats.firstExample({ _key: results._key });
+      // Return new stat ot Error
+      this.stats.set(name, results);
+      return { error, results };
+    } catch (error) {
+      log.error(error);
+      return { error };
+    }
   }
 
   /**
