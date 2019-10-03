@@ -34,4 +34,6 @@ module.exports = parser => {
       parser.log.error(error);
     }
   });
+
+  parser.funs.set("get", (en, args, scope) => {});
 };
