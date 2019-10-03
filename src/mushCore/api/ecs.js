@@ -14,7 +14,7 @@ class ECS {
    * @param {Component} data The default data for the
    * component object.
    */
-  component(name, data) {
+  async component(name, data) {
     if (!this.components.has(name.toLowerCase())) {
       if (typeof data === "object") {
         this.components.set(name.toLowerCase(), data);
@@ -43,9 +43,13 @@ class ECS {
     if (results._key) {
       let component = this.components.get(comp.toLowerCase());
       results.components[comp.toLowerCase()] = component.defaults;
-      const saved = await db.update(results._key, {
-        components: results.components
-      });
+      const saved = await db
+        .update(results._key, {
+          components: results.components
+        })
+        .catch(error => {
+          throw error;
+        });
 
       if (saved._key) {
         return results;

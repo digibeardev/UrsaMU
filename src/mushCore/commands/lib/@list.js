@@ -3,6 +3,7 @@ module.exports = mush => {
     pattern: /^@?list\s+(.*)/,
     restriction: "connected",
     run: async (socket, data) => {
+      const en = await mush.db.key(socket._key);
       const type = data[1].toLowerCase();
       if (type === "commands") {
         let list = [];
@@ -10,9 +11,14 @@ module.exports = mush => {
         mush.cmds.forEach((v, k) => {
           // compare commands against helpfile entries
           if (mush.help.help.has(k)) {
-            list.push(k);
-          } else {
-            // Color entries that don't have help files
+            if (mush.flags.hasFlags(en, v.restriction)) {
+              list.push(k);
+            }
+          } else if (
+            !mush.help.help.has(k) &&
+            mush.flags.hasFlags(en, "wizard|Immortal|royalty")
+          ) {
+            // Color entries that don't have help files (For wizards)
             list.push(`%cr${k}%cn`);
           }
         });

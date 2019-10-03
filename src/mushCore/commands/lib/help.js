@@ -51,7 +51,11 @@ module.exports = mush => {
             )
             .replace(/`([^`]+)`/g, (...args) => `%cy${args[1]}%cn`)
             .replace(
-              /\[([@?\w]+)\]\([^\)]+\)/g,
+              /\[([\w]+)\]\(([^\)]+)\)/g,
+              (...args) => `${args[1].replace("@", " @")}: ${args[2]}`
+            )
+            .replace(
+              /\[([@\w]+)\]\([^\)]+\)/g,
               (...args) => `${args[1].replace("@", " @")}`
             )
             .replace(/##\s(.*)/g, (...args) => `%ch%cu${args[1]}%cn`)
