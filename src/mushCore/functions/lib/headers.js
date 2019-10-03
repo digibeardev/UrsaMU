@@ -48,6 +48,14 @@ module.exports = parser => {
   });
 
   parser.funs.set("footer", async (en, args, scope) => {
-    return await parser.run(en, `[repeat(%cr-%cn,78)]`, scope);
+    if (args[0]) {
+      return await parser.run(
+        en,
+        `[rjust(%ch%cr<<%cn %ch${args[0]} %cr>>%cn,75,%cr-%cn)]%cr---%cn`,
+        scope
+      );
+    } else {
+      return await parser.run(en, `[repeat(%cr-%cn,78)]`, scope);
+    }
   });
 };

@@ -11,7 +11,6 @@ class Help {
   refresh() {
     let category;
     const walkDir = source => {
-      console.log(resolve(source));
       try {
         const dirents = readdirSync(resolve(source), { withFileTypes: true });
         dirents.forEach(dirent => {

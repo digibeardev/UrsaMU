@@ -3,7 +3,12 @@ const { objData } = require("../database");
 const flags = require("./flags");
 const { log } = require("../../utilities");
 /**
- * Create New MUSH Parser()
+ * Create New HoniKomu Parser()
+ * The main mechinism is totally from here, with some modifications to
+ * fit a more MUSH like language:
+ * (https://eloquentjavascript.net/index.html)
+ * It's an exellent and Open Source soulution to taking
+ * your JavaScript to the next level(tm).
  */
 class Parser {
   constructor() {
@@ -139,6 +144,9 @@ class Parser {
   subs(string) {
     this.sub.forEach((v, k) => {
       string = string.replace(k, v);
+      string = string.replace(/%u([0-9a-f]+)/gi, (...args) => {
+        return String.fromCodePoint(parseInt(args[1], 16));
+      });
     });
 
     return string;

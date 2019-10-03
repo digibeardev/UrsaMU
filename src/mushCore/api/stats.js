@@ -155,8 +155,14 @@ class Stats {
    */
   async set(target, path, value) {
     let err;
+    let parts = path.split(".");
+    let stat = await this.info(parts[0]);
     try {
-      set(target.stats, path, value);
+      set(
+        target.stats,
+        `${stat.model.toLowerCase()}.${parts[0].toLowerCase()}.${parts[1]}`,
+        value
+      );
       await objData.update(target._key, { stats: target.stats });
       let stats = await objData.key(target._key);
       return { err, stats };
@@ -171,20 +177,27 @@ class Stats {
    * @param {String} stat The stat object we want.
    */
   async get(target, stat) {
-    const statObj = await this.info(stat);
     let results;
+    let statObj;
     if (stat.match(/\./)) {
       const parts = stat.split("."); // break the dot notation into elements
-      const defs = this.models.get(parts[0]);
-      results = get(target.stats, stat);
+      statObj = await this.info(parts[0]);
+      const model = statObj.model;
+      const defs = this.models.get(model);
+      results = get(
+        target.stats,
+        `${statObj.model.toLowerCase()}.${parts[0].toLowerCase()}.${parts[1]}`
+      );
       if (!results) {
         return get(defs, parts.pop());
       } else {
         return results;
       }
     } else {
-      const defs = this.models.get(statObj.model);
-      results = get(target.stats, `${statObj.model}.${stat.toLowerCase()}`);
+      const st = await this.info(stat);
+      const model = st.model;
+      const defs = this.models.get(model);
+      results = get(target.stats, `${st.model}.${stat.toLowerCase()}`);
       results = defaults(results, defs);
       return results;
     }
@@ -197,8 +210,9 @@ class Stats {
    */
   async value(target, objStat) {
     try {
-      let results = await this.stats.get(objStat);
-
+      let results = await this.info(objStat);
+      let model = results.model;
+      defaults(results, this.models.get(model));
       return results.value({
         player: target,
         stat: await this.get(target, objStat)

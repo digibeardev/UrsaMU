@@ -34,6 +34,27 @@ class ObjData {
     }
   }
 
+  /**
+   * Get all database references of an object type.
+   * @param {String} type Can be 'player', 'thing', 'room', or 'exit'.
+   */
+  async all(type = "") {
+    if (type) {
+      let results = await db.query(`
+      FOR obj in objects
+      FILTER obj.type == "${type}"
+      RETURN obj
+    `);
+      return await results.all();
+    } else {
+      let results = await db.query(`
+      FOR obj in objects
+      RETURN obj
+    `);
+      return await results.all();
+    }
+  }
+
   /** Generate a new ID */
   newKey() {
     // First, check for any gaps in the database. If there's an open
@@ -80,6 +101,7 @@ class ObjData {
     record.alias = "";
     record.type = record.type ? record.type : "thing";
     record.attributes = [];
+    record.components = [];
     record.owner = record.owner ? record.owner : record._key;
     record.moniker = "";
     record.created = today;
@@ -194,6 +216,8 @@ class ObjData {
  * @property {String} [alias] - A short name the object can be referenced
  * by. Alias is for players only and will be ignored on other
  * types of bkects
+ * @property {Components} [Compoents] - A holding object for component system
+ * data.
  * @property {Attribute[]} [attributes] - A collection of attributes
  * @property {Key} owner
  * @property {String} [moniker] - Alternate color scheme for a player name
@@ -214,6 +238,14 @@ class ObjData {
 /**
  * @typedef {String} Key - The string representation of the
  * database object number.
+ */
+
+/**
+ * A Component
+ * @typedef {Object} Component
+ * @property {string} name - The name of the component
+ * @property {*} defaults - The default data that comes with
+ * the component once assigned.
  */
 
 module.exports.db = db;

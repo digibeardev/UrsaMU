@@ -80,7 +80,10 @@ module.exports = mush => {
             socket,
             `%chGAME>>%cn ${
               target.moniker ? target.monker : target.name
-            }'s '%ch${data[2].trim()}%cn' is '%ch${results}%ch'.`
+            }'s '%ch${mush.capstring(
+              data[2].trim(),
+              "title"
+            )}%cn' is '%ch${results}%ch'.`
           );
         } else {
           mush.broadcast.send(socket, "I don't understand that stat.");
@@ -103,7 +106,7 @@ module.exports = mush => {
         );
         list = list.map(stat => stat.name);
         output += `%ch%cu${cat.toUpperCase()}(${list.length})%cn`;
-        output += `%r[columns(${list.sort().join(" ")},4)]%r%r`;
+        output += `%r[columns(${list.sort().join("|")},4,,|)]%r%r`;
       }
       output += `Type '%ch@stat/info <stat>%cn' for more information.%r`;
       output += `[footer()]`;

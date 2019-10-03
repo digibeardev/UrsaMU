@@ -1,10 +1,10 @@
 # @describe
 
-COMMAND:   @describe `<object>` = `<description>`
+COMMAND:   `@describe <object> = <description>`
 
 ATTRIBUTE: desc
 
-Sets the description for <object>, which others see when they look at the
+Sets the description for `<object>`, which others see when they look at the
 object.  Giving all your objects, rooms, and exits good descriptions is
 considered to be good building practice.
 
@@ -14,7 +14,7 @@ are evaluated when someone looks at the object.  In function references,
 to the enactor (such as %n, %#, %p, etc) refer to the looker.
 
 Examples:
-  <object> @desc vase = You see a delicate Ming vase.
-  <exit>   @desc elevator = There is an elevator to the east.
+  `<object>` @desc vase = You see a delicate Ming vase.
+  `<exit>`   @desc elevator = There is an elevator to the east.
 
-Related Topics: look, @adescribe, @odescribe.
+Related Topics: look, [@adescribe](@adescribe.md), [@odescribe](@odescribe).

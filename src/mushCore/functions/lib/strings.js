@@ -1,6 +1,3 @@
-const utf8 = require("utf8");
-const stripAnsi = require("strip-ansi");
-
 module.exports = parser => {
   // If statement logic.
   parser.funs.set("if", (en, args, scope) => {
@@ -145,8 +142,9 @@ module.exports = parser => {
     }
     const list = args[0];
     const cols = parseInt(args[1]) || 1;
-    const delim = args[2] ? args[2] : " ";
-    const indent = args[3] ? parseInt(args[3]) : 0;
+    const sep = args[2];
+    const delim = args[3] ? args[3] : " ";
+    const indent = args[4] ? parseInt(args[4]) : 0;
     let output = "";
     let line = "";
     let count = 0;
@@ -156,11 +154,11 @@ module.exports = parser => {
       const length = width - parser.stripAnsi(parser.subs(item)).length;
       if (count === cols) {
         output += line + "%r";
-        item = item + repeatString(delim, length);
+        item = item + repeatString(sep, length);
         line = item;
         count = 1;
       } else {
-        item = item + repeatString(delim, length);
+        item = item + repeatString(sep, length);
         line += item;
         count++;
       }
@@ -196,5 +194,9 @@ module.exports = parser => {
     const split = args[1];
 
     return str.split(split.trim())[1];
+  });
+
+  parser.funs.set("uni", (en, args, scope) => {
+    return String.fromCodePoint(parseInt(args[0], 16));
   });
 };

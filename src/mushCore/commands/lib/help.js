@@ -5,9 +5,22 @@ module.exports = mush => {
     run: async (socket, data) => {
       let helpTxt =
         "%r%cr---%cn[ljust(%ch%cr<<%cn %chHELP %cr>>%cn,75,%cr-%cn)]";
+      const enactor = await mush.db.key(socket._key);
       let help = data.filter(entry => entry !== "\r");
+      let wizard = await mush.flags.hasFlags(
+        enactor,
+        "wizard|royalty|immortal"
+      );
       if (!help[1]) {
-        for (cat of mush.help.categories) {
+        const categories = mush.help.categories.filter(cat => {
+          if ((!wizard && cat === "Wizard") || cat === "Hidden") {
+            return false;
+          } else {
+            return true;
+          }
+        });
+
+        for (cat of categories) {
           helpTxt += `%r[center(%ch%cr<<%cn %ch${cat.toUpperCase()} %cr>>%cn,78,%cr-%cn)]%r`;
           count = 0;
           mush.help
@@ -22,21 +35,8 @@ module.exports = mush => {
               count++;
             });
         }
-        helpTxt += `%r[rjust(%ch%cr<%cn %ch${
-          mush.help.values().length
-        }%cn entries %ch%cr>%cn,75,%cr-%cn )]%cr---%cn`;
+        helpTxt += `%r[footer(Type '+help <topic>' for more)]`;
         mush.broadcast.send(socket, helpTxt);
-        if (
-          await mush.flags.hasFlags(
-            await mush.db.key(socket._key),
-            "immortal|wizard|royalty"
-          )
-        ) {
-          mush.broadcast.send(
-            socket,
-            "Type '%chhelp/admin%cn' for admin help commands."
-          );
-        }
       } else {
         if (mush.help.has(help[1].trim())) {
           let helptext = `%cr---%cy[ljust(%ch%cr<<%cn %ch${help[1]
@@ -46,7 +46,7 @@ module.exports = mush => {
           helptext += mush.help
             .get(help[1].trim())
             .text.replace(
-              /(?:\*\*)(.*)(?:\*\*)/,
+              /(?:\*\*)(.*)(?:\*\*)/g,
               (...args) => `%ch${args[1]}%cn`
             )
             .replace(/`([^`]+)`/g, (...args) => `%cy${args[1]}%cn`)
@@ -54,17 +54,10 @@ module.exports = mush => {
               /\[([@?\w]+)\]\([^\)]+\)/g,
               (...args) => `${args[1].replace("@", " @")}`
             )
+            .replace(/##\s(.*)/g, (...args) => `%ch%cu${args[1]}%cn`)
             .replace(/#\s(.*)/g, () => "");
 
           helptext += "%r[repeat(%cr-%cn,78)]";
-          if (
-            await mush.flags.hasFlags(
-              await mush.db.key(socket._key),
-              "wizard|royalty|immortal"
-            )
-          ) {
-            helptext += "%rType '%chhelp/admin%cn' for admin help commands.";
-          }
 
           mush.broadcast.send(socket, helptext);
         } else {

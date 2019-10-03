@@ -1,11 +1,11 @@
-const { objData: db, db: dbObj } = require("../database");
+const { objData: db } = require("../database");
 
 class ECS {
   constructor() {
     this.systems = new Map();
     this.components = new Map();
     this.filters = new Map();
-    this.assem = new Map();
+    this.templates = new Map();
   }
 
   /**
@@ -101,21 +101,63 @@ class ECS {
    * @param {function(DBRef[])} system The system to invoke
    */
   async trigger(system) {
-    const objCursor = await dbObj.query(`
-          FOR obj IN objects
-            RETURN obj
-    `);
-    const results = await objCursor.all();
+    const dbRefs = await db.all();
     system = system.toLowerCase();
     if (this.systems.has(system)) {
       if (this.filters.has(system)) {
-        const filter = this.filters.get(system)(results);
+        const filter = this.filters.get(system)(dbrefs);
         this.systems.get(system)(filter);
       } else {
-        this.systems.get(system)(results);
+        this.systems.get(system)(dbrefs);
       }
     } else {
       throw new Error("System not found.");
+    }
+  }
+
+  /**
+   * Create a new template
+   * @param {String} name - Name of the Template
+   * @param {Compontent[]} components - An array of components to be added
+   * @param {String} [description]  - An optional description of a template
+   */
+  template(name, comps, desc = "") {
+    name = name.toLowerCase();
+    this.templates.add(name, { name, comps, desc });
+  }
+
+  /**
+   * Set a Template on an object
+   * @param {DBRef} tar The object to add a template too.
+   * @param {String} temp The name of the template to add.
+   */
+  async setTemplate(tar, temp) {
+    temp = temp.toLowerCase();
+    const template = this.templates.get(temp);
+    try {
+      for (const comp of template.comps) {
+        await this.add(tar, comp);
+      }
+      await db.update(tar._key, { components: tar.components });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Remove a template and associated components from an object.
+   * @param {DBRef} tar The target to remove the template from.
+   */
+  async remTemplate(tar) {
+    temp = tar.components.template.toLowerCase();
+    const template = this.templates.get(temp);
+    try {
+      for (const comp of template.comps) {
+        await this.remove(tar, comp);
+      }
+      await db.update(tar._key, { components: tar.components });
+    } catch (error) {
+      throw error;
     }
   }
 }
