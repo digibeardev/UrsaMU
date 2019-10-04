@@ -1,7 +1,12 @@
 const stringReplace = require("string-replace-async");
+const moment = require("moment");
 const { objData } = require("../database");
 const flags = require("./flags");
 const { log } = require("../../utilities");
+const attrs = require("./attrs");
+const broadcast = require("./broadcast");
+const stats = require("./stats");
+const queues = require("../systems/queues");
 /**
  * Create New HoniKomu Parser()
  * The main mechinism is totally from here, with some modifications to
@@ -13,8 +18,13 @@ const { log } = require("../../utilities");
 class Parser {
   constructor() {
     this.db = objData;
+    this.queues = queues;
+    this.attrs = attrs;
     this.flags = flags;
+    this.broadcast = broadcast;
+    this.stats = stats;
     this.log = log;
+    this.moment = moment;
     this.sub = new Map();
     this.funs = new Map();
     require("../systems/substitutions")(this);

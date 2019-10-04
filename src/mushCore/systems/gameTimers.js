@@ -15,7 +15,7 @@ module.exports = mush => {
         mush.broadcast.send(
           v,
           "Your character isn't registered. " +
-            "Please take a moment to register!%rSee '%ch+help @accounts%cn'" +
+            "Please take a moment to register!%rSee '%ch+help @account%cn'" +
             " For more information."
         );
       }

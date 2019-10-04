@@ -32,6 +32,11 @@ module.exports = class Collections {
         throw error;
       }
     }
+
+    // Trigger some optional methods
+    if (this.hasOwnProperty("onLoad")) {
+      this.onLoad();
+    }
   }
 
   /**
@@ -137,10 +142,28 @@ module.exports = class Collections {
     }
   }
 
-  remove(tar) {
+  /**
+   * Remove an entry from the collection.
+   * @param {DBRef} tar The object to be deleted.
+   */
+  async remove(tar) {
     await this.collection.remove(tar._key).catch(error => {
       throw error;
-    })
+    });
   }
 
+  async all() {
+    const query = await db
+      .query(
+        `
+      FOR entity IN ${this.collName}
+      RETURN entity
+    `
+      )
+      .catch(error => {
+        throw error;
+      });
+
+    return await query.all();
+  }
 };

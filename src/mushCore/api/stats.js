@@ -194,7 +194,7 @@ class Stats {
         return results;
       }
     } else {
-      const st = await this.info(stat);
+      const st = this.stats.get(stat);
       const model = st.model;
       const defs = this.models.get(model);
       results = get(target.stats, `${st.model}.${stat.toLowerCase()}`);
@@ -209,16 +209,23 @@ class Stats {
    * @param {String} stat The stat we want to get the value of.
    */
   async value(target, objStat) {
-    try {
-      let results = await this.info(objStat);
+    objStat = capstring(objStat, "title");
+    let results = this.stats.get(objStat);
+    if (results) {
       let model = results.model;
-      defaults(results, this.models.get(model));
-      return results.value({
-        player: target,
-        stat: await this.get(target, objStat)
-      });
-    } catch (error) {
-      log.error(error);
+      if (model) {
+        defaults(results, this.models.get(model));
+        return results.value({
+          player: target,
+          stat: await this.get(target, objStat).catch(
+            error => `#-2 ${error.toUpperCase()}`
+          )
+        });
+      } else {
+        throw new Error("INVALID MODEL");
+      }
+    } else {
+      throw new Error("INVALID STAT");
     }
   }
 }

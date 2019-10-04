@@ -223,7 +223,7 @@ module.exports = class UrsaMu {
       ran: false
     };
 
-    socket.timestamp = new Date().getTime() / 1000;
+    socket.timestamp = moment(new Date()).unix();
 
     // Iterate through each registered piece of middleware.
     // we'll pass a refrence to the class 'this' so we can

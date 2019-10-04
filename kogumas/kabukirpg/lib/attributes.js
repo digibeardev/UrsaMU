@@ -70,9 +70,9 @@ module.exports = mush => {
         example: "(brawn + Vitality + Chakra)/3",
         value: async ({ player }) =>
           Math.round(
-            (parseInt(await mush.stats.get(player, "attribute.brawn.LXP")) +
-              parseInt(await mush.stats.get(player, "attribute.vitality.LXP")) +
-              parseInt(await mush.stats.get(player, "attribute.chakra.LXP"))) /
+            (parseInt(await mush.stats.get(player, "brawn.LXP")) +
+              parseInt(await mush.stats.get(player, "vitality.LXP")) +
+              parseInt(await mush.stats.get(player, "chakra.LXP"))) /
               3
           ).toString()
       },
@@ -84,9 +84,9 @@ module.exports = mush => {
         example: "(grace + spirit + mind)/3",
         value: async ({ player }) =>
           Math.round(
-            (parseInt(await mush.stats.get(player, "attribute.grace.LXP")) +
-              parseInt(await mush.stats.get(player, "attribute.spirit.LXP")) +
-              parseInt(await mush.stats.get(player, "attribute.mind.LXP"))) /
+            (parseInt(await mush.stats.get(player, "grace.LXP")) +
+              parseInt(await mush.stats.get(player, "spirit.LXP")) +
+              parseInt(await mush.stats.get(player, "mind.LXP"))) /
               3
           ).toString()
       },
@@ -98,9 +98,9 @@ module.exports = mush => {
         example: "(composure + guile + grit)/3",
         value: async ({ player }) =>
           Math.round(
-            (parseInt(await mush.stats.get(player, "attribute.composure.LXP")) +
-              parseInt(await mush.stats.get(player, "attribute.guile.LXP")) +
-              parseInt(await mush.stats.get(player, "attribute.grit.LXP"))) /
+            (parseInt(await mush.stats.get(player, "composure.LXP")) +
+              parseInt(await mush.stats.get(player, "guile.LXP")) +
+              parseInt(await mush.stats.get(player, "grit.LXP"))) /
               3
           ).toString()
       }
