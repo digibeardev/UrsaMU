@@ -308,7 +308,7 @@ class Flags {
   async flagCodes(target) {
     try {
       if (target) {
-        let output = `(#${target._key}${target.type[0].toUpperCase()}`;
+        let output = `%(#${target._key}${target.type[0].toUpperCase()}`;
         for (const flag of target.flags) {
           try {
             const flgCursor = await this.get(flag);
@@ -324,7 +324,7 @@ class Flags {
             log.error(error);
           }
         }
-        return output + ")";
+        return output + "%)";
       }
     } catch (error) {
       log.error(error);

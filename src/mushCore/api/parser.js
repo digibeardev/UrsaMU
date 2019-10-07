@@ -123,9 +123,9 @@ class Parser {
       } else {
         // scope variables may be imbedded in longer strings, we'll have
         // to use regular expressions to make sure they're changed.
-        let output = "";
+        let output = expr.value;
         for (const key in scope) {
-          output = expr.value.replace(key, scope[key]);
+          output = output.replace(key, scope[key]);
         }
 
         return output ? output : expr.value;
@@ -135,12 +135,6 @@ class Parser {
       // exists that matches the expression word.
     } else if (expr.type === "apply") {
       let { operator, args } = expr;
-
-      // Recursively go through the args and resolve.
-      for (const arg of args) {
-        const index = args.indexOf(arg);
-        args[index] = await this.evaluate(en, arg, scope);
-      }
 
       if (operator.type === "word" && this.funs.has(operator.value)) {
         return await this.funs.get(operator.value)(en, args, scope);
@@ -189,27 +183,34 @@ class Parser {
    * @param {object} scope The context of the evaluation.
    */
 
-  async run(en, string, scope) {
-    string = string.replace(/%[\[]/g, "&3").replace(/%[\]]/g, "&4");
-    const replaced = await stringReplace(
-      string,
-      /\[([^\]]+)\]/g,
-      async (...args) => {
-        try {
-          args[1].replace(/%[(]/g, "\u250D").replace(/%[)]/g, "\u2511");
-          return await this.subs(
-            await this.evaluate(en, this.parse(args[1]), scope)
-          );
-        } catch (error) {
-          return args[0];
-        }
-      }
-    );
+  async run(en, string, scope, options = { parse: true }) {
+    const { parse } = options;
 
-    try {
-      return this.subs(await this.evaluate(en, this.parse(replaced), scope));
-    } catch (error) {
-      return this.subs(replaced);
+    // Determine if the text should be parsed, or just passed through.
+    if (parse) {
+      string = string.replace(/%[\[]/g, "&3").replace(/%[\]]/g, "&4");
+      const replaced = await stringReplace(
+        string,
+        /\[([^\]]+)\]/g,
+        async (...args) => {
+          try {
+            args[1].replace(/%[(]/g, "\u250D").replace(/%[)]/g, "\u2511");
+            return await this.subs(
+              await this.run(en, args[1], scope, { parse: true, en })
+            );
+          } catch (error) {
+            return args[0];
+          }
+        }
+      );
+
+      try {
+        return this.subs(await this.evaluate(en, this.parse(replaced), scope));
+      } catch (error) {
+        return this.subs(replaced);
+      }
+    } else {
+      return string;
     }
   }
 }

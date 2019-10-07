@@ -1,6 +1,6 @@
 module.exports = mush => {
   mush.cmds.set("@name", {
-    pattern: /^@name\s?(.+)\s?=\s?(.*)/i,
+    pattern: /^@name\s+(.+)\s?=\s?(.*)/i,
     restriction: "connected",
     run: async (socket, match) => {
       // Get our variables together.

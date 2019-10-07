@@ -23,20 +23,26 @@ module.exports = parser => {
     }
   });
 
-  parser.funs.set("iter", (en, args, scope) => {
-    const list = args[0];
-    const idelim = args[2] ? args[2] : " ";
-    const odelim = args[3] ? args[3] : " ";
+  parser.funs.set("iter", async (en, args, scope) => {
+    const list = await parser.evaluate(en, args[0], scope);
+    const idelim = args[2] ? await parser.evaluate(en, args[2], scope) : " ";
+    const odelim = args[3] ? await parser.evaluate(en, args[3], scope) : "";
 
     let output = "";
+    let length = list.split(idelim).length;
+    let count = 1;
     for (const item of list.split(idelim)) {
       scope["##"] = item;
       scope["@#"] = list
         .split(idelim)
         .indexOf(item)
         .toString();
-
-      output += args[1] + odelim;
+      if (count < length) {
+        output += (await parser.evaluate(en, args[1], scope)) + odelim;
+        count++;
+      } else {
+        output += await parser.evaluate(en, args[1], scope);
+      }
     }
     return output;
   });

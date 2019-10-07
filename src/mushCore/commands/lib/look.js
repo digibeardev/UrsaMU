@@ -3,164 +3,143 @@ const { db } = require("../../database");
 
 module.exports = mush => {
   mush.cmds.set("look", {
-    pattern: /^[look]+\s+?(.*)?/i,
+    pattern: /^[look]+\s?(.*)?/i,
     restriction: "connected",
     run: async (socket, match) => {
-      // Set a couple of function expressions to help build
-      // object descriptions.
-
-      const description = (en, tar) => {
-        return tar.description;
-      };
-
-      const idleTime = player => {
-        const idleEpoch = mush.queues.keyToSocket(player._key).timestamp;
-        let d = new Date(0);
-        d.setUTCSeconds(idleEpoch);
-        const idle = moment(d.toUTCString());
-        const now = moment(Date.now());
-        return idle.from(now, true);
-      };
-
-      // Format contents for display
-      const contents = async (en, tar) => {
-        try {
-          const playerCursor = await db.query(`
-          FOR obj in objects
-            FILTER obj.type == "player" && obj.location == "${tar._key}"
-            RETURN obj  
-        `);
-
-          const objCursor = await db.query(`
-          FOR obj in objects
-            FILTER obj.type == "thing" && obj.location == "${tar._key}"
-            RETURN obj
-        `);
-
-          let output = "";
-
-          if (en.location === tar._key) {
-            output =
-              "%r%cr---%cn[ljust(%ch%cr<<%cn %chCharacters %cr>>%cn,75,%cr-%cn)]" +
-              "[ljust(%r%ch%cuName%cn,25)][ljust(%ch%cuIdle%cn,15)]%cn %ch%cuShort-Desc%cn";
-            const players = await playerCursor.all();
-            for (const player of players) {
-              if (await mush.flags.hasFlags(player, "connected")) {
-                output += `%r${await mush.name(en, player)}`
-                  .padEnd(26)
-                  .substring(0, 26);
-                output += `${await idleTime(player)}`.padEnd(16);
-                output += `${
-                  (await mush.attrs.get(
-                    await mush.db.key(player._key),
-                    "short-desc"
-                  ))
-                    ? await mush.attrs.get(
-                        await mush.db.key(player._key),
-                        "short-desc"
-                      )
-                    : "%ch%cxType %cn&short-desc me=<desc>%ch%cx to set.%cn"
-                }`;
-              }
-            }
-            if (objCursor.hasNext()) {
-              const objects = await objCursor.all();
-              output +=
-                "%r%cr---%cn[ljust(%ch%cr<<%cn %chObjects %cr>>%cn,75,%cr-%cn)]";
-              for (obj of objects) {
-                output += `%r${await mush.name(en, obj)}`;
-              }
-            }
-          } else {
-            output = tar.type === "player" ? "\nCarrying:" : "\nContents:";
-            for (const item of tar.contents) {
-              const itm = await mush.db.key(item);
-              output += `%r${await mush.name(en, itm)}`;
-            }
-          }
-
-          return output;
-        } catch (error) {
-          mush.log.error(error);
+      const evalString = async (en, string, scope) => {
+        if (typeof string === "string") {
+          return await mush.parser
+            .run(en, string, scope, { parse: true })
+            .catch(error => {
+              throw error;
+            });
+        } else {
+          string = await mush.parser.evaluate(en, string, scope);
         }
       };
 
-      // Format exits for display.
-      const exits = async (en, tar) => {
-        let tars;
-        const exits = [];
+      const en = await mush.db.key(socket._key).catch(error => {
+        throw error;
+      });
+      const curRoom = await mush.db.key(en.location).catch(error => {
+        throw error;
+      });
+      let tar = match[1];
 
-        for (let exit of tar.exits) {
-          exit = await mush.db.key(exit);
-          if (exit.type == "exit") {
-            exits.push(exit.name.split(";")[0].trim());
-          }
-        }
-        const exitsList = exits.join("|");
-
-        if (exits.length > 0) {
-          tars =
-            `%r%cr---%cn[ljust(%ch%cr<<%cn %chExits %cr>>%cn,75,%cr-%cn)]%r` +
-            `[columns(${exitsList},26,|)]`;
-        }
-        return tars;
-      };
-
-      // Figure out enactor and target information.
-      let enactor = await mush.db.key(socket._key);
-      let target = await mush.db.get(match[1]);
-      let curRoom = await mush.db.key(enactor.location);
-
-      if (!match[1]) {
-        target = await mush.db.key(enactor.location);
-      }
-
-      if (typeof match[1] === "string" && match[1].toLowerCase() === "me") {
-        target = enactor;
-      } else if (
-        typeof match[1] === "string" &&
-        match[1].toLowerCase() == "here"
-      ) {
-        target = await mush.db.key(enactor.location);
-      } else if (!match[1]) {
-        target = await mush.db.key(enactor.location);
-      } else if (
-        (target[0] && target[0].location === enactor._key) ||
-        (target[0] && target[0].location === curRoom._key)
-      ) {
-        target = target[0];
-      }
-
-      // If target doesn't have a value at this point, the object probably
-      // doesn't exist.
-      if (!target || target.length <= 0) {
-        mush.broadcast.send(socket, "I can't find that here.");
+      // Check for target
+      if (!tar) {
+        tar = curRoom;
+      } else if (tar === "me") {
+        tar = en;
+      } else if (tar === "here") {
+        tar = curRoom;
       } else {
-        (async () => {
-          let desc = "";
-          // Send the built description to the enactor.
-          desc += (await mush.name(enactor, target)) + "\n";
-          desc += "%r" + (await description(enactor, target)) + "%r";
-
-          if (target.contents.length > 0) {
-            desc += await contents(enactor, target);
-          }
-          if (await exits(enactor, target)) {
-            desc += await exits(enactor, target);
-          }
-          if (enactor.location === target._key) {
-            desc += `%r[rjust(%ch%cr<<%cn %ch${
-              (await mush.flags.hasFlags(target, "ic")) ? "IC" : "OOC"
-            } %cr>>%cn,75,%cr-%cn)]%cr---%cn`;
-          }
-          mush.broadcast.send(
-            socket,
-            await mush.parser.run(socket._key, desc, {
-              "%0": await mush.name(enactor, target, true)
-            })
-          );
-        })().catch(error => mush.log.error(error));
+        tar = await mush.db.get(tar).catch(error => {
+          throw error;
+        });
+        if (Array.isArray(tar)) {
+          tar = tar[0];
+        }
       }
+      let output = "";
+      // Name
+      const name =
+        mush.attrs.has(tar, "nameformat") && en.location === tar._key
+          ? mush.attrs.get(tar, "nameformat")
+          : `[name(${tar._key})]`;
+      let localScope = {};
+      localScope["%0"] = await mush.parser.run(
+        en._key,
+        `[name(${tar._key})]`,
+        {},
+        { parse: true }
+      );
+      output = await evalString(en._key, name, {
+        ...localScope,
+        ...mush.scope
+      });
+
+      // Description
+      let desc = "%r";
+      if (mush.attrs.has(tar, "descformat")) {
+        desc += mush.attrs.get(tar, "descformat");
+      } else if (mush.attrs.has(tar, "description")) {
+        desc += mush.attrs.get(tar, "description");
+      } else {
+        desc += "You See Nothing Special.";
+      }
+
+      localScope = {};
+      localScope["%n"] = await mush.parser.run(
+        en._key,
+        `[name(${en._key})]`,
+        {}
+      );
+      localScope["%#"] = "#" + en._key;
+
+      output += await evalString(en._key, desc, {
+        ...localScope,
+        ...mush.scope
+      });
+
+      // Contents
+      output += "%r";
+      let contents = [];
+      for (let item of tar.contents) {
+        item = await mush.db.key(item);
+        if (
+          (item.type === "player" && mush.flags.hasFlags(item, "connected")) ||
+          item.type === "thing"
+        ) {
+          contents.push(item);
+        }
+      }
+      localScope = {};
+      localScope["%0"] = contents.map(item => "#" + item._key).join(" ");
+      if (mush.attrs.has(tar, "conformat")) {
+        output += await evalString(en._key, mush.attrs.get(tar, "conformat"), {
+          ...localScope,
+          ...mush.scope
+        });
+      } else {
+        output += tar.type === "player" ? "Carrying:" : "Contents:";
+        output += await mush.parser.run(
+          en._key,
+          contents.map(item => `%r[name(${item._key})]`).join(""),
+          mush.scope
+        );
+      }
+
+      // Exits
+
+      // Get the object infor for each exit.
+      const exits = [];
+      for (let exit of tar.exits) {
+        exit = await mush.db.key(exit);
+        exits.push(exit);
+      }
+
+      // Check for an exit format listing
+      if (mush.attrs.has(tar, "exitformat")) {
+        localScope = {};
+        localScope["%0"] = exits.map(exit => `#${exit._key}`).join("");
+        localScope["me"] = tar._key;
+        output +=
+          "%r" +
+          (await mush.parser.run(
+            en._key,
+            await mush.attrs.get(tar, "exitformat"),
+            { ...mush.scope, ...localScope }
+          ));
+      } else {
+        // default display
+        if (exits.length > 0) {
+          output += "%rObvious Exits:%r";
+          output += exits.map(exit => exit.name.split(";")[0]).join(" ");
+        }
+      }
+
+      mush.broadcast.send(socket, output);
     }
   });
 };

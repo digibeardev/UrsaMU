@@ -1,23 +1,34 @@
 module.exports = parser => {
   // If statement logic.
-  parser.funs.set("if", (en, args, scope) => {
+  parser.funs.set("if", async (en, args, scope) => {
+    let cond = await parser.evaluate(en, args[0], scope);
+    if (Number.isInteger(parseInt(cond))) {
+      cond = parseInt(cond);
+    }
+    const string = await parser.evaluate(en, args[1], scope);
     if (args.length < 2) {
-      throw new SyntaxError("if expects at least 2 arguments");
-    } else if (args[0] !== false) {
-      return args[1];
+      return "#-1 IF REQUIRES 2 ARGUMENTS";
+    } else if (cond) {
+      return string;
     } else {
-      return args[2] ? args[2] : "";
+      return "";
     }
   });
 
   // Ifelse statement logic.
-  parser.funs.set("ifelse", (en, args, scope) => {
-    if (args.length !== 3) {
-      throw new SyntaxError("ifelse expects 3 arguments");
-    } else if (args[0] !== false) {
-      return args[1];
+  parser.funs.set("ifelse", async (en, args, scope) => {
+    let cond = await parser.evaluate(en, args[0], scope);
+    if (Number.isInteger(parseInt(cond))) {
+      cond = parseInt(cond);
+    }
+    const string = await parser.evaluate(en, args[1], scope);
+    const string2 = args[2] ? await parser.evaluate(en, args[2], scope) : "";
+    if (args.length >= 3 && args.length < 2) {
+      return "#-1 IFELSE REQUIRES TWO TO THREE ARGUMENTS";
+    } else if (cond) {
+      return string;
     } else {
-      return args[2];
+      return string2;
     }
   });
 
@@ -58,13 +69,13 @@ module.exports = parser => {
   };
 
   // Center text.
-  parser.funs.set("center", (en, args, scope) => {
+  parser.funs.set("center", async (en, args, scope) => {
     if (args.length < 2) {
       throw new SyntaxError("center requires at least 2 arguments");
     } else {
-      const message = args[0];
-      const width = parseInt(args[1]);
-      const repeat = args[2] ? args[2] : " ";
+      const message = await parser.evaluate(en, args[0], scope);
+      const width = parseInt(await parser.evaluate(en, args[1], scope));
+      const repeat = args[2] ? await parser.evaluate(en, args[2], scope) : " ";
 
       // Check to see if the second arg is an integer
       if (Number.isInteger(width)) {
@@ -86,10 +97,11 @@ module.exports = parser => {
   });
 
   // left justification
-  parser.funs.set("ljust", (en, args, scope) => {
-    const message = args[0];
-    const filler = args[2] ? args[2] : " " ? args[2] : " ";
-    const width = parseInt(args[1]);
+  parser.funs.set("ljust", async (en, args, scope) => {
+    let message = await parser.evaluate(en, args[0], scope);
+    message = message.replace(/%[(]/g, "\u250D").replace(/%[)]/g, "\u2511");
+    const filler = args[2] ? await parser.evaluate(en, args[2], scope) : " ";
+    const width = parseInt(await parser.evaluate(en, args[1], scope), 10);
 
     // Check to make sure we have the right number of arguments.
     if (args.length < 2) {
@@ -105,10 +117,10 @@ module.exports = parser => {
   });
 
   // left justification
-  parser.funs.set("rjust", (en, args, scope) => {
-    const message = args[0];
-    const filler = args[2] ? args[2] : " " ? args[2] : " ";
-    const width = parseInt(args[1]);
+  parser.funs.set("rjust", async (en, args, scope) => {
+    const message = await parser.evaluate(en, args[0], scope);
+    const filler = args[2] ? await parser.evaluate(en, args[2], scope) : " ";
+    const width = parseInt(await parser.evaluate(en, args[1], scope));
 
     // Check to make sure we have the right number of arguments.
     if (args.length < 2) {
@@ -124,12 +136,12 @@ module.exports = parser => {
   });
 
   // repeat()
-  parser.funs.set("repeat", (en, args, scope) => {
+  parser.funs.set("repeat", async (en, args, scope) => {
     if (args.length < 2) {
-      return SyntaxError("repeat expects 2 arguments");
+      return "#-1 REPEAT EXPECTS 2 ARGUMENTS";
     }
-    const message = args[0];
-    const width = parseInt(args[1]);
+    const message = await parser.evaluate(en, args[0], scope);
+    const width = parseInt(await parser.evaluate(en, args[1], scope));
     if (Number.isInteger(width)) {
       return message.repeat(width);
     }
@@ -138,13 +150,15 @@ module.exports = parser => {
   // Columns
   parser.funs.set("columns", async (en, args, scope) => {
     if (args.length < 2) {
-      return SyntaxError("columns expects 2 arguments");
+      return "#-1 COLUMNS EXPECTS 2 ARGUMENTS";
     }
-    const list = args[0];
-    const cols = parseInt(args[1]) || 1;
-    const sep = args[2];
-    const delim = args[3] ? args[3] : " ";
-    const indent = args[4] ? parseInt(args[4]) : 0;
+    const list = await parser.evaluate(en, args[0], scope);
+    const cols = parseInt(await parser.evaluate(en, args[1], scope)) || 1;
+    const sep = args[2] ? await parser.evaluate(en, args[2], scope) : " ";
+    const delim = args[3] ? await parser.evaluate(en, args[3], scope) : " ";
+    const indent = args[4]
+      ? parseInt(await parser.evaluate(en, args[4], scope))
+      : 0;
     let output = "";
     let line = "";
     let count = 0;
@@ -168,10 +182,10 @@ module.exports = parser => {
     return "%s".repeat(indent) + output + line;
   });
 
-  parser.funs.set("cat", (en, args, scope) => {
+  parser.funs.set("cat", async (en, args, scope) => {
     let output = "";
     for (const arg of args) {
-      output += " " + arg;
+      output += await parser.evaluate(en, arg, scope);
     }
     return output;
   });

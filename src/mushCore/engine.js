@@ -122,12 +122,7 @@ module.exports = class UrsaMu {
   async init() {
     this.loadApi();
     this.middleware();
-    this.loadSystems([
-      "./commands",
-      "../../text",
-      "./systems/gameTimers",
-      "./systems/events"
-    ]);
+    this.loadSystems(["./commands", "../../text", "./systems/gameTimers"]);
     setTimeout(() => require("./systems/telnet")(this), 3000);
     setTimeout(() => this.loadKogumas(), 3000);
 
@@ -176,6 +171,71 @@ module.exports = class UrsaMu {
     }
 
     this.emitter.emit("loaded");
+
+    this.emitter.on("connected", async socket => {
+      try {
+        const enactor = await this.db.key(socket._key);
+        const curRoom = await this.db.key(enactor.location);
+        this.flags.set(enactor, "connected");
+        this.broadcast.sendList(
+          socket,
+          curRoom.contents,
+          `${enactor.name} has connected.`,
+          "connected"
+        );
+      } catch (error) {
+        this.log.error(error);
+      }
+    });
+
+    this.emitter.on("close", async error => {
+      if (error) {
+        this.queues.sockets.forEach(async (v, k) => {
+          if (!v._socket.writable) {
+            const target = await this.db.key(k);
+            this.flags.set(target, "!connected");
+            this.queues.socket.delete(k);
+          }
+        });
+      }
+    });
+
+    this.emitter.on("disconnected", async socket => {
+      const enactor = await this.db.key(socket._key);
+      this.flags.set(enactor, "!connected");
+      const curRoom = await this.db.key(enactor.location);
+      this.broadcast.sendList(
+        socket,
+        curRoom.contents,
+        `${enactor.name} has disconnected.`,
+        "connected"
+      );
+    });
+
+    this.emitter.on("channel", (socket, chan, msg) => {
+      this.queues.sockets.forEach(async socket => {
+        const target = await this.db.key(socket._key);
+
+        // loop through each channel, and see if there's a match.
+        for (const channel of target.channels) {
+          if (channel.name == chan.name && channel.status) {
+            let header = "";
+            header += chan.header
+              ? chan.header
+              : `%ch<${capstring(chan.name, "title")}>%cn`;
+
+            try {
+              msg = this.parser.run(socket._key, msg);
+              this.broadcast.send(socket, `${header} ${channel.title}${msg}`, {
+                parse: false
+              });
+            } catch (error) {
+              log.error(error);
+            }
+          }
+        }
+      });
+    });
   }
 
   /**

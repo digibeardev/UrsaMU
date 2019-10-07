@@ -28,4 +28,6 @@ module.exports = parser => {
   parser.sub.set(/%[cCxX]M/g, "\u001b[45m");
   parser.sub.set(/%[cCxX]C/g, "\u001b[46m");
   parser.sub.set(/%[cCxX]W/g, "\u001b[47m");
+  parser.sub.set(/%[(]/g, "\u250D");
+  parser.sub.set(/%[)]/g, "\u2511");
 };

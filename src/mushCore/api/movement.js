@@ -49,7 +49,7 @@ module.exports.move = async (socket, eObj) => {
   await objData.update(newRoom._key, {
     contents: [...newRoom.contents, enactor._key]
   });
-  emitter.emit("move", { socket, exit, newRoom });
+  emitter.emit("move", { socket, exit: eObj, newRoom });
 
   broadcast.sendList(
     socket,

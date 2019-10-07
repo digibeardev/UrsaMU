@@ -56,14 +56,31 @@ class Attributes {
       const index = target.attributes.indexOf(found);
       target.attributes.splice(index, 1);
       await objData.update(target._key, { attributes: target.attributes });
-
+      return await objData.key(key);
+    } else if (!found && !value) {
+      // No change nessisary, just send back the database object.
+      return await objData.key(key);
+    } else {
       // Else if the attribute doesn't exist, set it's initial
       // value.
-    } else {
       target.attributes.push({ name, value, setBy });
       await objData.update(key, { attributes: target.attributes });
       return await objData.key(key);
     }
+  }
+
+  /**
+   * Check if an attribute exists on an object.
+   * @param {Object} tar The object to check for the attibute
+   * @param {String} name The attribute to search for.
+   */
+  has(tar, name) {
+    for (const attr of tar.attributes) {
+      if (attr.name === name.toLowerCase()) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**

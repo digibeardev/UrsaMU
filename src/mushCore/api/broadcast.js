@@ -20,32 +20,40 @@ class Broadcast {
    *
    */
   async send(socket, message, options = {}) {
-    const { scope = {}, parse = true } = options;
-    try {
-      if (parse) {
-        socket.write(
-          (await parser.run(socket._key, message, scope))
-            .replace("\u250D", "(")
-            .replace("\u2511", ")")
-            .replace(/&3/g, "[")
-            .replace(/&4/g, "]") + "\r\n"
-        );
-      } else {
-        socket.write(
-          parser
-            .subs(message)
-            .replace("\u250D", "(")
-            .replace("\u2511", ")")
-            .replace(/&3/g, "[")
-            .replace(/&4/g, "]") + "\r\n"
-        );
-      }
-    } catch (error) {
+    const { scope = {}, parse = true, en = socket._key } = options;
+
+    if (parse) {
       socket.write(
-        parser
-          .subs(message)
+        (await parser
+          .run(en, message, scope, {
+            parse: true
+          })
+          .catch(error => {
+            socket.write(
+              parser
+                .subs(message)
+                .replace("\u250D", "(")
+                .replace("\u2511", ")")
+                .replace(/┍/g, "(")
+                .replace(/┑/g, ")")
+                .replace(/&3/g, "[")
+                .replace(/&4/g, "]") + "\r\n"
+            );
+          }))
           .replace("\u250D", "(")
           .replace("\u2511", ")")
+          .replace(/┍/g, "(")
+          .replace(/┑/g, ")")
+          .replace(/&3/g, "[")
+          .replace(/&4/g, "]") + "\r\n"
+      );
+    } else {
+      socket.write(
+        message
+          .replace("\u250D", "(")
+          .replace("\u2511", ")")
+          .replace(/┍/g, "(")
+          .replace(/┑/g, ")")
           .replace(/&3/g, "[")
           .replace(/&4/g, "]") + "\r\n"
       );

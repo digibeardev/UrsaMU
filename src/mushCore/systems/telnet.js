@@ -1,4 +1,5 @@
 const net = require("net");
+const moment = require("moment");
 
 // I chose this library, because it handles the technical part
 // of working with telnet protocol bytes.  Interesting stuff
@@ -31,10 +32,17 @@ module.exports = mush => {
     })();
 
     tSocket.on("data", buffer => {
-      tSocket.timestamp = new Date().getTime() / 1000;
-      mush.queues.pQueue.push({
-        socket: tSocket,
-        data: buffer.toString("utf8")
+      let string = buffer
+        .toString("utf8")
+        .split("\r\n")
+        .filter(Boolean);
+
+      string.forEach(command => {
+        tSocket.timestamp = moment.unix();
+        mush.queues.pQueue.push({
+          socket: tSocket,
+          data: command
+        });
       });
     });
 

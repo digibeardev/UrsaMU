@@ -29,7 +29,9 @@ module.exports = mush => {
 
       if (mush.flags.canEdit(en, tar)) {
         delete tar.password;
-        mush.broadcast.send(socket, JSON.stringify(tar, null, 4));
+        mush.broadcast.send(socket, JSON.stringify(tar, null, 4), {
+          parse: false
+        });
       } else {
         mush.broadcast.send(socket, "Permission denied.");
       }

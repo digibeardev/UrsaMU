@@ -98,7 +98,7 @@ module.exports = mush => {
   });
 
   mush.cmds.set("&attribute", {
-    pattern: /^&(.*)\s+(.*)\s?=S?(.*)/i,
+    pattern: /^&([\w\-_]+)\s+([\w]+)\s?=\s?(.*)/i,
     restriction: "connected",
     run: async (socket, data) => {
       let [, attribute, target, value = ""] = data;
@@ -113,7 +113,7 @@ module.exports = mush => {
         target = await mush.db.key(target.slice(1));
         // Else it's probably a name.  Try and match it.
       } else {
-        target = awaitmush.db.get(target);
+        target = await mush.db.get(target);
       }
 
       if (await mush.flags.canEdit(enactor, target)) {

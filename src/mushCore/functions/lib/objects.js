@@ -1,9 +1,11 @@
 const moment = require("moment");
+const { has } = require("lodash");
 
 module.exports = parser => {
-  parser.funs.set("dbref", async (en, args) => {
+  parser.funs.set("dbref", async (en, args, scope) => {
+    const key = await parser.run(en, args[0], scope);
     en = await parser.db.key(en);
-    let tar = await parser.db.get(args[0]);
+    let tar = await parser.db.get(key);
     tar = tar[0];
     if (tar) {
       return "#" + tar._key;
@@ -12,16 +14,19 @@ module.exports = parser => {
     }
   });
 
-  parser.funs.set("name", async (en, args) => {
+  parser.funs.set("name", async (en, args, scope) => {
     try {
+      const name = await parser.evaluate(en, args[0], scope, { parse: true });
       en = await parser.db.key(en);
-      let tar = await parser.db.get(args[0]);
+      let tar = await parser.db.get(name);
 
       if (Array.isArray(tar)) {
         tar = tar[0] || false;
       }
 
       if (tar) {
+        tar.name = tar.name.split(";")[0];
+
         if (await parser.flags.canEdit(en, tar)) {
           return `${
             tar.moniker ? tar.moniker : tar.name
@@ -30,7 +35,7 @@ module.exports = parser => {
           return `${tar.moniker ? tar.moniker : tar.name}`;
         }
       } else {
-        return "#-1 CAN'T FIND OBJECT";
+        throw new Error("#-1 CAN'T FIND THAT ITEM");
       }
     } catch (error) {
       parser.log.error(error);
@@ -83,7 +88,7 @@ module.exports = parser => {
   });
 
   parser.funs.set("idle", async (en, args, scope) => {
-    let tar = await parser.db.get(args[0]);
+    let tar = await parser.db.get(await parser.evaluate(en, args[0], scope));
     if (Array.isArray(tar)) {
       tar = tar[0];
     }
@@ -91,41 +96,134 @@ module.exports = parser => {
     if (tar) {
       const socket = parser.queues.sockets.get(tar._key);
       if (socket) {
+        const idleEpoch = parser.queues.sockets.get(tar._key).timestamp;
         let d = new Date(0);
-        d.setUTCSeconds(socket.timestamp);
+        d.setUTCSeconds(idleEpoch);
         const idle = moment(d.toUTCString());
         const now = moment(Date.now());
-        const duration = moment.duration(now.diff(idle, "seconds"));
-        const durObj = duration._data;
-        const { seconds, minutes, hours, days, months } = durObj;
-        let output = "0s";
-
-        // figure out display
-        if (seconds) {
-          output = `${seconds}s`;
-        }
-
-        if (minutes) {
-          output = `${minutes}m ${seconds}s`;
-        }
-
-        if (hours) {
-          output = `${hours}h ${minutes}m`;
-        }
-
-        if (days) {
-          output = `${days}d ${hours}h`;
-        }
-
-        if (months) {
-          output = `${months}m ${days}d`;
-        }
-        return output;
+        return idle.from(now, true);
       } else {
         return "#-2 NOT CONNECTED";
       }
     } else {
       return "#-1 TARGET NOT FOUND";
     }
+  });
+
+  parser.funs.set("lcon", async (en, args, scope) => {
+    let tar = await parser.evaluate(en, args[0], scope);
+    en = await parser.db.key(en);
+    let type = args[1] ? await parser.evaluate(en, args[1], scope) : "";
+    type == type.toLowerCase();
+    curRoom = await parser.db.key(en.location);
+
+    // Check for target.
+    if (tar.toLowerCase() === "me") {
+      tar = en;
+    } else if (tar.toLowerCase() === "here") {
+      tar = curRoom;
+    } else {
+      tar = await parser.db.get(tar);
+      if (Array.isArray(tar)) {
+        tar = tar[0];
+      }
+      if (!parser.flags.canEdit(en, tar)) {
+        return "#-1 Permission denied.";
+      }
+    }
+
+    let contents = [];
+    // get db objects for target contents.
+    for (let item of tar.contents) {
+      item = await parser.db.key(item);
+      contents.push(item);
+    }
+
+    // if A 'type' is targeted, return objects of that type.
+    // players are checked for connected status first.
+    // TODO Add support for dark flag
+    if (tar._key) {
+      let items = [];
+
+      if (type === "things" || type === "thing") {
+        items = contents.filter(item => (item.type === "thing" ? true : false));
+      } else if (type === "players" || type === "player") {
+        items = contents.filter(item =>
+          item.type === "player" ? true : false
+        );
+      } else {
+        items = contents;
+      }
+
+      const filtered = [];
+      // Filter out not connected (and dark) players (And dark objects too)
+      for (const obj of items) {
+        if (
+          (obj.type === "player" &&
+            (await parser.flags.hasFlags(obj, "connected"))) ||
+          obj.type === "thing"
+        ) {
+          filtered.push(obj);
+        }
+      }
+
+      return filtered.map(item => "#" + item._key).join(" ");
+    } else {
+      return "#-2 I CAN'T FIND THAT OBJECT.";
+    }
+  });
+
+  parser.funs.set("lexits", async (en, args, scope) => {
+    let tar = await parser.evaluate(en, args[0], scope);
+    en = await parser.db.key(en);
+    curRoom = await parser.db.key(en.location);
+
+    // Check for target.
+    if (tar.toLowerCase() === "me") {
+      tar = en;
+    } else if (tar.toLowerCase() === "here" || tar._key === en.location) {
+      tar = curRoom;
+    } else {
+      tar = await parser.db.get(tar);
+      if (Array.isArray(tar)) {
+        tar = tar[0];
+      }
+      if (!parser.flags.canEdit(en, tar)) {
+        return "#-1 Permission denied.";
+      }
+    }
+
+    const exits = [];
+    // Get targets exits
+    for (let item of tar.exits) {
+      item = await parser.db.key(item);
+      exits.push(item);
+    }
+
+    return exits.map(exit => `#${exit._key}`).join(" ");
+  });
+
+  parser.funs.set("hasflag", async (en, args, scope) => {
+    en = await parser.db.key(en);
+    let tar = await parser.evaluate(en, args[0], scope);
+    let flag = await parser.evaluate(en, args[1], scope);
+
+    // Check for target.
+    if (tar.toLowerCase() === "me") {
+      tar = en;
+    } else if (tar.toLowerCase() === "here") {
+      tar = curRoom;
+    } else {
+      tar = await parser.db.get(tar);
+      if (Array.isArray(tar)) {
+        tar = tar[0];
+      }
+    }
+
+    if (args.length !== 2) {
+      return "#-1 HASFLAG REQUIRES 2 ARGUMENTS";
+    }
+
+    return (await parser.flags.hasFlags(tar, flag)) ? "1" : "0";
   });
 };

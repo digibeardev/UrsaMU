@@ -4,9 +4,9 @@ module.exports = mush => {
     if (mush.queues.pQueue.length > 0) {
       const { socket, data, scope = mush.scope } = mush.queues.pQueue[0];
       mush.handle(socket, data, scope);
-      mush.queues.pQueue.pop();
+      mush.queues.pQueue.shift();
     }
-  }, 10);
+  }, 15);
 
   // Registration reminding timer.
   setInterval(async () => {

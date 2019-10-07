@@ -20,8 +20,8 @@ module.exports = async (dataWrapper, next) => {
       // go through, there's an error, or if the command
       // just straight doesn't exist.
       try {
-        run(socket, match, mush.scope);
         dataWrapper.ran = true;
+        run(socket, match, mush.scope);
         mush.emitter.emit("command", match);
         next(null, dataWrapper);
       } catch (error) {
