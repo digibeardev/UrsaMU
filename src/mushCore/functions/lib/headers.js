@@ -22,8 +22,7 @@ module.exports = parser => {
     return await parser.run(
       en,
       `[center(%ch%cr<<%cn %ch${string} %cr>>%cn,78,%cr-%cn)]`,
-      scope,
-      { parse: true, en }
+      scope
     );
   });
 

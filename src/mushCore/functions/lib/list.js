@@ -1,9 +1,9 @@
 module.exports = parser => {
   parser.funs.set("itemize", async (en, args) => {
-    let list = await args[0];
-    const delim = (await args[1]) ? args[1] : " ";
-    const conj = (await args[2]) ? args[2] : "and";
-    const punc = (await args[3]) ? args[3] : ",";
+    let list = await parser.evaluate(en, args[0], scope);
+    const delim = args[1] ? await parser.evaluate(en, args[1], scope) : " ";
+    const conj = args[2] ? await parser.evaluate(en, args[2], scope) : "and";
+    const punc = args[3] ? await parser.evaluate(en, args[3], scope) : ",";
 
     list = list.split(delim);
 

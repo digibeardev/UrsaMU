@@ -71,7 +71,7 @@ module.exports = parser => {
   // Center text.
   parser.funs.set("center", async (en, args, scope) => {
     if (args.length < 2) {
-      throw new SyntaxError("center requires at least 2 arguments");
+      return "#-1 CENTER REQUIRES AT LEAST 2 ARGUMENTS";
     } else {
       const message = await parser.evaluate(en, args[0], scope);
       const width = parseInt(await parser.evaluate(en, args[1], scope));
@@ -91,7 +91,7 @@ module.exports = parser => {
           repeatString(repeat, length + remainder)
         );
       } else {
-        throw new SyntaxError("center expects length as a number.");
+        ("#-2 CENTER REQUIRES WIDTH AS A NUMBER");
       }
     }
   });
@@ -105,7 +105,7 @@ module.exports = parser => {
 
     // Check to make sure we have the right number of arguments.
     if (args.length < 2) {
-      return SyntaxError("ljust requres at least 2 arguments");
+      return "#-1 LJUST REQUIRES AT LEAST 2 ARGUMENTS";
     }
 
     // If width is an integer format the string to width using
@@ -124,7 +124,7 @@ module.exports = parser => {
 
     // Check to make sure we have the right number of arguments.
     if (args.length < 2) {
-      return SyntaxError("ljust requres at least 2 arguments");
+      return "#-1 RJUST REQUIRES AT LEAST 2 ARGUMENTS";
     }
 
     // If width is an integer format the string to width using
@@ -194,8 +194,8 @@ module.exports = parser => {
     if (args.length !== 2)
       throw new SyntaxError("Before requires 2 arguments.");
 
-    const str = args[0];
-    const split = args[1];
+    const str = await parser.evaluate(en, args[0], scope);
+    const split = await parser.evaluate(en, args[1], scope);
 
     return str.split(split.trim())[0];
   });
@@ -204,13 +204,13 @@ module.exports = parser => {
     if (args.length !== 2)
       throw new SyntaxError("Before requires 2 arguments.");
 
-    const str = args[0];
-    const split = args[1];
+    const str = await parser.evaluate(en, args[0], scope);;
+    const split = await parser.evaluate(en, args[1], scope);;
 
     return str.split(split.trim())[1];
   });
 
   parser.funs.set("uni", (en, args, scope) => {
-    return String.fromCodePoint(parseInt(args[0], 16));
+    return String.fromCodePoint(parseInt(await parser.evaluate(en, args[0], scope), 16));
   });
 };

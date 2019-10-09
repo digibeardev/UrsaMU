@@ -52,16 +52,23 @@ module.exports = mush => {
             (enactor.alias ? "(" + enactor.alias + ")" : "") +
             " " +
             data[3].slice(1)
-          : enactor.name + " " + data[3].slice(1);
+          : enactor.name +
+            (enactor.alias ? "(" + enactor.alias + ")" : "") +
+            " " +
+            data[3].slice(1);
       } else if (data[3][0] === ";") {
         message = enactor.moniker
           ? enactor.moniker +
             (enactor.alias ? "(" + enactor.alias + ")" : "") +
             data[3].slice(1)
-          : enactor.name + data[3].slice(1);
+          : enactor.name +
+            (enactor.alias ? "(" + enactor.alias + ")" : "") +
+            data[3].slice(1);
       } else {
         message = enactor.moniker
-          ? enactor.moniker
+          ? enactor.moniker +
+            (enactor.alias ? "(" + enactor.alias + ")" : "") +
+            data[3].slice(1)
           : enactor.name +
             (enactor.alias ? "(" + enactor.alias + ")" : "") +
             " pages: " +
