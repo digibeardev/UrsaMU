@@ -35,7 +35,7 @@
     "chalk": "^2.4.2",
     "clear-module": "^3.2.0",
     "dotenv": "^8.0.0",
-    "lodash": "^4.17.14",
+    "lodash": "^4.17.19",
     "mu-queue": "github:lcanady/mu-queue",
     "node-fetch": "^2.6.0",
     "sha.js": "^2.4.11",
